@@ -3,12 +3,15 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
+import { validateEnv } from './env';
+
+validateEnv();
 
 const app = express();
 app.use(express.json());
 
 // MongoDB connection
-const mongoUri = process.env.MONGO_URI || '';
+const mongoUri = process.env.MONGO_URI as string;
 mongoose
   .connect(mongoUri)
   .then(() => console.log('Connected to MongoDB'))
@@ -20,7 +23,7 @@ const authenticate: express.RequestHandler = (req, res, next) => {
   if (!header) return res.status(401).send('No token provided');
   const token = header.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
     (req as any).user = decoded;
     next();
   } catch (err) {
@@ -30,11 +33,11 @@ const authenticate: express.RequestHandler = (req, res, next) => {
 
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
+  host: process.env.SMTP_HOST as string,
+  port: parseInt(process.env.SMTP_PORT as string, 10),
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: process.env.SMTP_USER as string,
+    pass: process.env.SMTP_PASS as string,
   },
 });
 
@@ -47,8 +50,8 @@ app.post('/message', authenticate, (req, res) => {
   }
   transporter
     .sendMail({
-      from: process.env.SMTP_USER,
-      to: process.env.SMTP_USER,
+      from: process.env.SMTP_USER as string,
+      to: process.env.SMTP_USER as string,
       subject: 'New Message',
       text: result.data.message,
     })
