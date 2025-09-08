@@ -42,3 +42,16 @@
 - Each client authenticates via JWT and exchanges JSON payloads with the API server.
 - The backend interacts with MongoDB for persistence and emits emails where necessary.
 - All three parts remain decoupled, enabling independent development and deployment.
+
+## Internationalisation & Accessibility
+
+### Translation workflow
+- The React frontend uses [i18next](https://www.i18next.com/) initialised in `frontend/src/i18n.ts`.
+- Language resources live under `frontend/src/locales/<lang>/translation.json`; Swedish (`sv`) and English (`en`) files are loaded at start with Swedish as the default and English as the fallback.
+- Users can switch language at runtime through `frontend/src/components/LanguageSwitcher.tsx`, which calls `i18n.changeLanguage`.
+- To add a new language, create a matching `translation.json` under `frontend/src/locales/<code>`, import it in `i18n.ts`, and extend the language list in `LanguageSwitcher.tsx`.
+
+### WCAG 2.2 AA compliance
+- Components rely on semantic HTML, accessible ARIA attributes, and keyboard-friendly widgets (e.g. Headless UI `Listbox`).
+- Visual elements are checked for sufficient colour contrast, focus indicators remain visible, and labels use `sr-only` text where appropriate.
+- Translations include all user-facing text, ensuring screen readers announce content in the correct language.
