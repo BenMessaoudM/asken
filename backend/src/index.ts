@@ -10,6 +10,13 @@ validateEnv();
 const app = express();
 app.use(express.json());
 
+// Ensure JWT secret is provided
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  console.error('JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+
 // MongoDB connection
 const mongoUri = process.env.MONGO_URI as string;
 mongoose
@@ -23,7 +30,10 @@ const authenticate: express.RequestHandler = (req, res, next) => {
   if (!header) return res.status(401).send('No token provided');
   const token = header.split(' ')[1];
   try {
+
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+main
     (req as any).user = decoded;
     next();
   } catch (err) {
