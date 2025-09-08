@@ -5,6 +5,18 @@ import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import { validateEnv } from './env';
 
+interface DecodedToken extends jwt.JwtPayload {
+  id: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: DecodedToken;
+    }
+  }
+}
+
 validateEnv();
 
 const app = express();
@@ -19,12 +31,15 @@ mongoose
 
 // JWT authentication middleware
 const authenticate: express.RequestHandler = (req, res, next) => {
-  const header = req.headers['authorization'];
+  const header = req.header('authorization');
   if (!header) return res.status(401).send('No token provided');
-  const token = header.split(' ')[1];
+  if (!header.startsWith('Bearer ')) {
+    return res.status(401).send('Invalid token format');
+  }
+  const token = header.substring('Bearer '.length);
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    (req as any).user = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken;
+    req.user = decoded;
     next();
   } catch (err) {
     res.status(401).send('Invalid token');
