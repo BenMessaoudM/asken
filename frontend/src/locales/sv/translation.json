@@ -1,4 +1,9 @@
 {
+  "organization_name": "Arcada Studerandekår – ASK",
+  "metadata": {
+    "title": "Arcada Studerandekår – ASK",
+    "description": "Den offentliga webbplatsen för Arcada Studerandekår – ASK"
+  },
   "welcome": "Välkommen",
   "click_me": "Klicka mig"
 }

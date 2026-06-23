@@ -1,0 +1,88 @@
+import { randomUUID } from 'crypto';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express, { NextFunction, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoose from 'mongoose';
+import { z } from 'zod';
+import { CmsService } from './cms/types';
+import { createContentRouter } from './cms/routes/contentRoutes';
+import { Env } from './env';
+import { createCorsOptions } from './http/cors';
+import { AppError, errorHandler, notFoundHandler } from './http/errors';
+import { createAuthMiddleware } from './identity/middleware/auth';
+import { createAdminRouter } from './identity/routes/adminRoutes';
+import { createAuthRouter } from './identity/routes/authRoutes';
+import { IdentityService } from './identity/types';
+
+export interface AppDependencies {
+  env: Env;
+  identityService: IdentityService;
+  cmsService: CmsService;
+  isReady?: () => boolean;
+  sendMessage?: (message: string) => Promise<void>;
+}
+
+const messageSchema = z.object({ message: z.string().trim().min(1).max(5000) });
+
+export function createApp({
+  env,
+  identityService,
+  cmsService,
+  isReady = () => mongoose.connection.readyState === 1,
+  sendMessage = async () => undefined,
+}: AppDependencies) {
+  const app = express();
+  const { requireAuth } = createAuthMiddleware(identityService, env);
+
+  app.disable('x-powered-by');
+  app.set('trust proxy', 1);
+  app.use(helmet());
+  app.use(cors(createCorsOptions(env)));
+  app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser());
+  app.use((request, response, next) => {
+    const requestId = request.header('x-request-id') || randomUUID();
+    response.locals.requestId = requestId;
+    response.setHeader('x-request-id', requestId);
+    next();
+  });
+
+  app.get('/api/v1/health', (_request, response) => {
+    response.status(200).json({ data: { status: 'ok', service: 'asken-backend', apiVersion: 'v1' } });
+  });
+  app.get('/api/v1/readiness', (_request, response) => {
+    const ready = isReady();
+    response.status(ready ? 200 : 503).json({ data: { status: ready ? 'ready' : 'not_ready', dependencies: { database: ready ? 'connected' : 'disconnected' } } });
+  });
+
+  app.use(
+    '/api/v1/auth',
+    rateLimit({ windowMs: 15 * 60 * 1000, limit: env.NODE_ENV === 'test' ? 1000 : 100, standardHeaders: 'draft-8', legacyHeaders: false }),
+    createAuthRouter(identityService, env),
+  );
+  app.use('/api/v1/admin/content', createContentRouter(cmsService, identityService, env));
+  app.use('/api/v1/admin', createAdminRouter(identityService, env));
+
+  const messageHandler = async (request: Request, response: Response, next: NextFunction) => {
+    const result = messageSchema.safeParse(request.body);
+    if (!result.success) return next(new AppError(400, 'VALIDATION_ERROR', 'Request validation failed', result.error.flatten()));
+    try {
+      await sendMessage(result.data.message);
+      return response.status(200).json({ data: { status: 'sent' } });
+    } catch {
+      return next(new AppError(502, 'EMAIL_DELIVERY_FAILED', 'Message delivery failed'));
+    }
+  };
+  app.post('/api/v1/messages', requireAuth, messageHandler);
+  app.post('/message', requireAuth, (request, response, next) => {
+    response.setHeader('deprecation', 'true');
+    response.setHeader('link', '</api/v1/messages>; rel="successor-version"');
+    return messageHandler(request, response, next);
+  });
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+  return app;
+}

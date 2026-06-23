@@ -1,67 +1,30 @@
-# asken
+# Arcada Student Union – ASK
 
-ASKen is a monorepo that houses the server and client applications for the project.
-It includes an Express/TypeScript backend and two Vite + React frontends.
+The Arcada Student Union – ASK platform contains an Express/TypeScript backend, public React frontend, and React administration application.
 
-- `frontend/` – user-facing application.
-- `admin/` – administrative interface with basic authentication and management dashboard.
-- `backend/` – REST API and business logic.
+## Setup
 
-## Overview
+Prerequisites: Node.js 20+, npm, MongoDB, and SMTP.
 
-The backend exposes endpoints used by both the user and admin clients.  Each
-frontend is built with Vite and communicates with the backend through the
-configured URLs.  Development servers run locally, while production builds can be
-served from any static host.
-
-## Installation
-
-### Prerequisites
-- Node.js (version 18 or later)
-- npm
-
-### Environment variables
-Configuration for all components is defined in `.env`.
-
-1. Copy the example file and adjust values as needed:
-   ```sh
-   cp .env.example .env
-   ```
-2. The file covers server ports and URLs for the backend, user frontend and
-   admin dashboard, along with database, authentication, email and contact
-   settings.  For a complete list see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md).
-
-### Backend
 ```sh
-cd backend
-npm install
-npm run dev    # starts the API with ts-node
-```
-For a production build:
-```sh
-npm run build
-npm start
+cp .env.example .env
+cd backend && npm ci && npm run migrate && npm run seed
+cd ../frontend && npm ci
+cd ../admin && npm ci
 ```
 
-### Frontend
+Use strong independent JWT secrets and a policy-compliant initial Super Admin password in `.env`. Start each package with `npm run dev` from its directory.
+
+## Authentication
+
+The admin application uses HttpOnly access and rotating refresh cookies. Tokens are not stored in localStorage. Users, roles, permissions, refresh sessions, and audit events are persisted in MongoDB. See `docs/AUTHENTICATION.md` and `docs/API_CONTRACT.md`.
+
+## Validation
+
 ```sh
-cd frontend
-npm install
-npm run dev    # starts the user-facing site
+cd backend && npm run typecheck && npm test && npm run build
+cd ../frontend && npm run build
+cd ../admin && npm run build
 ```
 
-### Admin
-```sh
-cd admin
-npm install
-npm run dev    # starts the admin dashboard
-```
-
-## Documentation
-- Project requirements: [docs/ASKen_Cahier_des_Charges_v1.1.pdf](docs/ASKen_Cahier_des_Charges_v1.1.pdf)
-- Additional documentation can be found in the `docs/` directory, including
-  [ARCHITECTURE](docs/ARCHITECTURE.md) and [API contract](docs/API_CONTRACT.md).
-
-## License
-This project is licensed under the [MIT License](LICENSE).
-
+GitHub Actions also runs production dependency audits. The project is licensed under the [MIT License](LICENSE).

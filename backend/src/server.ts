@@ -1,0 +1,26 @@
+import mongoose from 'mongoose';
+import nodemailer from 'nodemailer';
+import { createApp } from './app';
+import { MongooseContentService } from './cms/services/mongooseContentService';
+import { loadEnv } from './env';
+import { MongooseIdentityService } from './identity/services/mongooseIdentityService';
+
+export async function startServer() {
+  const env = loadEnv();
+  await mongoose.connect(env.MONGO_URI);
+  const transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    ...(env.SMTP_AUTH ? { auth: { user: env.SMTP_USER, pass: env.SMTP_PASS } } : {}),
+  });
+  const app = createApp({
+    env,
+    identityService: new MongooseIdentityService(env),
+    cmsService: new MongooseContentService(),
+    sendMessage: async (message) => {
+      await transporter.sendMail({ from: env.SMTP_USER, to: env.SMTP_USER, subject: 'New Message', text: message });
+    },
+  });
+  return app.listen(env.PORT, () => console.log(`Server listening on port ${env.PORT}`));
+}

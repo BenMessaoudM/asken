@@ -1,4 +1,9 @@
 {
+  "organization_name": "Arcada Student Union – ASK",
+  "metadata": {
+    "title": "Arcada Student Union – ASK",
+    "description": "The public website of Arcada Student Union – ASK"
+  },
   "welcome": "Welcome",
   "click_me": "Click me"
 }

@@ -1,88 +1,52 @@
 # API Contract
 
-This document describes the HTTP API exposed by the backend.
+All supported endpoints use `/api/v1`. Responses include `X-Request-Id`. Successful responses use `{ "data": ... }`; errors use `{ "error": { "code", "message", "details?", "requestId" } }`.
 
-## Authentication
+## Authentication Cookies
 
-All protected endpoints require a JSON Web Token (JWT) in the `Authorization` header:
+Successful login and refresh responses set:
 
-```
-Authorization: Bearer <token>
-```
+- `ask_access`: HttpOnly access JWT, path `/`, default lifetime 15 minutes.
+- `ask_refresh`: HttpOnly rotating refresh JWT, path `/api/v1/auth`, default lifetime 7 days.
 
-Tokens are created during the login flow and verified on each request using the `jsonwebtoken` library and the `JWT_SECRET` environment variable. A missing or invalid token results in a `401 Unauthorized` response.
+Both cookies are SameSite=Lax and Secure in production. Browser clients must send requests with credentials enabled. Bearer access tokens remain supported for non-browser clients.
 
-### Login Flow
+## Authentication Endpoints
 
-`POST /auth/login`
+- `POST /api/v1/auth/login` authenticates credentials and sets both cookies.
+- `POST /api/v1/auth/refresh` rotates the refresh token and returns the current user.
+- `POST /api/v1/auth/logout` revokes the current refresh session and clears cookies.
+- `GET /api/v1/auth/me` returns the authenticated user, roles, and permissions.
+- `POST /api/v1/auth/change-password` validates policy, changes the password, and revokes sessions.
 
-Obtains a JWT for subsequent requests.
+## Administrative Endpoints
 
-- **Request Body** – validated with Zod:
+Every endpoint below requires authentication and backend permission middleware.
 
-```ts
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
-});
-```
+| Method and path | Permission | Purpose |
+| --- | --- | --- |
+| `GET /api/v1/admin/users` | `users.read` | List users and assigned roles |
+| `POST /api/v1/admin/users` | `users.write` | Create a user with bcrypt-hashed password |
+| `PATCH /api/v1/admin/users/:id` | `users.write` | Change roles or active/disabled status |
+| `GET /api/v1/admin/roles` | `roles.read` | List roles and mapped permissions |
+| `POST /api/v1/admin/roles` | `roles.write` | Create a role |
+| `PUT /api/v1/admin/roles/:id/permissions` | `roles.write` | Replace role-permission mappings |
+| `GET /api/v1/admin/permissions` | `roles.read` | List available permissions |
+| `GET /api/v1/admin/content?type=:type` | `content.read` | List content, optionally filtered by type |
+| `POST /api/v1/admin/content` | `content.write` | Create a draft content item |
+| `GET /api/v1/admin/content/:id` | `content.read` | Read content and structured sections |
+| `PUT /api/v1/admin/content/:id` | `content.write` | Save a new draft version |
+| `DELETE /api/v1/admin/content/:id` | `content.write` | Delete content, sections, and versions |
+| `POST /api/v1/admin/content/:id/publish` | `content.write` | Publish the expected version |
+| `GET /api/v1/admin/content/:id/versions` | `content.read` | List immutable version metadata |
 
-Example:
+Content types are `page`, `news`, `event`, `cor_activity`, `governance_document`, and `collaboration`. Create and update requests include `contentType`, `title`, optional `slug`, and structured `sections`. Updates and publishing require `expectedVersion`; stale writes return `409 VERSION_CONFLICT`.
 
-```json
-{
-  "email": "user@example.com",
-  "password": "secret123"
-}
-```
+## Operational Endpoints
 
-- **Response**:
+- `GET /api/v1/health` returns liveness.
+- `GET /api/v1/readiness` returns MongoDB readiness.
 
-```json
-{
-  "token": "<jwt>"
-}
-```
+## Messages
 
-Clients should store the token and include it in the `Authorization` header for protected routes.
-
-## Endpoints
-
-### `POST /message`
-
-Sends a message that will be forwarded by email.
-
-- **Auth**: Required.
-- **Request Body** – validated with Zod:
-
-```ts
-const messageSchema = z.object({
-  message: z.string()
-});
-```
-
-Example:
-
-```json
-{
-  "message": "Hello there!"
-}
-```
-
-- **Responses**:
-  - `200 OK` – `{ "status": "sent" }`
-  - `400 Bad Request` – Zod validation errors formatted using `error.flatten()`
-  - `401 Unauthorized` – `No token provided` or `Invalid token`
-  - `500 Internal Server Error` – `{ "error": "email error", "details": "<reason>" }`
-
-### Error Format
-
-Validation errors follow the structure produced by [`zod`](https://zod.dev) `error.flatten()`:
-
-```json
-{
-  "fieldErrors": { "message": ["Required"] },
-  "formErrors": []
-}
-```
-
+`POST /api/v1/messages` requires authentication. Request: `{ "message": "Hello" }`. The legacy `/message` path remains deprecated.

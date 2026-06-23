@@ -18,7 +18,7 @@
     "react-router-dom": "^6.22.1"
   },
   "devDependencies": {
-    "@headlessui/tailwindcss": "^0.1.6",
+    "@headlessui/tailwindcss": "^0.2.2",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.2.0",
