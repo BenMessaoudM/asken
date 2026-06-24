@@ -21,3 +21,20 @@ Supported content types are Page, News, Event, Cor Activity, Governance Document
 Saving content increments its optimistic-lock version and returns it to draft state. Publishing also increments the version and records `publishedAt`. Slugs are unique within a content type, allowing different types to reuse a human-readable slug. Deleting content also removes its sections and version history.
 
 Structured section types are Hero, Text, Image, CTA, and FAQ. Section positions are unique and contiguous from zero.
+
+## News and Blog Entities
+
+- **News article:** one-to-one specialization of a CMS `Content` record. It stores English and Swedish title, summary, body, image metadata, category references, tag references, featured state, and optional scheduled publication time.
+- **News category:** unique slug and required English/Swedish labels.
+- **News tag:** unique slug and required English/Swedish labels.
+- **News article version:** immutable snapshot of localized article metadata and taxonomy aligned with the CMS content version.
+
+CMS content remains the source of truth for slug, draft/published lifecycle, optimistic version number, and publication timestamp. Public queries require `status=published` and `publishedAt` not later than the current time. Generic CMS mutation routes reject News records so specialized metadata cannot be bypassed.
+
+## Event Entities
+
+- **Event:** one-to-one CMS specialization with bilingual title, description, organizer, location, and image alternative text; shared image, start/end timestamps, Kide.app URL, featured state, operational status, and category reference.
+- **Event category:** unique slug with English and Swedish labels.
+- **Event version:** immutable event metadata snapshot aligned with CMS versions.
+
+Publication status remains in CMS. Event operational status is `scheduled`, `postponed`, or `cancelled`; upcoming/past status is derived from the end timestamp. Epic 6 records use `cmsevents` to avoid modifying an existing legacy `events` collection.

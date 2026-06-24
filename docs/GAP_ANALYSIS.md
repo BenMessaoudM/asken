@@ -1,5 +1,9 @@
 # Arcada Student Union – ASK Platform Gap Analysis
 
+> **Deprecated — historical baseline only (2026-06-24).**
+>
+> This document describes the repository before the current identity, CMS, News, and Events implementation. Its implementation claims and priorities are stale. Use `docs/PROJECT_STATUS.md` for audited current status, `docs/TASK_BACKLOG.md` for canonical Epic acceptance criteria, and `docs/PROJECT_MASTER_SPEC.md` for product requirements.
+
 ## 1. Executive Summary
 
 The repository provides a useful technical scaffold but not yet a production platform. It has separate TypeScript packages for a public React frontend, React admin frontend, and Express backend. Basic English/Swedish localization, environment validation, JWT middleware, MongoDB initialization, email delivery, and a protected admin route are present.

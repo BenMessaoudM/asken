@@ -2,7 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
+@layer base {
+  :root {
+    color-scheme: light;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #faf7f9;
+    color: #23212b;
+  }
+
+  html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: radial-gradient(circle at 10% 0%, rgba(203, 82, 181, 0.08), transparent 28rem), #faf7f9;
+  }
+
+  button, input, select, textarea { font: inherit; }
+  :focus-visible { outline: 3px solid #e0c13d; outline-offset: 3px; }
+  ::selection { background: #cb52b5; color: white; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root { color-scheme: dark; background: #17161c; color: #f8f4f7; }
+    body { background: radial-gradient(circle at 10% 0%, rgba(203, 82, 181, 0.12), transparent 28rem), #17161c; }
+  }
+}
+
+@layer components {
+  .ask-container { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+  .ask-card { @apply rounded-3xl border border-black/5 bg-white shadow-soft transition duration-300 dark:border-white/10 dark:bg-white/[0.055]; }
+  .ask-card-hover { @apply hover:-translate-y-1 hover:border-ask-400/40 hover:shadow-glow; }
+  .ask-button-primary { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-ask-600 px-6 py-3 font-bold text-white shadow-glow transition hover:bg-ask-700; }
+  .ask-button-secondary { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-black/10 bg-white/90 px-6 py-3 font-bold text-ask-ink transition hover:border-ask-400 hover:bg-ask-50 dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15; }
+  .ask-eyebrow { @apply text-sm font-extrabold uppercase tracking-[0.18em] text-ask-600 dark:text-ask-400; }
 }

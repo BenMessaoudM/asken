@@ -10,7 +10,7 @@ export const localDevelopmentOrigins = [
 
 export function getAllowedOrigins(env: Env): string[] {
   const configured = [env.FRONTEND_URL, env.ADMIN_URL];
-  return [...new Set(env.NODE_ENV === 'development'
+  return [...new Set(env.NODE_ENV !== 'production'
     ? [...configured, ...localDevelopmentOrigins]
     : configured)];
 }
@@ -21,6 +21,8 @@ export function createCorsOptions(env: Env): CorsOptions {
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+    optionsSuccessStatus: 204,
+    preflightContinue: false,
     origin(origin, callback) {
       if (!origin || allowedOrigins.has(origin)) {
         callback(null, true);

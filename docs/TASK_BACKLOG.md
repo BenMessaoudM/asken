@@ -2,6 +2,25 @@
 
 This backlog translates `PROJECT_MASTER_SPEC.md` and `GAP_ANALYSIS.md` into implementable product work. Epics are ordered broadly by dependency. Estimates include implementation, tests, documentation, accessibility, and bilingual completion.
 
+**Status authority:** This document defines canonical Epic numbering, scope, and acceptance criteria. Current implementation status and completion estimates are maintained in `PROJECT_STATUS.md`.
+
+## Audited Status Summary — 2026-06-24
+
+| Epic | Status |
+| --- | --- |
+| Epic 1 — Platform Foundation and API Standards | Completed |
+| Epic 2 — Identity, Authentication, and Authorization | Partial |
+| Epic 3 — Bilingual Content and Localization | Partial |
+| Epic 4 — ASK Design System and Public Website | Partial |
+| Epic 5 — Backoffice Content Management | Partial |
+| Epic 6 — News and Blog | Partial |
+| Epic 7 — Events | Partial |
+| Epics 8–16 | Not started as product capabilities |
+| Epic 17 — WCAG 2.1 AA Accessibility | Partial |
+| Epic 18 — Testing, Delivery, and Production Operations | Partial |
+
+Partial implementations do not satisfy the complete acceptance criteria or the master specification’s Definition of Done. See `PROJECT_STATUS.md` for evidence, percentages, gaps, and verification results.
+
 **Estimate scale:** 1 story point (SP) is roughly one focused developer day. Estimates are planning ranges, not commitments.
 
 ## Epic 1 — Platform Foundation and API Standards

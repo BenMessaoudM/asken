@@ -1,5 +1,9 @@
 # Architecture Status
 
+> **Deprecated — superseded on 2026-06-24.**
+>
+> This snapshot is retained for history but no longer reflects the worktree. Use `docs/PROJECT_STATUS.md`, which was produced from a code, migration, test, and build audit.
+
 ## Current Completion
 
 **Estimated project completion: 23%.**

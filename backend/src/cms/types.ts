@@ -65,6 +65,6 @@ export interface CmsService {
   createContent(input: { contentType: ContentType; title: string; slug?: string; sections: ContentSectionInput[] }, actor: AuthPrincipal, context: RequestContext): Promise<ManagedContent>;
   updateContent(input: { contentId: string; contentType: ContentType; title: string; slug?: string; sections: ContentSectionInput[]; expectedVersion: number }, actor: AuthPrincipal, context: RequestContext): Promise<ManagedContent>;
   deleteContent(contentId: string, actor: AuthPrincipal, context: RequestContext): Promise<void>;
-  publishContent(contentId: string, expectedVersion: number, actor: AuthPrincipal, context: RequestContext): Promise<ManagedContent>;
+  publishContent(contentId: string, expectedVersion: number, actor: AuthPrincipal, context: RequestContext, publishAt?: Date): Promise<ManagedContent>;
   listVersions(contentId: string): Promise<ContentVersionSummary[]>;
 }

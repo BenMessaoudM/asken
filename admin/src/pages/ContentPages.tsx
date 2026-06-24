@@ -15,7 +15,7 @@ export default function ContentPages() {
   const load = async (contentFilter = filter) => {
     const query = contentFilter === 'all' ? '' : `?type=${encodeURIComponent(contentFilter)}`
     const result = await apiRequest<{ data: { contents: ContentSummary[] } }>(`/admin/content${query}`)
-    setContents(result.data.contents)
+    setContents(result.data.contents.filter((content) => !['news', 'event'].includes(content.contentType)))
   }
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function ContentPages() {
         <label htmlFor="content-filter" className="text-sm font-semibold">Content type</label>
         <select id="content-filter" value={filter} onChange={(event) => setFilter(event.target.value as ContentFilter)} className="rounded-xl border px-3 py-2 dark:border-white/15 dark:bg-ask-ink">
           <option value="all">All types</option>
-          {contentTypes.map((type) => <option key={type} value={type}>{contentTypeLabels[type]}</option>)}
+          {contentTypes.filter((type) => !['news', 'event'].includes(type)).map((type) => <option key={type} value={type}>{contentTypeLabels[type]}</option>)}
         </select>
       </div>
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-red-800">{error}</p>}

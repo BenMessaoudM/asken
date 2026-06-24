@@ -1,5 +1,9 @@
 # Arcada Student Union – ASK Platform Roadmap
 
+> **Deprecated as a project tracker (2026-06-24).**
+>
+> This original sequencing plan is retained for historical context. Its quick wins, phase state, and completion estimate are stale. Use `docs/PROJECT_STATUS.md` for current implementation status and `docs/TASK_BACKLOG.md` for the canonical delivery backlog.
+
 This roadmap converts the findings in `docs/GAP_ANALYSIS.md` into an implementation sequence. Estimates assume a small product team and require all features to support English and Swedish, WCAG 2.1 AA, backend-enforced permissions, and documented GDPR behavior.
 
 ## 1. Quick Wins (Less Than 1 Day Each)
@@ -65,7 +69,9 @@ This roadmap converts the findings in `docs/GAP_ANALYSIS.md` into an implementat
 
 ## 5. Estimated Current Completion
 
-**Estimated completion: 12%.**
+**Deprecated estimate: 12%.**
+
+The audited completion estimate as of 2026-06-24 is maintained in `docs/PROJECT_STATUS.md`. Do not use the figures below for current reporting.
 
 The estimate reflects available scaffolding rather than production readiness:
 

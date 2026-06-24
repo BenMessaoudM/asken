@@ -1,9 +1,138 @@
 {
   "organization_name": "Arcada Student Union – ASK",
+  "brand": { "subtitle": "Arcada Student Union" },
   "metadata": {
-    "title": "Arcada Student Union – ASK",
-    "description": "The public website of Arcada Student Union – ASK"
+    "title": "ASK – Your student community at Arcada",
+    "description": "Discover events, news, membership and student life at Arcada Student Union – ASK."
   },
-  "welcome": "Welcome",
-  "click_me": "Click me"
+  "accessibility": {
+    "skip_to_content": "Skip to main content",
+    "language": "Select language"
+  },
+  "navigation": {
+    "main": "Main navigation",
+    "mobile": "Mobile navigation",
+    "home": "Home",
+    "cor": "At Cor",
+    "membership": "Membership",
+    "contact": "Contact",
+    "join": "Join ASK",
+    "open": "Open navigation",
+    "close": "Close navigation"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Student life starts here",
+      "title": "More community. More opportunities. More student life.",
+      "description": "ASK represents Arcada students, creates memorable experiences and makes everyday student life easier — in English and Swedish.",
+      "primary": "Become a member",
+      "secondary": "Explore events",
+      "points": {
+        "community": {
+          "title": "Find your community",
+          "description": "Meet people, join activities and make Arcada feel like home."
+        },
+        "events": {
+          "title": "Never miss what is next",
+          "description": "Discover upcoming events, gatherings and student experiences."
+        },
+        "voice": {
+          "title": "Make your voice heard",
+          "description": "ASK advocates for students and helps improve life at Arcada."
+        }
+      }
+    },
+    "news": {
+      "eyebrow": "Latest from ASK",
+      "title": "News worth knowing",
+      "description": "Updates, opportunities and practical information for your studies and student life.",
+      "all": "View all news",
+      "error": "Latest news is temporarily unavailable.",
+      "empty": "New stories are on the way."
+    },
+    "events": {
+      "eyebrow": "Meet, learn and celebrate",
+      "title": "Upcoming events",
+      "description": "See what is happening next and find your place in the ASK community.",
+      "all": "View all events",
+      "error": "Upcoming events are temporarily unavailable.",
+      "empty": "There are no upcoming events published yet."
+    },
+    "preview": "Coming next",
+    "cor": {
+      "eyebrow": "What's happening at Cor",
+      "title": "Your campus living room",
+      "description": "A live view of today's and this week's activity at Cor is being prepared. Until then, explore ASK's published events.",
+      "action": "Browse events"
+    },
+    "collaborations": {
+      "eyebrow": "Student benefits",
+      "title": "Collaborations that give more",
+      "description": "A curated directory of ASK partners and member benefits is coming soon. Interested organizations can already contact us.",
+      "action": "Contact ASK"
+    },
+    "membership": {
+      "eyebrow": "Belong to something bigger",
+      "title": "Join ASK and shape student life",
+      "description": "Membership connects you to the community, supports student advocacy and opens the door to ASK activities and benefits.",
+      "action": "Join through Kide.app"
+    }
+  },
+  "contact": {
+    "eyebrow": "We are here for you",
+    "title": "Talk to ASK",
+    "description": "Have a question, an idea or need support? Reach the student union through the channel that works for you.",
+    "general": "General enquiries",
+    "instagram": "Follow student life",
+    "visit": "Visit us",
+    "location": "Cor House, Arcada campus, Helsinki"
+  },
+  "footer": {
+    "description": "ASK represents and connects Arcada students through advocacy, services, events and community.",
+    "explore": "Explore",
+    "contact": "Contact",
+    "harassment": "Harassment contact"
+  },
+  "news": {
+    "navigation": "News",
+    "title": "News & Blog",
+    "intro": "Updates, stories, and practical information from Arcada Student Union – ASK.",
+    "search": "Search",
+    "search_placeholder": "Search news",
+    "all_categories": "All categories",
+    "featured": "Featured article",
+    "read_more": "Read article",
+    "loading": "Loading news…",
+    "load_error": "News could not be loaded.",
+    "empty": "No articles match your search.",
+    "not_found": "The article could not be found.",
+    "back": "Back to news"
+  },
+  "events": {
+    "navigation": "Events",
+    "title": "Events",
+    "intro": "Upcoming and past events from Arcada Student Union – ASK.",
+    "search": "Search",
+    "search_placeholder": "Search events",
+    "all_categories": "All categories",
+    "upcoming": "Upcoming events",
+    "past": "Past events",
+    "featured": "Featured event",
+    "empty": "No events found.",
+    "loading": "Loading events…",
+    "error": "Events could not be loaded.",
+    "back": "Back to events",
+    "organizer": "Organizer",
+    "location": "Location",
+    "tickets": "Open Kide.app",
+    "cancelled": "Cancelled",
+    "postponed": "Postponed"
+  },
+  "not_found": {
+    "eyebrow": "Page not found",
+    "title": "This page has left the party.",
+    "description": "The address may be incorrect or the page may have moved. Head back home or see what is happening next.",
+    "home": "Go to homepage",
+    "events": "Browse events"
+  }
 }

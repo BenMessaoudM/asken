@@ -123,11 +123,11 @@ export class MongooseContentService implements CmsService {
     });
   }
 
-  async publishContent(contentId: string, expectedVersion: number, actor: AuthPrincipal, context: RequestContext): Promise<ManagedContent> {
+  async publishContent(contentId: string, expectedVersion: number, actor: AuthPrincipal, context: RequestContext, publishAt = new Date()): Promise<ManagedContent> {
     this.assertContentId(contentId);
     const content = await ContentModel.findOneAndUpdate(
       { _id: contentId, version: expectedVersion },
-      { $set: { status: 'published', publishedAt: new Date(), updatedBy: actor.userId }, $inc: { version: 1 } },
+      { $set: { status: 'published', publishedAt: publishAt, updatedBy: actor.userId }, $inc: { version: 1 } },
       { new: true },
     ).lean() as unknown as LeanContent | null;
     if (!content) await this.throwVersionOrNotFound(contentId);

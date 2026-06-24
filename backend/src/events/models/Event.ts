@@ -1,0 +1,5 @@
+import { model, Schema, Types } from 'mongoose';
+const translation = new Schema({ title:{type:String,required:true}, description:{type:String,required:true}, organizer:{type:String,required:true}, location:{type:String,required:true}, imageAlt:String },{_id:false});
+const schema = new Schema({ contentId:{type:Types.ObjectId,ref:'Content',required:true,unique:true}, translations:{en:{type:translation,required:true},sv:{type:translation,required:true}}, imageUrl:String, startAt:{type:Date,required:true,index:true}, endAt:{type:Date,required:true,index:true}, categoryId:{type:Types.ObjectId,ref:'EventCategory',required:true,index:true}, eventStatus:{type:String,enum:['scheduled','postponed','cancelled'],default:'scheduled',index:true}, featured:{type:Boolean,default:false,index:true}, kideAppUrl:String, schemaVersion:{type:Number,default:1} },{timestamps:true});
+schema.index({'translations.en.title':'text','translations.en.description':'text','translations.sv.title':'text','translations.sv.description':'text'});
+export const EventModel=model('Event',schema,'cmsevents');

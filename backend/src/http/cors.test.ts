@@ -1,5 +1,5 @@
 import { Env } from '../env';
-import { getAllowedOrigins } from './cors';
+import { createCorsOptions, getAllowedOrigins } from './cors';
 
 const baseEnv = {
   NODE_ENV: 'development', PORT: 3000, MONGO_URI: 'mongodb://localhost/test',
@@ -18,9 +18,17 @@ describe('CORS origin allowlist', () => {
     ]));
   });
 
-  it('does not add development origins in production', () => {
+  it('does not add local origins in production', () => {
     expect(getAllowedOrigins({ ...baseEnv, NODE_ENV: 'production' })).toEqual([
       'https://public.example.com', 'https://admin.example.com',
     ]);
+  });
+
+  it('terminates successful preflight requests with 204', () => {
+    expect(createCorsOptions(baseEnv)).toMatchObject({
+      credentials: true,
+      optionsSuccessStatus: 204,
+      preflightContinue: false,
+    });
   });
 });

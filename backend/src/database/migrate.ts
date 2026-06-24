@@ -4,6 +4,8 @@ import { platformFoundationMigration } from './migrations/001-platform-foundatio
 import { identityRbacMigration } from './migrations/002-identity-rbac';
 import { cmsFoundationMigration } from './migrations/003-cms-foundation';
 import { genericContentFoundationMigration } from './migrations/004-generic-content-foundation';
+import { newsBlogMigration } from './migrations/005-news-blog';
+import { eventsManagementMigration } from './migrations/006-events-management';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -11,6 +13,8 @@ const migrations: Migration[] = [
   identityRbacMigration,
   cmsFoundationMigration,
   genericContentFoundationMigration,
+  newsBlogMigration,
+  eventsManagementMigration,
 ];
 
 export async function runMigrations() {

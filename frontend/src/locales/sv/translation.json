@@ -1,9 +1,138 @@
 {
   "organization_name": "Arcada Studerandekår – ASK",
+  "brand": { "subtitle": "Arcada Studerandekår" },
   "metadata": {
-    "title": "Arcada Studerandekår – ASK",
-    "description": "Den offentliga webbplatsen för Arcada Studerandekår – ASK"
+    "title": "ASK – Din studerandegemenskap vid Arcada",
+    "description": "Upptäck evenemang, nyheter, medlemskap och studieliv hos Arcada Studerandekår – ASK."
   },
-  "welcome": "Välkommen",
-  "click_me": "Klicka mig"
+  "accessibility": {
+    "skip_to_content": "Hoppa till huvudinnehållet",
+    "language": "Välj språk"
+  },
+  "navigation": {
+    "main": "Huvudnavigation",
+    "mobile": "Mobilnavigation",
+    "home": "Hem",
+    "cor": "På Cor",
+    "membership": "Medlemskap",
+    "contact": "Kontakt",
+    "join": "Bli medlem",
+    "open": "Öppna navigationen",
+    "close": "Stäng navigationen"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Studielivet börjar här",
+      "title": "Mer gemenskap. Fler möjligheter. Mer studieliv.",
+      "description": "ASK representerar Arcadas studerande, skapar minnesvärda upplevelser och gör studievardagen enklare – på svenska och engelska.",
+      "primary": "Bli medlem",
+      "secondary": "Se evenemang",
+      "points": {
+        "community": {
+          "title": "Hitta din gemenskap",
+          "description": "Träffa människor, delta i aktiviteter och gör Arcada till ditt andra hem."
+        },
+        "events": {
+          "title": "Missa aldrig vad som händer",
+          "description": "Upptäck kommande evenemang, träffar och studerandeupplevelser."
+        },
+        "voice": {
+          "title": "Gör din röst hörd",
+          "description": "ASK bevakar studerandes intressen och förbättrar vardagen vid Arcada."
+        }
+      }
+    },
+    "news": {
+      "eyebrow": "Senaste från ASK",
+      "title": "Nyheter värda att känna till",
+      "description": "Aktuellt, möjligheter och praktisk information för dina studier och ditt studieliv.",
+      "all": "Se alla nyheter",
+      "error": "De senaste nyheterna är tillfälligt otillgängliga.",
+      "empty": "Nya berättelser är på väg."
+    },
+    "events": {
+      "eyebrow": "Möt, lär och fira",
+      "title": "Kommande evenemang",
+      "description": "Se vad som händer härnäst och hitta din plats i ASK-gemenskapen.",
+      "all": "Se alla evenemang",
+      "error": "Kommande evenemang är tillfälligt otillgängliga.",
+      "empty": "Inga kommande evenemang har publicerats ännu."
+    },
+    "preview": "På kommande",
+    "cor": {
+      "eyebrow": "Vad händer på Cor",
+      "title": "Ditt vardagsrum på campus",
+      "description": "En aktuell vy över dagens och veckans aktiviteter på Cor förbereds. Tills dess kan du utforska ASK:s publicerade evenemang.",
+      "action": "Se evenemang"
+    },
+    "collaborations": {
+      "eyebrow": "Studerandeförmåner",
+      "title": "Samarbeten som ger mer",
+      "description": "En samlad katalog över ASK:s partner och medlemsförmåner är på kommande. Intresserade organisationer kan redan kontakta oss.",
+      "action": "Kontakta ASK"
+    },
+    "membership": {
+      "eyebrow": "Var en del av något större",
+      "title": "Bli medlem och forma studielivet",
+      "description": "Medlemskapet kopplar dig till gemenskapen, stöder intressebevakningen och öppnar dörren till ASK:s aktiviteter och förmåner.",
+      "action": "Bli medlem via Kide.app"
+    }
+  },
+  "contact": {
+    "eyebrow": "Vi finns här för dig",
+    "title": "Prata med ASK",
+    "description": "Har du en fråga, en idé eller behöver du stöd? Nå studerandekåren via den kanal som passar dig.",
+    "general": "Allmänna frågor",
+    "instagram": "Följ studielivet",
+    "visit": "Besök oss",
+    "location": "Cor-huset, Arcadas campus, Helsingfors"
+  },
+  "footer": {
+    "description": "ASK representerar och förenar Arcadas studerande genom intressebevakning, service, evenemang och gemenskap.",
+    "explore": "Utforska",
+    "contact": "Kontakt",
+    "harassment": "Trakasserikontakt"
+  },
+  "news": {
+    "navigation": "Nyheter",
+    "title": "Nyheter & blogg",
+    "intro": "Aktuellt, berättelser och praktisk information från Arcada Studerandekår – ASK.",
+    "search": "Sök",
+    "search_placeholder": "Sök nyheter",
+    "all_categories": "Alla kategorier",
+    "featured": "Utvald artikel",
+    "read_more": "Läs artikeln",
+    "loading": "Laddar nyheter…",
+    "load_error": "Nyheterna kunde inte laddas.",
+    "empty": "Inga artiklar matchar din sökning.",
+    "not_found": "Artikeln kunde inte hittas.",
+    "back": "Tillbaka till nyheter"
+  },
+  "events": {
+    "navigation": "Evenemang",
+    "title": "Evenemang",
+    "intro": "Kommande och tidigare evenemang från Arcada Studerandekår – ASK.",
+    "search": "Sök",
+    "search_placeholder": "Sök evenemang",
+    "all_categories": "Alla kategorier",
+    "upcoming": "Kommande evenemang",
+    "past": "Tidigare evenemang",
+    "featured": "Utvalt evenemang",
+    "empty": "Inga evenemang hittades.",
+    "loading": "Laddar evenemang…",
+    "error": "Evenemangen kunde inte laddas.",
+    "back": "Tillbaka till evenemang",
+    "organizer": "Arrangör",
+    "location": "Plats",
+    "tickets": "Öppna Kide.app",
+    "cancelled": "Inställt",
+    "postponed": "Framskjutet"
+  },
+  "not_found": {
+    "eyebrow": "Sidan hittades inte",
+    "title": "Den här sidan har lämnat festen.",
+    "description": "Adressen kan vara fel eller sidan kan ha flyttats. Gå tillbaka till startsidan eller se vad som händer härnäst.",
+    "home": "Till startsidan",
+    "events": "Se evenemang"
+  }
 }

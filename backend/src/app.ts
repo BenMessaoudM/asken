@@ -7,6 +7,12 @@ import helmet from 'helmet';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 import { CmsService } from './cms/types';
+import { createAdminNewsRouter } from './news/routes/adminNewsRoutes';
+import { createPublicNewsRouter } from './news/routes/publicNewsRoutes';
+import { NewsService } from './news/types';
+import { EventService } from './events/types';
+import { createAdminEventRouter } from './events/routes/adminEventRoutes';
+import { createPublicEventRouter } from './events/routes/publicEventRoutes';
 import { createContentRouter } from './cms/routes/contentRoutes';
 import { Env } from './env';
 import { createCorsOptions } from './http/cors';
@@ -20,6 +26,8 @@ export interface AppDependencies {
   env: Env;
   identityService: IdentityService;
   cmsService: CmsService;
+  newsService: NewsService;
+  eventService: EventService;
   isReady?: () => boolean;
   sendMessage?: (message: string) => Promise<void>;
 }
@@ -30,6 +38,8 @@ export function createApp({
   env,
   identityService,
   cmsService,
+  newsService,
+  eventService,
   isReady = () => mongoose.connection.readyState === 1,
   sendMessage = async () => undefined,
 }: AppDependencies) {
@@ -63,6 +73,10 @@ export function createApp({
     createAuthRouter(identityService, env),
   );
   app.use('/api/v1/admin/content', createContentRouter(cmsService, identityService, env));
+  app.use('/api/v1/admin/news', createAdminNewsRouter(newsService, identityService, env));
+  app.use('/api/v1/news', createPublicNewsRouter(newsService));
+  app.use('/api/v1/admin/events', createAdminEventRouter(eventService, identityService, env));
+  app.use('/api/v1/events', createPublicEventRouter(eventService));
   app.use('/api/v1/admin', createAdminRouter(identityService, env));
 
   const messageHandler = async (request: Request, response: Response, next: NextFunction) => {

@@ -33,6 +33,7 @@ export function createContentRouter(cmsService: CmsService, identityService: Ide
   });
   router.post('/', requirePermission('content.write'), async (request: AuthenticatedRequest, response) => {
     const input = parse(createContentSchema, request.body);
+    if (['news', 'event'].includes(input.contentType)) throw new AppError(400, 'SPECIALIZED_CONTENT_ENDPOINT', 'News and Event records must use their specialized administration APIs');
     const content = await cmsService.createContent({ ...input, sections: input.sections || [] }, request.principal!, context(request));
     response.status(201).json({ data: { content } });
   });
@@ -42,16 +43,22 @@ export function createContentRouter(cmsService: CmsService, identityService: Ide
   router.put('/:contentId', requirePermission('content.write'), async (request: AuthenticatedRequest, response) => {
     const contentId = parse(contentIdSchema, request.params.contentId);
     const input = parse(updateContentSchema, request.body);
+    const existing = await cmsService.getContent(contentId);
+    if (['news', 'event'].includes(existing.contentType) || ['news', 'event'].includes(input.contentType)) throw new AppError(400, 'SPECIALIZED_CONTENT_ENDPOINT', 'News and Event records must use their specialized administration APIs');
     const content = await cmsService.updateContent({ contentId, ...input, sections: input.sections || [] }, request.principal!, context(request));
     response.json({ data: { content } });
   });
   router.delete('/:contentId', requirePermission('content.write'), async (request: AuthenticatedRequest, response) => {
-    await cmsService.deleteContent(parse(contentIdSchema, request.params.contentId), request.principal!, context(request));
+    const contentId = parse(contentIdSchema, request.params.contentId);
+    if (['news', 'event'].includes((await cmsService.getContent(contentId)).contentType)) throw new AppError(400, 'SPECIALIZED_CONTENT_ENDPOINT', 'News and Event records must use their specialized administration APIs');
+    await cmsService.deleteContent(contentId, request.principal!, context(request));
     response.status(204).send();
   });
   router.post('/:contentId/publish', requirePermission('content.write'), async (request: AuthenticatedRequest, response) => {
+    const contentId = parse(contentIdSchema, request.params.contentId);
+    if (['news', 'event'].includes((await cmsService.getContent(contentId)).contentType)) throw new AppError(400, 'SPECIALIZED_CONTENT_ENDPOINT', 'News and Event records must use their specialized administration APIs');
     const content = await cmsService.publishContent(
-      parse(contentIdSchema, request.params.contentId),
+      contentId,
       parse(publishContentSchema, request.body).expectedVersion,
       request.principal!,
       context(request),

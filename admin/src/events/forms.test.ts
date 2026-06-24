@@ -1,0 +1,1 @@
+import{describe,expect,it}from'vitest';import{emptyEventTranslations,localDate}from'./forms';describe('event forms',()=>{it('creates independent translations',()=>{const x=emptyEventTranslations();x.en.title='A';expect(x.sv.title).toBe('')});it('formats dates',()=>expect(localDate('2030-01-01T10:00:00Z')).toMatch(/^2030-01-01T/))});

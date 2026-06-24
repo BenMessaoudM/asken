@@ -1,0 +1,2 @@
+import { model, Schema, Types } from 'mongoose';
+const schema=new Schema({eventId:{type:Types.ObjectId,ref:'Event',required:true},contentId:{type:Types.ObjectId,ref:'Content',required:true},version:{type:Number,required:true},snapshot:{type:Schema.Types.Mixed,required:true},actorId:{type:Types.ObjectId,ref:'User',required:true},schemaVersion:{type:Number,default:1}},{timestamps:{createdAt:true,updatedAt:false}}); schema.index({eventId:1,version:1},{unique:true}); export const EventVersionModel=model('EventVersion',schema);

@@ -50,3 +50,34 @@ Content types are `page`, `news`, `event`, `cor_activity`, `governance_document`
 ## Messages
 
 `POST /api/v1/messages` requires authentication. Request: `{ "message": "Hello" }`. The legacy `/message` path remains deprecated.
+
+## News and Blog Endpoints
+
+Administrative News endpoints require authentication. Read operations require `news.read`; create, edit, delete, publish, scheduling, featured state, and taxonomy changes require `news.write`.
+
+| Method and path | Purpose |
+| --- | --- |
+| `GET /api/v1/admin/news` | List draft, scheduled, and published articles |
+| `POST /api/v1/admin/news` | Create a bilingual draft article |
+| `GET /api/v1/admin/news/:id` | Read an article for editing |
+| `PUT /api/v1/admin/news/:id` | Save a new article version |
+| `DELETE /api/v1/admin/news/:id` | Delete an article and its News versions |
+| `POST /api/v1/admin/news/:id/publish` | Publish immediately or at `publishAt` |
+| `PATCH /api/v1/admin/news/:id/featured` | Toggle featured placement |
+| `/api/v1/admin/news/categories` | List and manage bilingual categories |
+| `/api/v1/admin/news/tags` | List and manage bilingual tags |
+
+Public endpoints require no authentication:
+
+- `GET /api/v1/news` lists published articles and supports `locale`, `q`, `category`, `tag`, `featured`, `page`, and `limit`.
+- `GET /api/v1/news/search` provides the same filters as an explicit search endpoint.
+- `GET /api/v1/news/categories` lists bilingual category labels.
+- `GET /api/v1/news/:slug?locale=sv` returns one published localized article.
+
+Scheduled articles are stored with a future publication timestamp and remain absent from public APIs until that time.
+
+## Events Endpoints
+
+Event administration requires `events.read`; mutations require `events.write`. `/api/v1/admin/events` supports list, create, detail, update, delete, publish, and featured toggling. `/api/v1/admin/events/categories` supports bilingual category CRUD.
+
+Public endpoints are unauthenticated: `GET /api/v1/events` and `/search` support `locale`, `q`, `category`, `period=upcoming|past`, `featured`, pagination, and date ranges. `GET /api/v1/events/calendar` returns up to 100 published events for calendar ranges. `GET /api/v1/events/:slug` returns localized detail.

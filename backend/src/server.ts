@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 import { createApp } from './app';
 import { MongooseContentService } from './cms/services/mongooseContentService';
 import { loadEnv } from './env';
+import { MongooseNewsService } from './news/services/mongooseNewsService';
+import { MongooseEventService } from './events/services/mongooseEventService';
 import { MongooseIdentityService } from './identity/services/mongooseIdentityService';
 
 export async function startServer() {
@@ -14,10 +16,13 @@ export async function startServer() {
     secure: env.SMTP_SECURE,
     ...(env.SMTP_AUTH ? { auth: { user: env.SMTP_USER, pass: env.SMTP_PASS } } : {}),
   });
+  const cmsService = new MongooseContentService();
   const app = createApp({
     env,
     identityService: new MongooseIdentityService(env),
-    cmsService: new MongooseContentService(),
+    cmsService,
+    newsService: new MongooseNewsService(cmsService),
+    eventService: new MongooseEventService(cmsService),
     sendMessage: async (message) => {
       await transporter.sendMail({ from: env.SMTP_USER, to: env.SMTP_USER, subject: 'New Message', text: message });
     },

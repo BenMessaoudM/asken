@@ -8,23 +8,21 @@ const languages = [
 ]
 
 export default function LanguageSwitcher() {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   return (
     <Listbox value={i18n.language} onChange={(lang) => i18n.changeLanguage(lang)}>
-      <Listbox.Label className="sr-only">Language</Listbox.Label>
+      <Listbox.Label className="sr-only">{t('accessibility.language')}</Listbox.Label>
       <div className="relative">
-        <Listbox.Button className="border rounded px-2 py-1" aria-label="Select language">
-          {languages.find(l => l.code === i18n.language)?.label}
+        <Listbox.Button className="flex min-h-11 items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-bold text-ask-ink shadow-sm transition hover:border-ask-400 dark:border-white/15 dark:bg-white/5 dark:text-white" aria-label={t('accessibility.language')}>
+          {languages.find((language) => language.code === i18n.language)?.label}
         </Listbox.Button>
-        <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded bg-white shadow-lg focus:outline-none">
-          {languages.map(lang => (
-            <Listbox.Option key={lang.code} value={lang.code} as={Fragment}>
+        <Listbox.Options className="absolute right-0 z-50 mt-2 min-w-32 overflow-auto rounded-2xl border border-black/10 bg-white p-1 shadow-xl focus:outline-none dark:border-white/10 dark:bg-ask-ink">
+          {languages.map((language) => (
+            <Listbox.Option key={language.code} value={language.code} as={Fragment}>
               {({ active, selected }) => (
-                <li
-                  className={`cursor-pointer select-none p-2 ${active ? 'bg-blue-100' : ''} ${selected ? 'font-bold' : ''}`}
-                >
-                  {lang.label}
+                <li className={`cursor-pointer select-none rounded-xl px-3 py-2 text-sm ${active ? 'bg-ask-50 text-ask-600 dark:bg-white/10 dark:text-ask-400' : ''} ${selected ? 'font-bold' : ''}`}>
+                  {language.label}
                 </li>
               )}
             </Listbox.Option>
