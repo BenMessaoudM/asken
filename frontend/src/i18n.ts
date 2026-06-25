@@ -8,7 +8,7 @@ i18n.use(initReactI18next).init({
     sv: { translation: sv },
     en: { translation: en }
   },
-  lng: 'sv',
+  lng: typeof window !== 'undefined' ? (localStorage.getItem('ask-public-language') || (navigator.language.startsWith('en') ? 'en' : 'sv')) : 'sv',
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false

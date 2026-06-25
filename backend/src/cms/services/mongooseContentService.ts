@@ -60,6 +60,18 @@ export class MongooseContentService implements CmsService {
     return this.toManagedContent(content, sections);
   }
 
+  async getPublishedPage(slug: string): Promise<ManagedContent> {
+    const content = await ContentModel.findOne({
+      contentType: 'page',
+      slug,
+      status: 'published',
+      publishedAt: { $lte: new Date() },
+    }).lean() as unknown as LeanContent | null;
+    if (!content) throw new AppError(404, 'PAGE_NOT_FOUND', 'Page was not found');
+    const sections = await ContentSectionModel.find({ contentId: content._id }).sort({ position: 1 }).lean() as unknown as LeanSection[];
+    return this.toManagedContent(content, sections);
+  }
+
   async createContent(input: { contentType: ContentType; title: string; slug?: string; sections: ContentSectionInput[] }, actor: AuthPrincipal, context: RequestContext): Promise<ManagedContent> {
     const slug = await this.resolveSlug(input.contentType, input.slug || input.title);
     let content;

@@ -26,3 +26,8 @@ Copy `.env.example` to `.env`. Never commit real credentials. The backend valida
 ## Admin Client
 
 Set `VITE_API_URL` to the versioned API root, normally `http://localhost:3000/api/v1`. Authentication tokens are never exposed to client JavaScript; the browser sends HttpOnly cookies with credentialed requests.
+
+
+## Public Client
+
+Set `VITE_API_URL` to the versioned API root, normally `http://localhost:3000/api/v1`. Set `VITE_SITE_URL` to the canonical public origin; it is used for canonical and Open Graph URLs. Published CMS pages use locale-specific slugs documented in `PUBLIC_WEBSITE.md`.

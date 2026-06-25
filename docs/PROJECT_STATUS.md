@@ -1,6 +1,9 @@
 # Arcada Student Union – ASK Platform Project Status
 
 **Audit date:** 2026-06-24
+
+> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set, responsive navigation, persisted language selection, route metadata, reusable public components, and read-only published CMS page delivery. The 19% figure below remains the last full-project audit baseline until the next audit.
+
 **Authoritative status source:** implemented code, migrations, automated tests, and successful local builds
 **Canonical Epic definitions:** `docs/TASK_BACKLOG.md`
 
@@ -74,7 +77,7 @@ No later Epic meets its complete acceptance criteria or the master specification
 - **Identity:** MongoDB-backed users, roles, permissions, refresh sessions, and audit events. Access and refresh JWTs are issued through HttpOnly cookies; protected actions use backend permission middleware.
 - **Content:** A generic typed CMS stores content, ordered sections, publication state, optimistic versions, and immutable snapshots. News and Events specialize the generic content record with their own collections and APIs.
 - **Admin application:** React/Vite application with session restoration, permission-aware navigation and route guards, user/role administration, generic content editing, News management, Events management, and placeholder routes for later modules.
-- **Public application:** React/Vite application with i18next and public Home, News list/detail, and Events list/detail routes. News and Events query localized public APIs.
+- **Public application:** React/Vite application with i18next, responsive global navigation/footer, Home, About, Board, Membership, Contact, Associations, Cor House, Booking, Privacy, Accessibility, News list/detail, Events list/detail, and 404 routes. Published locale-specific CMS pages, News, and Events are loaded from public APIs.
 - **Data evolution:** Six ordered MongoDB migrations and development seed tooling exist. The seed creates permissions and a Super Admin but not the complete required role set.
 - **Delivery:** GitHub Actions builds all packages, runs backend checks/tests, and audits production dependencies. Admin tests exist locally but are not currently run by CI. The public frontend has no automated tests.
 

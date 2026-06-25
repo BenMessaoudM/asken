@@ -2,6 +2,8 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from '../components/Icon'
+import NewsCard from '../components/NewsCard'
+import { usePageMetadata } from '../hooks/usePageMetadata'
 import PublicLayout from '../components/PublicLayout'
 import { listNews, listNewsCategories } from '../news/api'
 import { NewsCategory, NewsLocale, PublicNewsArticle } from '../news/types'
@@ -29,7 +31,7 @@ export default function NewsList() {
       .finally(() => setLoading(false))
   }, [locale, search, category, t])
 
-  useEffect(() => { document.title = `${t('news.title')} | ${t('organization_name')}` }, [t, locale])
+  usePageMetadata(t('news.title'), t('news.intro'), '/news')
   const featured = useMemo(() => articles.find((article) => article.featured), [articles])
   const remaining = featured ? articles.filter((article) => article.id !== featured.id) : articles
   const submit = (event: FormEvent) => { event.preventDefault(); setSearch(searchInput.trim()) }
@@ -59,10 +61,7 @@ export default function NewsList() {
             <div className="flex flex-col justify-center p-8 sm:p-10"><p className="font-bold text-ask-gold">{t('news.featured')}</p><h2 className="mt-3 text-3xl font-black sm:text-4xl"><Link to={`/news/${featured.slug}`}>{featured.title}</Link></h2><p className="mt-4 text-lg leading-8 text-white/70">{featured.summary}</p><Link to={`/news/${featured.slug}`} className="mt-7 inline-flex items-center gap-2 font-bold text-ask-gold">{t('news.read_more')}<Icon name="arrow" /></Link></div>
           </article>}
           <section className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {remaining.map((article) => <article key={article.id} className="ask-card ask-card-hover overflow-hidden">
-              {article.imageUrl ? <img src={article.imageUrl} alt={article.imageAlt || ''} className="h-48 w-full object-cover" /> : <div className="grid h-48 place-items-center bg-ask-50 text-ask-600 dark:bg-ask-600/15 dark:text-ask-400"><Icon name="news" className="h-10 w-10" /></div>}
-              <div className="p-6"><div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wider text-ask-600 dark:text-ask-400">{article.categories.map((item) => <span key={item.slug}>{item.label}</span>)}</div><h2 className="mt-3 text-xl font-black"><Link to={`/news/${article.slug}`}>{article.title}</Link></h2><p className="mt-3 line-clamp-3 text-sm leading-6 text-black/60 dark:text-white/60">{article.summary}</p><time className="mt-5 block text-sm text-black/45 dark:text-white/45">{new Date(article.publishedAt).toLocaleDateString(locale)}</time></div>
-            </article>)}
+            {remaining.map((article) => <NewsCard key={article.id} article={article} locale={locale} readMore={t('news.read_more')} />)}
           </section>
           {articles.length === 0 && <p className="ask-card mt-10 p-8 text-center text-black/55 dark:text-white/55">{t('news.empty')}</p>}
         </>}

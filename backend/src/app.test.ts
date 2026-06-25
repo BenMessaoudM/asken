@@ -70,6 +70,12 @@ function createCmsService(): CmsService {
       version: sampleContent.version, sectionCount: 1, updatedAt: sampleContent.updatedAt,
     }]),
     getContent: jest.fn(async () => sampleContent),
+    getPublishedPage: jest.fn(async (slug) => ({
+      ...sampleContent,
+      slug,
+      status: 'published' as const,
+      publishedAt: new Date(),
+    })),
     createContent: jest.fn(async (input) => ({
       ...sampleContent, contentType: input.contentType, title: input.title,
       slug: input.slug || 'generated-slug',
@@ -207,6 +213,22 @@ describe('API foundation and identity integration', () => {
     expect((await request(app).delete(`/api/v1/admin/content/${sampleContent.id}`).set('Cookie', cookie)).status).toBe(204);
     expect(cmsService.createContent).toHaveBeenCalled();
     expect(cmsService.publishContent).toHaveBeenCalled();
+  });
+
+  it('serves published CMS pages without authentication', async () => {
+    const cmsService = createCmsService();
+    const response = await request(buildApp(createIdentityService(), cmsService)).get('/api/v1/pages/home-sv');
+    expect(response.status).toBe(200);
+    expect(response.body.data.page.slug).toBe('home-sv');
+    expect(response.body.data.page.status).toBe('published');
+    expect(response.headers['cache-control']).toContain('max-age=60');
+    expect(cmsService.getPublishedPage).toHaveBeenCalledWith('home-sv');
+  });
+
+  it('rejects malformed public CMS page slugs', async () => {
+    const response = await request(buildApp()).get('/api/v1/pages/INVALID_SLUG');
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('enforces News permissions while keeping public News readable', async () => {

@@ -2,6 +2,8 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from '../components/Icon'
+import EventCard from '../components/EventCard'
+import { usePageMetadata } from '../hooks/usePageMetadata'
 import PublicLayout from '../components/PublicLayout'
 import { listEventCategories, listEvents } from '../events/api'
 import { EventCategory, EventLocale, PublicEvent } from '../events/types'
@@ -27,7 +29,7 @@ export default function EventsList() {
       .finally(() => setLoading(false))
   }, [locale, search, category, period, t])
 
-  useEffect(() => { document.title = `${t('events.title')} | ${t('organization_name')}` }, [t, locale])
+  usePageMetadata(t('events.title'), t('events.intro'), '/events')
   const featured = useMemo(() => events.find((event) => event.featured), [events])
   const submit = (event: FormEvent) => { event.preventDefault(); setSearch(input.trim()) }
 
@@ -55,13 +57,7 @@ export default function EventsList() {
             <div className="flex flex-col justify-center p-8 sm:p-10"><p className="font-bold text-ask-gold">{t('events.featured')}</p><h2 className="mt-3 text-3xl font-black sm:text-4xl"><Link to={`/events/${featured.slug}`}>{featured.title}</Link></h2><p className="mt-4 text-lg text-white/70">{featured.location} · {new Date(featured.startAt).toLocaleString(locale)}</p><Link to={`/events/${featured.slug}`} className="mt-7 inline-flex items-center gap-2 font-bold text-ask-gold">{t('events.title')}<Icon name="arrow" /></Link></div>
           </article>}
           <section className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {events.filter((event) => event.id !== featured?.id).map((event) => {
-              const start = new Date(event.startAt)
-              return <article key={event.id} className="ask-card ask-card-hover overflow-hidden">
-                {event.imageUrl ? <img src={event.imageUrl} alt={event.imageAlt || ''} className="h-48 w-full object-cover" /> : <div className="grid h-48 place-items-center bg-ask-50 text-ask-600 dark:bg-ask-600/15 dark:text-ask-400"><Icon name="calendar" className="h-10 w-10" /></div>}
-                <div className="p-6"><p className="text-xs font-bold uppercase tracking-wider text-ask-600 dark:text-ask-400">{event.category.label}</p><h2 className="mt-3 text-xl font-black"><Link to={`/events/${event.slug}`}>{event.title}</Link></h2><p className="mt-4 text-sm font-semibold">{start.toLocaleString(locale)}</p><p className="mt-2 text-sm text-black/55 dark:text-white/55">{event.location}</p>{event.eventStatus !== 'scheduled' && <strong className="mt-3 block text-red-700 dark:text-red-300">{t(`events.${event.eventStatus}`)}</strong>}</div>
-              </article>
-            })}
+            {events.filter((event) => event.id !== featured?.id).map((event) => <EventCard key={event.id} event={event} locale={locale} />)}
           </section>
           {events.length === 0 && <p className="ask-card mt-10 p-8 text-center text-black/55 dark:text-white/55">{t('events.empty')}</p>}
         </>}

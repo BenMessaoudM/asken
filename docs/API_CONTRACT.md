@@ -42,6 +42,10 @@ Every endpoint below requires authentication and backend permission middleware.
 
 Content types are `page`, `news`, `event`, `cor_activity`, `governance_document`, and `collaboration`. Create and update requests include `contentType`, `title`, optional `slug`, and structured `sections`. Updates and publishing require `expectedVersion`; stale writes return `409 VERSION_CONFLICT`.
 
+## Public CMS Pages
+
+- `GET /api/v1/pages/:slug` returns one published generic CMS page with ordered sections. It requires no authentication and only exposes `page` records whose `publishedAt` is not in the future. Release v0.5 uses locale-specific slugs such as `home-en` and `home-sv`.
+
 ## Operational Endpoints
 
 - `GET /api/v1/health` returns liveness.

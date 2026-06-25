@@ -124,6 +124,8 @@
     "back": "Back to events",
     "organizer": "Organizer",
     "location": "Location",
+    "start": "Starts",
+    "end": "Ends",
     "tickets": "Open Kide.app",
     "cancelled": "Cancelled",
     "postponed": "Postponed"

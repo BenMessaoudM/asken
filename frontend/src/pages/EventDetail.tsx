@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from '../components/Icon'
 import PublicLayout from '../components/PublicLayout'
+import { usePageMetadata } from '../hooks/usePageMetadata'
 import { getEvent } from '../events/api'
 import { EventLocale, PublicEvent } from '../events/types'
 
@@ -19,7 +20,7 @@ export default function EventDetail() {
     setError('')
     void getEvent(slug, locale).then((result) => setEvent(result.data.event)).catch(() => setError(t('events.error')))
   }, [slug, locale, t])
-  useEffect(() => { if (event) document.title = `${event.title} | ${t('organization_name')}` }, [event, t])
+  usePageMetadata(event?.title || t('events.title'), event?.description || t('events.intro'), `/events/${slug || ''}`)
 
   return (
     <PublicLayout>
@@ -35,8 +36,8 @@ export default function EventDetail() {
           <dl className="ask-card mt-8 grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-4">
             <div><dt className="text-xs font-bold uppercase tracking-wider text-black/45 dark:text-white/45">{t('events.location')}</dt><dd className="mt-2 font-black">{event.location}</dd></div>
             <div><dt className="text-xs font-bold uppercase tracking-wider text-black/45 dark:text-white/45">{t('events.organizer')}</dt><dd className="mt-2 font-black">{event.organizer}</dd></div>
-            <div><dt className="text-xs font-bold uppercase tracking-wider text-black/45 dark:text-white/45">Start</dt><dd className="mt-2 font-black">{new Date(event.startAt).toLocaleString(locale)}</dd></div>
-            <div><dt className="text-xs font-bold uppercase tracking-wider text-black/45 dark:text-white/45">End</dt><dd className="mt-2 font-black">{new Date(event.endAt).toLocaleString(locale)}</dd></div>
+            <div><dt className="text-xs font-bold uppercase tracking-wider text-black/45 dark:text-white/45">{t('events.start')}</dt><dd className="mt-2 font-black">{new Date(event.startAt).toLocaleString(locale)}</dd></div>
+            <div><dt className="text-xs font-bold uppercase tracking-wider text-black/45 dark:text-white/45">{t('events.end')}</dt><dd className="mt-2 font-black">{new Date(event.endAt).toLocaleString(locale)}</dd></div>
           </dl>
           <div className="mx-auto mt-10 max-w-3xl whitespace-pre-line text-lg leading-8">{event.description}</div>
           {event.kideAppUrl && <div className="mx-auto mt-10 max-w-3xl"><a href={event.kideAppUrl} rel="noreferrer" target="_blank" className="ask-button-primary">{t('events.tickets')}<Icon name="arrow" /></a></div>}

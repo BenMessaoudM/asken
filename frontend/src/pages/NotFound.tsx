@@ -1,12 +1,13 @@
-import { useEffect } from 'react'
+
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from '../components/Icon'
 import PublicLayout from '../components/PublicLayout'
+import { usePageMetadata } from '../hooks/usePageMetadata'
 
 export default function NotFound() {
   const { t } = useTranslation()
-  useEffect(() => { document.title = `${t('not_found.title')} | ${t('organization_name')}` }, [t])
+  usePageMetadata(t('not_found.title'), t('not_found.description'), window.location.pathname)
 
   return (
     <PublicLayout>

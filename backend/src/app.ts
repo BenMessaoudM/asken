@@ -14,6 +14,7 @@ import { EventService } from './events/types';
 import { createAdminEventRouter } from './events/routes/adminEventRoutes';
 import { createPublicEventRouter } from './events/routes/publicEventRoutes';
 import { createContentRouter } from './cms/routes/contentRoutes';
+import { createPublicContentRouter } from './cms/routes/publicContentRoutes';
 import { Env } from './env';
 import { createCorsOptions } from './http/cors';
 import { AppError, errorHandler, notFoundHandler } from './http/errors';
@@ -73,6 +74,7 @@ export function createApp({
     createAuthRouter(identityService, env),
   );
   app.use('/api/v1/admin/content', createContentRouter(cmsService, identityService, env));
+  app.use('/api/v1/pages', createPublicContentRouter(cmsService));
   app.use('/api/v1/admin/news', createAdminNewsRouter(newsService, identityService, env));
   app.use('/api/v1/news', createPublicNewsRouter(newsService));
   app.use('/api/v1/admin/events', createAdminEventRouter(eventService, identityService, env));

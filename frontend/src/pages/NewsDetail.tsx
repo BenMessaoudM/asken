@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from '../components/Icon'
 import PublicLayout from '../components/PublicLayout'
+import { usePageMetadata } from '../hooks/usePageMetadata'
 import { getNewsArticle } from '../news/api'
 import { NewsLocale, PublicNewsArticle } from '../news/types'
 
@@ -19,7 +20,7 @@ export default function NewsDetail() {
     setError('')
     void getNewsArticle(slug, locale).then((result) => setArticle(result.data.article)).catch(() => setError(t('news.not_found')))
   }, [slug, locale, t])
-  useEffect(() => { if (article) document.title = `${article.title} | ${t('organization_name')}` }, [article, t])
+  usePageMetadata(article?.title || t('news.title'), article?.summary || t('news.intro'), `/news/${slug || ''}`)
 
   return (
     <PublicLayout>

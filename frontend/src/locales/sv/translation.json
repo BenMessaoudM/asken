@@ -124,6 +124,8 @@
     "back": "Tillbaka till evenemang",
     "organizer": "Arrangör",
     "location": "Plats",
+    "start": "Börjar",
+    "end": "Slutar",
     "tickets": "Öppna Kide.app",
     "cancelled": "Inställt",
     "postponed": "Framskjutet"

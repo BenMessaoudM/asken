@@ -1,6 +1,6 @@
 # Arcada Student Union – ASK
 
-The Arcada Student Union – ASK platform contains an Express/TypeScript backend, public React frontend, and React administration application.
+The Arcada Student Union – ASK platform contains an Express/TypeScript backend, a bilingual public React website, and a React administration application.
 
 ## Setup
 
@@ -14,6 +14,10 @@ cd ../admin && npm ci
 ```
 
 Use strong independent JWT secrets and a policy-compliant initial Super Admin password in `.env`. Start each package with `npm run dev` from its directory.
+
+## Public website
+
+Release v0.5 provides Home, About, Board, Membership, Contact, Associations, Cor House, Booking, Privacy, Accessibility, News, Events, and a bilingual 404 experience. Published CMS pages use locale-specific slugs such as `home-en` and `home-sv`; see `docs/PUBLIC_WEBSITE.md`.
 
 ## Authentication
 
