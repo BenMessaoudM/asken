@@ -9,6 +9,7 @@ import Accessibility from './pages/Accessibility'
 import Associations from './pages/Associations'
 import Board from './pages/Board'
 import Booking from './pages/Booking'
+import BookingStatus from './pages/BookingStatus'
 import Contact from './pages/Contact'
 import CorHouse from './pages/CorHouse'
 import EventDetail from './pages/EventDetail'
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
   { path: '/associations', element: <Associations /> },
   { path: '/cor-house', element: <CorHouse /> },
   { path: '/booking', element: <Booking /> },
+  { path: '/booking/status', element: <BookingStatus /> },
   { path: '/privacy', element: <Privacy /> },
   { path: '/accessibility', element: <Accessibility /> },
   { path: '/news', element: <NewsList /> },

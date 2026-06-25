@@ -37,13 +37,13 @@ Accessibility, GDPR, security, testing, and operations are release gates for eve
 - Generic CMS list and editor
 - News administration
 - Events administration
+- Public and administrative Booking workflows
 - Backend health/readiness, migrations, seed, and CI foundations
 
 ### Present only as placeholders or previews
 
 - What's Happening at Cor
 - Collaborations
-- Booking
 - Governance
 - Platform settings
 

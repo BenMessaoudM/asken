@@ -20,6 +20,7 @@ const permissions = [
   ['cor_activities.read', 'View Cor activity management'],
   ['collaborations.read', 'View collaboration management'],
   ['booking.read', 'View booking management'],
+  ['booking.write', 'Manage resources and booking lifecycle'],
   ['governance.read', 'View governance management'],
   ['settings.read', 'View administration settings'],
   ['audit.read', 'View security audit records'],

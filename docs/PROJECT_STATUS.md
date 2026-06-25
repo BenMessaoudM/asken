@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-06-24
 
-> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set, responsive navigation, persisted language selection, route metadata, reusable public components, and read-only published CMS page delivery. The 19% figure below remains the last full-project audit baseline until the next audit.
+> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set, responsive navigation, persisted language selection, route metadata, reusable public components, and read-only published CMS page delivery. Release v0.6 adds the bilingual public booking workflow, conflict-safe availability, email/status access, authenticated booking and resource administration, notes, history, and audit logging. The 19% figure below remains the last full-project audit baseline until the next audit.
 
 **Authoritative status source:** implemented code, migrations, automated tests, and successful local builds
 **Canonical Epic definitions:** `docs/TASK_BACKLOG.md`
@@ -28,7 +28,7 @@ The 19% estimate is weighted by the midpoint of each Epic's story-point range in
 | 7 — Events | Partial | 50% | Bilingual event CRUD, categories, dates, location, organizer, image metadata, status, featured state, Kide.app link, public filtering, calendar API, versions, permissions, and validation tests exist. Capacity, accessibility details, general registration workflow, add-to-calendar output, draft scheduling, archive/duplicate, location filtering, and notifications are missing. |
 | 8 — What's Happening at Cor | Not started | 0% | Permission/navigation placeholders exist, but no domain model, API, workflow, or public view exists. |
 | 9 — Collaborations | Not started | 0% | Permission/navigation placeholders and a generic content type exist, but no collaboration implementation exists. |
-| 10 — Booking System | Not started | 0% | Navigation placeholder only. |
+| 10 — Booking System | **Partial (post-audit)** | 80% | Release v0.6 implements bilingual resources, availability, conflict-safe requests, email/status access, admin list/calendar workflows, approval/rejection/cancellation, editing, notes, resource management, history, permissions, and audit logging. Student accounts, self-service cancellation, reminders, retention automation, and browser/database concurrency suites remain. |
 | 11 — Tutor Module | Not started | 0% | No implementation found. |
 | 12 — Governance Portal | Not started | 0% | Navigation placeholder and generic content type only. |
 | 13 — Student Representative Management | Not started | 0% | No implementation found. |
@@ -56,29 +56,29 @@ No later Epic meets its complete acceptance criteria or the master specification
 4. Epic 5 — Backoffice Content Management
 5. Epic 6 — News and Blog
 6. Epic 7 — Events
-7. Epic 17 — WCAG 2.1 AA Accessibility
-8. Epic 18 — Testing, Delivery, and Production Operations
+7. Epic 10 — Booking System
+8. Epic 17 — WCAG 2.1 AA Accessibility
+9. Epic 18 — Testing, Delivery, and Production Operations
 
 ### Not started as product capabilities
 
 1. Epic 8 — What's Happening at Cor
 2. Epic 9 — Collaborations
-3. Epic 10 — Booking System
-4. Epic 11 — Tutor Module
-5. Epic 12 — Governance Portal
-6. Epic 13 — Student Representative Management
-7. Epic 14 — Knowledge Transfer System
-8. Epic 15 — AI-Assisted Translation
-9. Epic 16 — GDPR and Data Governance
+3. Epic 11 — Tutor Module
+4. Epic 12 — Governance Portal
+5. Epic 13 — Student Representative Management
+6. Epic 14 — Knowledge Transfer System
+7. Epic 15 — AI-Assisted Translation
+8. Epic 16 — GDPR and Data Governance
 
 ## Current Architecture Status
 
 - **Backend:** Express 5 and TypeScript with Mongoose persistence, Zod validation, Helmet, CORS controls, rate limiting, cookie parsing, Nodemailer, versioned `/api/v1` routes, standard errors, request IDs, and health/readiness endpoints.
 - **Identity:** MongoDB-backed users, roles, permissions, refresh sessions, and audit events. Access and refresh JWTs are issued through HttpOnly cookies; protected actions use backend permission middleware.
 - **Content:** A generic typed CMS stores content, ordered sections, publication state, optimistic versions, and immutable snapshots. News and Events specialize the generic content record with their own collections and APIs.
-- **Admin application:** React/Vite application with session restoration, permission-aware navigation and route guards, user/role administration, generic content editing, News management, Events management, and placeholder routes for later modules.
-- **Public application:** React/Vite application with i18next, responsive global navigation/footer, Home, About, Board, Membership, Contact, Associations, Cor House, Booking, Privacy, Accessibility, News list/detail, Events list/detail, and 404 routes. Published locale-specific CMS pages, News, and Events are loaded from public APIs.
-- **Data evolution:** Six ordered MongoDB migrations and development seed tooling exist. The seed creates permissions and a Super Admin but not the complete required role set.
+- **Admin application:** React/Vite application with session restoration, permission-aware navigation and route guards, user/role administration, generic content editing, News management, Events management, Booking operations/resource management, and placeholder routes for later modules.
+- **Public application:** React/Vite application with i18next, responsive global navigation/footer, Home, About, Board, Membership, Contact, Associations, Cor House, Booking, Privacy, Accessibility, News list/detail, Events list/detail, and 404 routes. Published locale-specific CMS pages, News, Events, booking resources, availability, and booking status are loaded from public APIs.
+- **Data evolution:** Eight ordered MongoDB migrations and development seed tooling exist. The seed creates permissions and a Super Admin but not the complete required role set.
 - **Delivery:** GitHub Actions builds all packages, runs backend checks/tests, and audits production dependencies. Admin tests exist locally but are not currently run by CI. The public frontend has no automated tests.
 
 ## Verification Performed
@@ -87,12 +87,12 @@ The following passed against the audited worktree:
 
 - Backend type check
 - Backend production build
-- Backend tests: 10 suites, 35 tests
+- Backend tests: 12 suites, 48 tests
 - Admin production build
-- Admin tests: 6 suites, 11 tests
+- Admin tests: 7 suites, 15 tests
 - Public frontend production build
 
-The backend HTTP suite uses service doubles. These results do not verify MongoDB service behavior or browser-level workflows.
+The backend HTTP suite uses service doubles. Release v0.6 was additionally verified against local MongoDB and SMTP through create, conflict, availability, edit, approve, public-status, history, cancel, slot-release, and notification flows. Browser-level automation is still absent.
 
 ## Technical Debt and Risks
 
@@ -106,6 +106,7 @@ The backend HTTP suite uses service doubles. These results do not verify MongoDB
 - Deleting generic content also deletes version history, conflicting with stronger audit/record-retention expectations.
 - List pagination/filtering conventions exist but are not consistently applied to admin APIs; some public services load all matching records before slicing.
 - Events do not implement capacity, accessibility details, standard registration, add-to-calendar files, or change notifications.
+- Booking lacks student accounts, self-service cancellation, reminders, notification retry state, automated retention/anonymization, and browser-level accessibility tests.
 - Several later modules are visible in administration as placeholders despite having no backend implementation.
 - Test coverage lacks real MongoDB integration, frontend component coverage, browser E2E journeys, bilingual journey checks, and accessibility automation.
 - CI does not run the existing admin test suite.

@@ -15,6 +15,9 @@ import Management from './pages/Management'
 import NewsDashboard from './pages/NewsDashboard'
 import NewsEditor from './pages/NewsEditor'
 import EventsDashboard from './pages/EventsDashboard'
+import BookingDashboard from './pages/BookingDashboard'
+import BookingEditor from './pages/BookingEditor'
+import BookingResourceEditor from './pages/BookingResourceEditor'
 import EventEditor from './pages/EventEditor'
 import ModulePlaceholder from './pages/ModulePlaceholder'
 import Roles from './pages/Roles'
@@ -52,7 +55,10 @@ const router = createBrowserRouter([
       { path: '/events/:id', element: protectedPage('/events', <EventEditor />) },
       { path: '/cor-activities', element: placeholder('/cor-activities') },
       { path: '/collaborations', element: placeholder('/collaborations') },
-      { path: '/booking', element: placeholder('/booking') },
+      { path: '/booking', element: protectedPage('/booking', <BookingDashboard />) },
+      { path: '/booking/resources/new', element: <PermissionGuard permission="booking.write"><BookingResourceEditor /></PermissionGuard> },
+      { path: '/booking/resources/:id', element: <PermissionGuard permission="booking.write"><BookingResourceEditor /></PermissionGuard> },
+      { path: '/booking/:id', element: protectedPage('/booking', <BookingEditor />) },
       { path: '/governance', element: placeholder('/governance') },
       { path: '/settings', element: placeholder('/settings') },
       { path: '/change-password', element: <ChangePassword /> },

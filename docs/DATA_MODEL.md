@@ -38,3 +38,12 @@ CMS content remains the source of truth for slug, draft/published lifecycle, opt
 - **Event version:** immutable event metadata snapshot aligned with CMS versions.
 
 Publication status remains in CMS. Event operational status is `scheduled`, `postponed`, or `cancelled`; upcoming/past status is derived from the end timestamp. Epic 6 records use `cmsevents` to avoid modifying an existing legacy `events` collection.
+
+## Booking Entities
+
+- **Booking resource:** bilingual name, description, location, rules, and accessibility text; capacity, active/approval flags, duration and advance limits, weekly opening hours, blackout periods, and timestamps.
+- **Booking:** unique public reference, resource, start/end timestamps, requester contact and organization, purpose, attendee count, accessibility needs, locale, privacy acceptance time, status, public/internal notes, decision metadata, hashed status access code, and timestamps.
+- **Booking slot:** resource, booking, and one normalized 15-minute timestamp. The unique `{ resourceId, slotAt }` index is the concurrency control that prevents double booking.
+- **Booking history:** booking, action, resulting status, actor, note, timestamp, and optional snapshot.
+
+Pending and approved bookings own slots. Rejection or cancellation deletes their slots while preserving the booking and history records. Shared audit events record public requests and authenticated mutations without storing access codes or authentication secrets.

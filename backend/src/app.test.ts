@@ -2,10 +2,12 @@ import request from 'supertest';
 import { createApp } from './app';
 import { CmsService, ManagedContent } from './cms/types';
 import { Env } from './env';
+import { AppError } from './http/errors';
 import { issueTokens } from './identity/security/tokens';
 import { AuthPrincipal, IdentityService } from './identity/types';
 import { ManagedNewsArticle, NewsService, NewsTaxonomyItem, PublicNewsArticle } from './news/types';
 import { EventCategory, EventService, ManagedEvent, PublicEvent } from './events/types';
+import { BookingResource, BookingService, BookingRecord, BookingHistoryEntry, PublicBookingStatus } from './booking/types';
 
 const env = {
   NODE_ENV: 'test', PORT: 3000, MONGO_URI: 'mongodb://localhost:27017/asken-test',
@@ -17,7 +19,7 @@ const env = {
 
 const adminPrincipal: AuthPrincipal = {
   userId: '507f1f77bcf86cd799439011', email: 'admin@example.com', name: 'Admin',
-  roles: ['super_admin'], permissions: ['users.read', 'users.write', 'roles.read', 'roles.write', 'content.read', 'content.write', 'news.read', 'news.write', 'events.read', 'events.write'],
+  roles: ['super_admin'], permissions: ['users.read', 'users.write', 'roles.read', 'roles.write', 'content.read', 'content.write', 'news.read', 'news.write', 'events.read', 'events.write', 'booking.read', 'booking.write'],
 };
 
 const sampleContent: ManagedContent = {
@@ -125,8 +127,13 @@ const sampleEvent: ManagedEvent = { id: '507f1f77bcf86cd799439042', contentId: '
 const publicEvent: PublicEvent = { id: sampleEvent.id, slug: sampleEvent.slug, ...sampleEvent.translations.sv, startAt: sampleEvent.startAt, endAt: sampleEvent.endAt, eventStatus: 'scheduled', temporalStatus: 'upcoming', category: { slug: eventCategory.slug, label: eventCategory.labels.sv }, featured: true, locale: 'sv' };
 function createEventService(): EventService { return { listAdminEvents: jest.fn(async()=>[sampleEvent]), getAdminEvent: jest.fn(async()=>sampleEvent), createEvent: jest.fn(async()=>sampleEvent), updateEvent: jest.fn(async(_id,input)=>({...sampleEvent,version:input.expectedVersion+1})), deleteEvent: jest.fn(async()=>undefined), publishEvent: jest.fn(async(_id,v)=>({...sampleEvent,publicationStatus:'published' as const,version:v+1})), setFeatured: jest.fn(async(_id,featured)=>({...sampleEvent,featured})), listPublicEvents: jest.fn(async q=>({events:[{...publicEvent,locale:q.locale}],total:1,page:q.page,limit:q.limit})), getPublicEvent: jest.fn(async(_slug,locale)=>({...publicEvent,locale})), calendar: jest.fn(async q=>[{...publicEvent,locale:q.locale}]), listCategories: jest.fn(async()=>[eventCategory]), createCategory: jest.fn(async input=>({...eventCategory,labels:input.labels})), updateCategory: jest.fn(async(_id,input)=>({...eventCategory,labels:input.labels})), deleteCategory: jest.fn(async()=>undefined) }; }
 
-function buildApp(identityService = createIdentityService(), cmsService = createCmsService(), newsService = createNewsService(), eventService = createEventService()) {
-  return createApp({ env, identityService, cmsService, newsService, eventService });
+const bookingResource: BookingResource = { id: '507f1f77bcf86cd799439051', slug: 'meeting-room', name: { en: 'Meeting room', sv: 'Mötesrum' }, description: { en: 'A room', sv: 'Ett rum' }, location: { en: 'Cor', sv: 'Cor' }, rules: { en: 'Rules', sv: 'Regler' }, capacity: 20, accessibility: { en: 'Step-free', sv: 'Stegfri' }, active: true, requiresApproval: true, minDurationMinutes: 30, maxDurationMinutes: 240, advanceBookingDays: 365, openingHours: [{ weekday: 2, start: '08:00', end: '20:00' }], blackoutPeriods: [], createdAt: new Date(), updatedAt: new Date() };
+const bookingRecord: BookingRecord = { id: '507f1f77bcf86cd799439052', reference: 'ASK-1234ABCD', resourceId: bookingResource.id, resource: bookingResource, startAt: new Date('2030-01-01T10:00:00Z'), endAt: new Date('2030-01-01T11:00:00Z'), requesterName: 'Student', requesterEmail: 'student@example.com', purpose: 'Meeting', attendees: 4, locale: 'en', privacyAccepted: true, status: 'pending', createdAt: new Date(), updatedAt: new Date() };
+const publicBooking: PublicBookingStatus = { reference: bookingRecord.reference, status: 'pending', resource: { id: bookingResource.id, slug: bookingResource.slug, name: bookingResource.name.en, description: bookingResource.description.en, location: bookingResource.location.en, rules: bookingResource.rules.en, capacity: bookingResource.capacity, accessibility: bookingResource.accessibility.en, requiresApproval: true, minDurationMinutes: 30, maxDurationMinutes: 240, advanceBookingDays: 365, openingHours: bookingResource.openingHours }, startAt: bookingRecord.startAt, endAt: bookingRecord.endAt, requesterName: bookingRecord.requesterName, purpose: bookingRecord.purpose, createdAt: new Date(), updatedAt: new Date() };
+function createBookingService(): BookingService { return { listPublicResources: jest.fn(async()=>[publicBooking.resource]), getPublicResource: jest.fn(async()=>publicBooking.resource), getAvailability: jest.fn(async()=>[]), createBooking: jest.fn(async()=>({booking:publicBooking,accessCode:'abcdefghijklmnopqrstuvwx'})), getPublicBooking: jest.fn(async()=>publicBooking), listAdminResources: jest.fn(async()=>[bookingResource]), createResource: jest.fn(async()=>bookingResource), updateResource: jest.fn(async()=>bookingResource), listBookings: jest.fn(async()=>[bookingRecord]), getBooking: jest.fn(async()=>bookingRecord), updateBooking: jest.fn(async()=>bookingRecord), setBookingStatus: jest.fn(async(_id,status)=>({...bookingRecord,status})), listHistory: jest.fn(async()=>[{id:'507f1f77bcf86cd799439053',action:'booking.requested',status:'pending' as const,occurredAt:new Date()}]) }; }
+
+function buildApp(identityService = createIdentityService(), cmsService = createCmsService(), newsService = createNewsService(), eventService = createEventService(), bookingService = createBookingService()) {
+  return createApp({ env, identityService, cmsService, newsService, eventService, bookingService });
 }
 function cookies(response: request.Response): string[] {
   const value = response.headers['set-cookie'];
@@ -270,6 +277,24 @@ describe('API foundation and identity integration', () => {
   it('protects Event administration and serves public event search and calendar', async () => { const denied=buildApp(createIdentityService({...adminPrincipal,permissions:[]}));const session=await login(denied);expect((await request(denied).get('/api/v1/admin/events').set('Cookie',cookies(session))).status).toBe(403);const app=buildApp();expect((await request(app).get('/api/v1/events?locale=en&period=upcoming&q=welcome')).status).toBe(200);expect((await request(app).get('/api/v1/events/calendar?locale=sv&from=2029-01-01T00:00:00.000Z&to=2031-01-01T00:00:00.000Z')).status).toBe(200);expect((await request(app).get('/api/v1/events/welcome-event?locale=sv')).body.data.event.title).toBe('Välkomstevenemang'); });
   it('manages event categories and event lifecycle', async () => { const service=createEventService(),app=buildApp(createIdentityService(),createCmsService(),createNewsService(),service),session=await login(app),cookie=cookies(session);const payload={translations:sampleEvent.translations,startAt:'2030-01-01T10:00:00.000Z',endAt:'2030-01-01T12:00:00.000Z',categoryId:eventCategory.id,eventStatus:'scheduled',featured:true};expect((await request(app).post('/api/v1/admin/events').set('Cookie',cookie).send(payload)).status).toBe(201);expect((await request(app).put(`/api/v1/admin/events/${sampleEvent.id}`).set('Cookie',cookie).send({...payload,expectedVersion:1})).status).toBe(200);expect((await request(app).post(`/api/v1/admin/events/${sampleEvent.id}/publish`).set('Cookie',cookie).send({expectedVersion:1})).body.data.event.publicationStatus).toBe('published');expect((await request(app).patch(`/api/v1/admin/events/${sampleEvent.id}/featured`).set('Cookie',cookie).send({featured:false})).body.data.event.featured).toBe(false);expect((await request(app).post('/api/v1/admin/events/categories').set('Cookie',cookie).send({labels:{en:'Culture',sv:'Kultur'}})).status).toBe(201);expect((await request(app).delete(`/api/v1/admin/events/${sampleEvent.id}`).set('Cookie',cookie)).status).toBe(204); });
 
+
+  it('supports the public booking request and status workflow', async () => {
+    const service = createBookingService(); const app = buildApp(createIdentityService(), createCmsService(), createNewsService(), createEventService(), service);
+    expect((await request(app).get('/api/v1/bookings/resources?locale=en')).status).toBe(200);
+    expect((await request(app).get(`/api/v1/bookings/availability?resourceId=${bookingResource.id}&from=2030-01-01T00:00:00.000Z&to=2030-01-02T00:00:00.000Z`)).status).toBe(200);
+    const created = await request(app).post('/api/v1/bookings').send({ resourceId: bookingResource.id, startAt:'2030-01-01T10:00:00.000Z', endAt:'2030-01-01T11:00:00.000Z', requesterName:'Student', requesterEmail:'student@example.com', purpose:'Meeting', attendees:4, locale:'en', privacyAccepted:true });
+    expect(created.status).toBe(201); expect(created.body.data.booking.reference).toBe('ASK-1234ABCD');
+    expect((await request(app).post('/api/v1/bookings/status').send({ reference:'ASK-1234ABCD', accessCode:'abcdefghijklmnopqrstuvwx', locale:'en' })).status).toBe(200);
+  });
+
+  it('protects booking administration and supports approval history', async () => {
+    const service = createBookingService(); const app = buildApp(createIdentityService(), createCmsService(), createNewsService(), createEventService(), service);
+    expect((await request(app).get('/api/v1/admin/bookings')).status).toBe(401);
+    const session = await login(app); const cookie = cookies(session);
+    expect((await request(app).get('/api/v1/admin/bookings').set('Cookie',cookie)).status).toBe(200);
+    expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/status`).set('Cookie',cookie).send({status:'approved',note:'Approved'})).body.data.booking.status).toBe('approved');
+    expect((await request(app).get(`/api/v1/admin/bookings/${bookingRecord.id}/history`).set('Cookie',cookie)).status).toBe(200);
+  });
   it('rejects unsupported content types', async () => {
     const app = buildApp();
     const session = await login(app);
@@ -284,5 +309,66 @@ describe('API foundation and identity integration', () => {
     const app = buildApp();
     expect((await request(app).post('/api/v1/auth/login').set('content-type', 'application/json').send('{')).body.error.code).toBe('INVALID_JSON');
     expect((await request(app).get('/missing')).body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+describe('Booking workflow integration', () => {
+  it('runs request, conflict, approval, status, history, cancellation, and release through HTTP', async () => {
+    let current: BookingRecord = { ...bookingRecord };
+    let occupied = false;
+    const history: BookingHistoryEntry[] = [{ id: '507f1f77bcf86cd799439053', action: 'booking.requested', status: 'pending' as const, occurredAt: new Date() }];
+    const service = createBookingService();
+
+    service.createBooking = jest.fn(async () => {
+      if (occupied) throw new AppError(409, 'BOOKING_CONFLICT', 'The selected time is no longer available');
+      occupied = true;
+      current = { ...bookingRecord, status: 'pending' };
+      return { booking: { ...publicBooking, status: current.status }, accessCode: 'abcdefghijklmnopqrstuvwx' };
+    });
+    service.getAvailability = jest.fn(async () => occupied ? [{ startAt: current.startAt, endAt: current.endAt, kind: 'booking' as const }] : []);
+    service.listBookings = jest.fn(async () => [current]);
+    service.updateBooking = jest.fn(async (_id, input) => {
+      current = { ...current, ...input, updatedAt: new Date() };
+      history.unshift({ id: '507f1f77bcf86cd799439054', action: 'booking.updated', status: current.status, occurredAt: new Date() });
+      return current;
+    });
+    service.setBookingStatus = jest.fn(async (_id, status) => {
+      current = { ...current, status, updatedAt: new Date() };
+      if (status === 'cancelled' || status === 'rejected') occupied = false;
+      history.unshift({ id: `507f1f77bcf86cd79943905${history.length + 4}`, action: `booking.${status}`, status, occurredAt: new Date() });
+      return current;
+    });
+    service.getPublicBooking = jest.fn(async () => ({ ...publicBooking, status: current.status }));
+    service.listHistory = jest.fn(async () => history);
+
+    const app = buildApp(createIdentityService(), createCmsService(), createNewsService(), createEventService(), service);
+    const payload = {
+      resourceId: bookingResource.id,
+      startAt: '2030-01-01T10:00:00.000Z',
+      endAt: '2030-01-01T11:00:00.000Z',
+      requesterName: 'Student',
+      requesterEmail: 'student@example.com',
+      purpose: 'Meeting',
+      attendees: 4,
+      locale: 'en',
+      privacyAccepted: true,
+    };
+
+    expect((await request(app).post('/api/v1/bookings').send(payload)).status).toBe(201);
+    const conflict = await request(app).post('/api/v1/bookings').send(payload);
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error.code).toBe('BOOKING_CONFLICT');
+
+    const availabilityPath = `/api/v1/bookings/availability?resourceId=${bookingResource.id}&from=2030-01-01T00:00:00.000Z&to=2030-01-02T00:00:00.000Z`;
+    expect((await request(app).get(availabilityPath)).body.data.intervals).toHaveLength(1);
+
+    const session = await login(app);
+    const cookie = cookies(session);
+    expect((await request(app).put(`/api/v1/admin/bookings/${bookingRecord.id}`).set('Cookie', cookie).send({ purpose: 'Updated meeting' })).status).toBe(200);
+    expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/status`).set('Cookie', cookie).send({ status: 'approved' })).body.data.booking.status).toBe('approved');
+    expect((await request(app).post('/api/v1/bookings/status').send({ reference: bookingRecord.reference, accessCode: 'abcdefghijklmnopqrstuvwx', locale: 'sv' })).body.data.booking.status).toBe('approved');
+    expect((await request(app).get(`/api/v1/admin/bookings/${bookingRecord.id}/history`).set('Cookie', cookie)).body.data.history.length).toBeGreaterThanOrEqual(3);
+    expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/status`).set('Cookie', cookie).send({ status: 'cancelled' })).body.data.booking.status).toBe('cancelled');
+    expect((await request(app).get(availabilityPath)).body.data.intervals).toHaveLength(0);
   });
 });

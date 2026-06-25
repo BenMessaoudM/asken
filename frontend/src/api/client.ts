@@ -5,14 +5,19 @@ const browserApiBaseUrl = typeof window === 'undefined'
 export const publicApiBaseUrl = import.meta.env.VITE_API_URL || browserApiBaseUrl
 
 export class PublicApiError extends Error {
-  constructor(public readonly status: number, message: string) {
-    super(message)
-  }
+  constructor(public readonly status: number, message: string) { super(message) }
 }
 
-export async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${publicApiBaseUrl}${path}`)
+async function parse<T>(response: Response): Promise<T> {
   const body = await response.json() as { error?: { message?: string } } & T
   if (!response.ok) throw new PublicApiError(response.status, body.error?.message || 'Request failed')
   return body as T
+}
+
+export async function getJson<T>(path: string): Promise<T> {
+  return parse<T>(await fetch(`${publicApiBaseUrl}${path}`))
+}
+
+export async function postJson<T>(path: string, body: unknown): Promise<T> {
+  return parse<T>(await fetch(`${publicApiBaseUrl}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }))
 }

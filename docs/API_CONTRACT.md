@@ -85,3 +85,30 @@ Scheduled articles are stored with a future publication timestamp and remain abs
 Event administration requires `events.read`; mutations require `events.write`. `/api/v1/admin/events` supports list, create, detail, update, delete, publish, and featured toggling. `/api/v1/admin/events/categories` supports bilingual category CRUD.
 
 Public endpoints are unauthenticated: `GET /api/v1/events` and `/search` support `locale`, `q`, `category`, `period=upcoming|past`, `featured`, pagination, and date ranges. `GET /api/v1/events/calendar` returns up to 100 published events for calendar ranges. `GET /api/v1/events/:slug` returns localized detail.
+
+## Booking Endpoints
+
+Public endpoints require no authentication:
+
+| Method and path | Purpose |
+| --- | --- |
+| `GET /api/v1/bookings/resources?locale=en|sv` | List active localized resources |
+| `GET /api/v1/bookings/resources/:slug?locale=en|sv` | Read one active localized resource |
+| `GET /api/v1/bookings/availability?resourceId=:id&from=:iso&to=:iso` | List booking and blackout intervals |
+| `POST /api/v1/bookings` | Create a validated, conflict-safe request and send confirmation |
+| `POST /api/v1/bookings/status` | Retrieve status with reference, access code, and locale |
+
+Administrative endpoints require authentication. Reads require `booking.read`; writes require `booking.write`.
+
+| Method and path | Purpose |
+| --- | --- |
+| `GET /api/v1/admin/bookings` | List/filter bookings for dashboard and calendar views |
+| `GET /api/v1/admin/bookings/:id` | Read booking details |
+| `PUT /api/v1/admin/bookings/:id` | Edit an active booking with conflict revalidation |
+| `POST /api/v1/admin/bookings/:id/status` | Approve, reject, or cancel a booking |
+| `GET /api/v1/admin/bookings/:id/history` | Read immutable booking history |
+| `GET /api/v1/admin/bookings/resources` | List all resources, including inactive resources |
+| `POST /api/v1/admin/bookings/resources` | Create a resource |
+| `PUT /api/v1/admin/bookings/resources/:id` | Update or deactivate a resource |
+
+Overlapping pending or approved requests return `409 BOOKING_CONFLICT`. Public status access uses a random access code whose SHA-256 hash is stored; the code itself is returned only on creation and sent in the confirmation link.

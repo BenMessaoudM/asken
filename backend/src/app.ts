@@ -22,6 +22,9 @@ import { createAuthMiddleware } from './identity/middleware/auth';
 import { createAdminRouter } from './identity/routes/adminRoutes';
 import { createAuthRouter } from './identity/routes/authRoutes';
 import { IdentityService } from './identity/types';
+import { BookingService } from './booking/types';
+import { createPublicBookingRouter } from './booking/routes/publicBookingRoutes';
+import { createAdminBookingRouter } from './booking/routes/adminBookingRoutes';
 
 export interface AppDependencies {
   env: Env;
@@ -29,6 +32,7 @@ export interface AppDependencies {
   cmsService: CmsService;
   newsService: NewsService;
   eventService: EventService;
+  bookingService?: BookingService;
   isReady?: () => boolean;
   sendMessage?: (message: string) => Promise<void>;
 }
@@ -41,6 +45,7 @@ export function createApp({
   cmsService,
   newsService,
   eventService,
+  bookingService,
   isReady = () => mongoose.connection.readyState === 1,
   sendMessage = async () => undefined,
 }: AppDependencies) {
@@ -79,6 +84,10 @@ export function createApp({
   app.use('/api/v1/news', createPublicNewsRouter(newsService));
   app.use('/api/v1/admin/events', createAdminEventRouter(eventService, identityService, env));
   app.use('/api/v1/events', createPublicEventRouter(eventService));
+  if (bookingService) {
+    app.use('/api/v1/bookings', rateLimit({ windowMs: 15 * 60 * 1000, limit: env.NODE_ENV === 'test' ? 1000 : 60, standardHeaders: 'draft-8', legacyHeaders: false }), createPublicBookingRouter(bookingService));
+    app.use('/api/v1/admin/bookings', createAdminBookingRouter(bookingService, identityService, env));
+  }
   app.use('/api/v1/admin', createAdminRouter(identityService, env));
 
   const messageHandler = async (request: Request, response: Response, next: NextFunction) => {

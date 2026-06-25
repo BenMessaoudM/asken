@@ -6,6 +6,7 @@ import { loadEnv } from './env';
 import { MongooseNewsService } from './news/services/mongooseNewsService';
 import { MongooseEventService } from './events/services/mongooseEventService';
 import { MongooseIdentityService } from './identity/services/mongooseIdentityService';
+import { MongooseBookingService } from './booking/services/mongooseBookingService';
 
 export async function startServer() {
   const env = loadEnv();
@@ -23,6 +24,9 @@ export async function startServer() {
     cmsService,
     newsService: new MongooseNewsService(cmsService),
     eventService: new MongooseEventService(cmsService),
+    bookingService: new MongooseBookingService(async (notification) => {
+      await transporter.sendMail({ from: env.SMTP_USER, to: notification.to, subject: notification.subject, text: notification.text.replaceAll('/booking/', env.FRONTEND_URL + '/booking/') });
+    }),
     sendMessage: async (message) => {
       await transporter.sendMail({ from: env.SMTP_USER, to: env.SMTP_USER, subject: 'New Message', text: message });
     },

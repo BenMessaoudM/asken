@@ -6,6 +6,8 @@ import { cmsFoundationMigration } from './migrations/003-cms-foundation';
 import { genericContentFoundationMigration } from './migrations/004-generic-content-foundation';
 import { newsBlogMigration } from './migrations/005-news-blog';
 import { eventsManagementMigration } from './migrations/006-events-management';
+import { bookingSystemMigration } from './migrations/007-booking-system';
+import { removeLegacyBookingIndexesMigration } from './migrations/008-remove-legacy-booking-indexes';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -15,6 +17,8 @@ const migrations: Migration[] = [
   genericContentFoundationMigration,
   newsBlogMigration,
   eventsManagementMigration,
+  bookingSystemMigration,
+  removeLegacyBookingIndexesMigration,
 ];
 
 export async function runMigrations() {
