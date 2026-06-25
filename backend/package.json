@@ -14,6 +14,7 @@
     "smtp:dev": "node --env-file=.env -r ts-node/register src/dev/smtp.ts"
   },
   "dependencies": {
+    "@types/pdfkit": "^0.17.6",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -23,6 +24,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^8.18.1",
     "nodemailer": "^9.0.1",
+    "pdfkit": "^0.19.1",
     "zod": "^3.20.2"
   },
   "devDependencies": {

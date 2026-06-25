@@ -95,20 +95,26 @@ Public endpoints require no authentication:
 | `GET /api/v1/bookings/resources?locale=en|sv` | List active localized resources |
 | `GET /api/v1/bookings/resources/:slug?locale=en|sv` | Read one active localized resource |
 | `GET /api/v1/bookings/availability?resourceId=:id&from=:iso&to=:iso` | List booking and blackout intervals |
-| `POST /api/v1/bookings` | Create a validated, conflict-safe request and send confirmation |
-| `POST /api/v1/bookings/status` | Retrieve status with reference, access code, and locale |
+| `POST /api/v1/bookings/price` | Calculate the date-versioned price breakdown before submission |
+| `POST /api/v1/bookings` | Create a conflict-safe booking or quote request and send confirmation |
+| `POST /api/v1/bookings/status` | Retrieve public status with `COR-YYYY-XXXX` reference, requester email, and locale |
 
 Administrative endpoints require authentication. Reads require `booking.read`; writes require `booking.write`.
 
 | Method and path | Purpose |
 | --- | --- |
 | `GET /api/v1/admin/bookings` | List/filter bookings for dashboard and calendar views |
+| `GET /api/v1/admin/bookings/dashboard` | Return operational dashboard card counts |
 | `GET /api/v1/admin/bookings/:id` | Read booking details |
 | `PUT /api/v1/admin/bookings/:id` | Edit an active booking with conflict revalidation |
 | `POST /api/v1/admin/bookings/:id/status` | Approve, reject, or cancel a booking |
+| `POST /api/v1/admin/bookings/:id/quote` | Store a manual quote override, notes, and mark Quote Sent |
+| `GET /api/v1/admin/bookings/:id/contracts` | List contract metadata |
+| `POST /api/v1/admin/bookings/:id/contracts` | Generate and download an EN/SV/FI contract PDF after approval |
+| `POST /api/v1/admin/bookings/:id/contract-status` | Mark Waiting for Signature or Signed |
 | `GET /api/v1/admin/bookings/:id/history` | Read immutable booking history |
 | `GET /api/v1/admin/bookings/resources` | List all resources, including inactive resources |
 | `POST /api/v1/admin/bookings/resources` | Create a resource |
 | `PUT /api/v1/admin/bookings/resources/:id` | Update or deactivate a resource |
 
-Overlapping pending or approved requests return `409 BOOKING_CONFLICT`. Public status access uses a random access code whose SHA-256 hash is stored; the code itself is returned only on creation and sent in the confirmation link.
+Active booking and quote lifecycle records reserve unique 15-minute resource slots; overlap returns `409 BOOKING_CONFLICT`. Public status requires the public reference and normalized requester email. Contract generation and contract-status changes require `booking.write`. Door codes are never returned by JSON endpoints.

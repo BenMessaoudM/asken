@@ -1,187 +1,59 @@
-import { createHash, randomBytes } from 'crypto';
 import { Types } from 'mongoose';
 import { slugify } from '../../cms/utils/slug';
 import { AppError } from '../../http/errors';
 import { recordAudit } from '../../identity/services/audit';
 import { AuthPrincipal, RequestContext } from '../../identity/types';
+import { CONTRACT_TEMPLATE_VERSION, CONTRACT_TERMS_VERSION } from '../contractTemplates';
+import { createContractPdf } from '../contractPdf';
+import { BookingContractModel } from '../models/BookingContract';
 import { BookingModel } from '../models/Booking';
 import { BookingHistoryModel } from '../models/BookingHistory';
+import { BookingReferenceCounterModel } from '../models/BookingReferenceCounter';
 import { BookingResourceModel } from '../models/BookingResource';
 import { BookingSlotModel } from '../models/BookingSlot';
+import { calculateBookingPrice } from '../pricing';
 import { assertBookable, bookingSlots } from './availability';
-import { BookingHistoryEntry, BookingLocale, BookingNotifier, BookingRecord, BookingRequestInput, BookingResource, BookingResourceInput, BookingService, BookingStatus, PublicBookingResource, PublicBookingStatus } from '../types';
+import { BookingHistoryEntry, BookingLocale, BookingNotifier, BookingRecord, BookingRequestInput, BookingResource, BookingResourceInput, BookingService, BookingStatus, ContractMetadata, PriceBreakdown, PricingRequest, PublicBookingResource, PublicBookingStatus } from '../types';
 
-type ResourceDoc = BookingResourceInput & { _id: Types.ObjectId; slug: string; createdAt: Date; updatedAt: Date };
-type BookingDoc = Omit<BookingRequestInput, 'privacyAccepted'> & { _id: Types.ObjectId; reference: string; accessCodeHash: string; resourceId: Types.ObjectId | ResourceDoc; status: BookingStatus; publicNotes?: string; internalNotes?: string; decisionAt?: Date; privacyAcceptedAt: Date; createdAt: Date; updatedAt: Date };
+const allowedResourceSlugs=['kitchen','main-hall','meeting-room-sauna'] as const;
+const activeStatuses:BookingStatus[]=['submitted','quote_requested','quote_sent','approved','contract_generated','waiting_for_signature','signed'];
+const defaultChecklist=[{key:'details_verified',label:'Booking details verified',completed:false},{key:'price_confirmed',label:'Price confirmed',completed:false},{key:'contract_prepared',label:'Contract prepared',completed:false},{key:'signature_received',label:'Signature received',completed:false},{key:'completion_checked',label:'Completion checked',completed:false}];
+type ResourceDoc=BookingResourceInput&{_id:Types.ObjectId;slug:string;createdAt:Date;updatedAt:Date};
+type BookingDoc=Omit<BookingRequestInput,'privacyAccepted'|'resourceSlug'>&{_id:Types.ObjectId;reference:string;resourceId:Types.ObjectId|ResourceDoc;status:BookingStatus;price:PriceBreakdown;quoteNotes?:string;publicNotes?:string;internalNotes?:string;checklist:BookingRecord['checklist'];decisionAt?:Date;privacyAcceptedAt:Date;createdAt:Date;updatedAt:Date};
+interface Options{doorCode?:string;landlordAddress?:string;landlordEmail?:string;boardMemberEmails?:string[]}
 
-export class MongooseBookingService implements BookingService {
-  constructor(private readonly notify: BookingNotifier = async () => undefined) {}
-
-  async listPublicResources(locale: BookingLocale): Promise<PublicBookingResource[]> {
-    const resources = await BookingResourceModel.find({ active: true }).sort({ [`name.${locale}`]: 1 }).lean() as unknown as ResourceDoc[];
-    return resources.map((resource) => this.toPublicResource(resource, locale));
-  }
-
-  async getPublicResource(slug: string, locale: BookingLocale): Promise<PublicBookingResource> {
-    const resource = await BookingResourceModel.findOne({ slug, active: true }).lean() as unknown as ResourceDoc | null;
-    if (!resource) throw new AppError(404, 'BOOKING_RESOURCE_NOT_FOUND', 'Booking resource was not found');
-    return this.toPublicResource(resource, locale);
-  }
-
-  async getAvailability(resourceId: string, from: Date, to: Date) {
-    this.assertId(resourceId, 'RESOURCE');
-    const resource = await BookingResourceModel.findOne({ _id: resourceId, active: true }).lean() as unknown as ResourceDoc | null;
-    if (!resource) throw new AppError(404, 'BOOKING_RESOURCE_NOT_FOUND', 'Booking resource was not found');
-    const bookings = await BookingModel.find({ resourceId, status: { $in: ['pending', 'approved'] }, startAt: { $lt: to }, endAt: { $gt: from } }).sort({ startAt: 1 }).lean() as unknown as BookingDoc[];
-    const blocked = resource.blackoutPeriods.filter((period) => period.startAt < to && period.endAt > from).map((period) => ({ startAt: period.startAt, endAt: period.endAt, kind: 'blackout' as const }));
-    return [...bookings.map((booking) => ({ startAt: booking.startAt, endAt: booking.endAt, kind: 'booking' as const })), ...blocked].sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
-  }
-
-  async createBooking(input: BookingRequestInput, context: RequestContext) {
-    const resource = await this.resource(input.resourceId);
-    assertBookable(resource, input.startAt, input.endAt, input.attendees);
-    const accessCode = randomBytes(24).toString('base64url');
-    const reference = `ASK-${randomBytes(4).toString('hex').toUpperCase()}`;
-    const status: BookingStatus = resource.requiresApproval ? 'pending' : 'approved';
-    const booking = await BookingModel.create({ ...input, requesterEmail: input.requesterEmail.toLowerCase(), privacyAcceptedAt: new Date(), accessCodeHash: this.hash(accessCode), reference, status });
-    try {
-      await BookingSlotModel.insertMany(bookingSlots(input.startAt, input.endAt).map((slotAt) => ({ resourceId: input.resourceId, bookingId: booking._id, slotAt })), { ordered: true });
-    } catch (error) {
-      await Promise.all([BookingSlotModel.deleteMany({ bookingId: booking._id }), BookingModel.deleteOne({ _id: booking._id })]);
-      if (this.isDuplicate(error)) throw new AppError(409, 'BOOKING_CONFLICT', 'The selected time is no longer available');
-      throw error;
-    }
-    await this.history(booking.id, 'booking.requested', status, undefined, undefined, booking.toObject());
-    await recordAudit({ action: 'booking.requested', targetType: 'booking', targetId: booking.id, context, metadata: { reference, resourceId: input.resourceId, startAt: input.startAt, endAt: input.endAt, status } });
-    const managed = await this.getBooking(booking.id);
-    try { await this.notify(this.requestEmail(managed, accessCode)); } catch { await recordAudit({ action: 'booking.notification_failed', targetType: 'booking', targetId: booking.id, context, metadata: { reference } }); }
-    return { booking: this.toPublicStatus(managed, input.locale), accessCode };
-  }
-
-  async getPublicBooking(reference: string, accessCode: string, locale: BookingLocale) {
-    const booking = await BookingModel.findOne({ reference }).populate('resourceId').lean() as unknown as BookingDoc | null;
-    if (!booking || booking.accessCodeHash !== this.hash(accessCode)) throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking was not found');
-    return this.toPublicStatus(this.toBookingRecord(booking), locale);
-  }
-
-  async listAdminResources() {
-    const resources = await BookingResourceModel.find().sort({ 'name.en': 1 }).lean() as unknown as ResourceDoc[];
-    return resources.map((resource) => this.toResource(resource));
-  }
-
-  async createResource(input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext) {
-    const slug = this.slug(input.slug || input.name.en);
-    try {
-      const created = await BookingResourceModel.create({ ...input, imageUrl: input.imageUrl || undefined, slug });
-      await recordAudit({ actorId: actor.userId, action: 'booking.resource_created', targetType: 'booking_resource', targetId: created.id, context, metadata: { slug } });
-      return this.toResource(created.toObject() as unknown as ResourceDoc);
-    } catch (error) { this.duplicate(error, 'RESOURCE_SLUG_IN_USE'); throw error; }
-  }
-
-  async updateResource(id: string, input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext) {
-    this.assertId(id, 'RESOURCE');
-    const slug = this.slug(input.slug || input.name.en);
-    try {
-      const updated = await BookingResourceModel.findByIdAndUpdate(id, { $set: { ...input, imageUrl: input.imageUrl || undefined, slug } }, { new: true }).lean() as unknown as ResourceDoc | null;
-      if (!updated) throw new AppError(404, 'BOOKING_RESOURCE_NOT_FOUND', 'Booking resource was not found');
-      await recordAudit({ actorId: actor.userId, action: 'booking.resource_updated', targetType: 'booking_resource', targetId: id, context, metadata: { slug, active: input.active } });
-      return this.toResource(updated);
-    } catch (error) { this.duplicate(error, 'RESOURCE_SLUG_IN_USE'); throw error; }
-  }
-
-  async listBookings(query: { status?: BookingStatus; resourceId?: string; from?: Date; to?: Date } = {}) {
-    const filter: Record<string, unknown> = {};
-    if (query.status) filter.status = query.status;
-    if (query.resourceId) filter.resourceId = query.resourceId;
-    if (query.from || query.to) filter.startAt = { ...(query.from ? { $gte: query.from } : {}), ...(query.to ? { $lte: query.to } : {}) };
-    const bookings = await BookingModel.find(filter).populate('resourceId').sort({ startAt: 1, createdAt: -1 }).lean() as unknown as BookingDoc[];
-    return bookings.map((booking) => this.toBookingRecord(booking));
-  }
-
-  async getBooking(id: string) {
-    this.assertId(id, 'BOOKING');
-    const booking = await BookingModel.findById(id).populate('resourceId').lean() as unknown as BookingDoc | null;
-    if (!booking) throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking was not found');
-    return this.toBookingRecord(booking);
-  }
-
-  async updateBooking(id: string, input: Parameters<BookingService['updateBooking']>[1], actor: AuthPrincipal, context: RequestContext) {
-    const existing = await this.getBooking(id);
-    if (!['pending', 'approved'].includes(existing.status)) throw new AppError(409, 'BOOKING_FINALIZED', 'Finalized bookings cannot be edited');
-    const resourceId = input.resourceId || existing.resource.id;
-    const startAt = input.startAt || existing.startAt;
-    const endAt = input.endAt || existing.endAt;
-    const attendees = input.attendees || existing.attendees;
-    const resource = await this.resource(resourceId);
-    assertBookable(resource, startAt, endAt, attendees);
-    const oldSlots = await BookingSlotModel.find({ bookingId: id }).lean();
-    await BookingSlotModel.deleteMany({ bookingId: id });
-    try {
-      await BookingSlotModel.insertMany(bookingSlots(startAt, endAt).map((slotAt) => ({ resourceId, bookingId: id, slotAt })), { ordered: true });
-    } catch (error) {
-      await BookingSlotModel.deleteMany({ bookingId: id });
-      if (oldSlots.length) await BookingSlotModel.insertMany(oldSlots.map(({ resourceId: previousResource, bookingId, slotAt }) => ({ resourceId: previousResource, bookingId, slotAt })));
-      if (this.isDuplicate(error)) throw new AppError(409, 'BOOKING_CONFLICT', 'The selected time is no longer available');
-      throw error;
-    }
-    const update = { ...input, resourceId, startAt, endAt };
-    const booking = await BookingModel.findByIdAndUpdate(id, { $set: update }, { new: true }).populate('resourceId').lean() as unknown as BookingDoc;
-    await this.history(id, 'booking.updated', existing.status, actor.userId, input.internalNotes, booking);
-    await recordAudit({ actorId: actor.userId, action: 'booking.updated', targetType: 'booking', targetId: id, context, metadata: { resourceId, startAt, endAt } });
-    const managed = this.toBookingRecord(booking);
-    try { await this.notify(this.changeEmail(managed)); } catch { await recordAudit({ actorId: actor.userId, action: 'booking.notification_failed', targetType: 'booking', targetId: id, context }); }
-    return managed;
-  }
-
-  async setBookingStatus(id: string, status: BookingStatus, note: string | undefined, actor: AuthPrincipal, context: RequestContext) {
-    const existing = await this.getBooking(id);
-    const allowed = existing.status === 'pending' ? ['approved', 'rejected', 'cancelled'] : existing.status === 'approved' ? ['cancelled'] : [];
-    if (!allowed.includes(status)) throw new AppError(409, 'INVALID_BOOKING_TRANSITION', `Cannot change booking from ${existing.status} to ${status}`);
-    if (status === 'rejected' || status === 'cancelled') await BookingSlotModel.deleteMany({ bookingId: id });
-    const booking = await BookingModel.findByIdAndUpdate(id, { $set: { status, publicNotes: note || existing.publicNotes, decisionAt: new Date(), decidedBy: actor.userId } }, { new: true }).populate('resourceId').lean() as unknown as BookingDoc;
-    await this.history(id, `booking.${status}`, status, actor.userId, note, booking);
-    await recordAudit({ actorId: actor.userId, action: `booking.${status}`, targetType: 'booking', targetId: id, context, metadata: { reference: existing.reference, note } });
-    const managed = this.toBookingRecord(booking);
-    try { await this.notify(this.changeEmail(managed)); } catch { await recordAudit({ actorId: actor.userId, action: 'booking.notification_failed', targetType: 'booking', targetId: id, context }); }
-    return managed;
-  }
-
-  async listHistory(id: string): Promise<BookingHistoryEntry[]> {
-    this.assertId(id, 'BOOKING');
-    const entries = await BookingHistoryModel.find({ bookingId: id }).sort({ occurredAt: -1 }).lean();
-    return entries.map((entry) => ({ id: entry._id.toString(), action: entry.action, status: entry.status as BookingStatus, actorId: entry.actorId?.toString(), note: entry.note || undefined, occurredAt: entry.occurredAt }));
-  }
-
-  private async resource(id: string) { this.assertId(id, 'RESOURCE'); const resource = await BookingResourceModel.findById(id).lean() as unknown as ResourceDoc | null; if (!resource) throw new AppError(404, 'BOOKING_RESOURCE_NOT_FOUND', 'Booking resource was not found'); return this.toResource(resource); }
-  private toResource(resource: ResourceDoc): BookingResource { return { id: resource._id.toString(), slug: resource.slug, name: resource.name, description: resource.description, location: resource.location, rules: resource.rules, capacity: resource.capacity, accessibility: resource.accessibility, imageUrl: resource.imageUrl, active: resource.active, requiresApproval: resource.requiresApproval, minDurationMinutes: resource.minDurationMinutes, maxDurationMinutes: resource.maxDurationMinutes, advanceBookingDays: resource.advanceBookingDays, openingHours: resource.openingHours, blackoutPeriods: resource.blackoutPeriods, createdAt: resource.createdAt, updatedAt: resource.updatedAt }; }
-  private toPublicResource(resource: ResourceDoc | BookingResource, locale: BookingLocale): PublicBookingResource { return { id: '_id' in resource ? resource._id.toString() : resource.id, slug: resource.slug, name: resource.name[locale], description: resource.description[locale], location: resource.location[locale], rules: resource.rules[locale], capacity: resource.capacity, accessibility: resource.accessibility[locale], imageUrl: resource.imageUrl, requiresApproval: resource.requiresApproval, minDurationMinutes: resource.minDurationMinutes, maxDurationMinutes: resource.maxDurationMinutes, advanceBookingDays: resource.advanceBookingDays, openingHours: resource.openingHours }; }
-  private toBookingRecord(booking: BookingDoc): BookingRecord { const resource = booking.resourceId as ResourceDoc; return { id: booking._id.toString(), reference: booking.reference, resource: this.toResource(resource), resourceId: resource._id.toString(), startAt: booking.startAt, endAt: booking.endAt, requesterName: booking.requesterName, requesterEmail: booking.requesterEmail, requesterPhone: booking.requesterPhone, organization: booking.organization, purpose: booking.purpose, attendees: booking.attendees, accessibilityNeeds: booking.accessibilityNeeds, locale: booking.locale, privacyAccepted: true, status: booking.status, publicNotes: booking.publicNotes, internalNotes: booking.internalNotes, decisionAt: booking.decisionAt, createdAt: booking.createdAt, updatedAt: booking.updatedAt }; }
-  private toPublicStatus(booking: BookingRecord, locale: BookingLocale): PublicBookingStatus { return { reference: booking.reference, status: booking.status, resource: this.toPublicResource(booking.resource, locale), startAt: booking.startAt, endAt: booking.endAt, requesterName: booking.requesterName, purpose: booking.purpose, publicNotes: booking.publicNotes, createdAt: booking.createdAt, updatedAt: booking.updatedAt }; }
-  private async history(bookingId: string, action: string, status: BookingStatus, actorId?: string, note?: string, snapshot?: unknown) { await BookingHistoryModel.create({ bookingId, action, status, actorId, note, snapshot, occurredAt: new Date() }); }
-  private requestEmail(booking: BookingRecord, accessCode: string) { const sv = booking.locale === 'sv'; const statusUrl = `/booking/status?reference=${encodeURIComponent(booking.reference)}&code=${encodeURIComponent(accessCode)}`; return { to: booking.requesterEmail, subject: sv ? `Bokningsförfrågan ${booking.reference}` : `Booking request ${booking.reference}`, text: sv ? `Tack för din bokningsförfrågan för ${booking.resource.name.sv}. Referens: ${booking.reference}. Status: ${booking.status}. Kontrollera status: ${statusUrl}` : `Thank you for your booking request for ${booking.resource.name.en}. Reference: ${booking.reference}. Status: ${booking.status}. Check status: ${statusUrl}` }; }
-  private changeEmail(booking: BookingRecord) { const sv = booking.locale === 'sv'; return { to: booking.requesterEmail, subject: sv ? `Bokningsstatus ${booking.reference}` : `Booking status ${booking.reference}`, text: sv ? `Status för bokning ${booking.reference}: ${booking.status}.${booking.publicNotes ? ` Meddelande: ${booking.publicNotes}` : ''}` : `Status for booking ${booking.reference}: ${booking.status}.${booking.publicNotes ? ` Message: ${booking.publicNotes}` : ''}` }; }
-  private hash(value: string) { return createHash('sha256').update(value).digest('hex'); }
-  private slug(value: string) { const result = slugify(value); if (!result) throw new AppError(400, 'INVALID_SLUG', 'Resource slug is invalid'); return result; }
-  private assertId(id: string, kind: string) { if (!Types.ObjectId.isValid(id)) throw new AppError(400, `INVALID_${kind}_ID`, `${kind.toLowerCase()} identifier is invalid`); }
-  private isDuplicate(error: unknown) {
-    const seen = new Set<object>();
-    const inspect = (value: unknown): boolean => {
-      if (!value || typeof value !== "object" || seen.has(value)) return false;
-      seen.add(value);
-      const candidate = value as {
-        code?: number;
-        cause?: unknown;
-        err?: unknown;
-        errorResponse?: unknown;
-        result?: unknown;
-        writeErrors?: unknown[];
-        errors?: unknown[];
-      };
-      if (candidate.code === 11000) return true;
-      if (candidate.writeErrors?.some(inspect) || candidate.errors?.some(inspect)) return true;
-      return inspect(candidate.err) || inspect(candidate.cause) || inspect(candidate.errorResponse) || inspect(candidate.result);
-    };
-    return inspect(error);
-  }
-  private duplicate(error: unknown, code: string) { if (this.isDuplicate(error)) throw new AppError(409, code, 'Resource slug is already in use'); }
+export class MongooseBookingService implements BookingService{
+ constructor(private readonly notify:BookingNotifier=async()=>undefined,private readonly options:Options={}){}
+ async listPublicResources(locale:BookingLocale){const resources=await BookingResourceModel.find({active:true,slug:{$in:allowedResourceSlugs}}).sort({slug:1}).lean() as unknown as ResourceDoc[];return resources.map(resource=>this.toPublicResource(resource,locale))}
+ async getPublicResource(slug:string,locale:BookingLocale){if(!allowedResourceSlugs.includes(slug as typeof allowedResourceSlugs[number]))throw new AppError(404,'BOOKING_RESOURCE_NOT_FOUND','Booking resource was not found');const resource=await BookingResourceModel.findOne({slug,active:true}).lean() as unknown as ResourceDoc|null;if(!resource)throw new AppError(404,'BOOKING_RESOURCE_NOT_FOUND','Booking resource was not found');return this.toPublicResource(resource,locale)}
+ async getAvailability(resourceId:string,from:Date,to:Date){this.assertId(resourceId,'RESOURCE');const resource=await BookingResourceModel.findOne({_id:resourceId,active:true,slug:{$in:allowedResourceSlugs}}).lean() as unknown as ResourceDoc|null;if(!resource)throw new AppError(404,'BOOKING_RESOURCE_NOT_FOUND','Booking resource was not found');const bookings=await BookingModel.find({resourceId,status:{$in:activeStatuses},startAt:{$lt:to},endAt:{$gt:from}}).sort({startAt:1}).lean() as unknown as BookingDoc[];const blocked=resource.blackoutPeriods.filter(period=>period.startAt<to&&period.endAt>from).map(period=>({startAt:period.startAt,endAt:period.endAt,kind:'blackout' as const}));return[...bookings.map(booking=>({startAt:booking.startAt,endAt:booking.endAt,kind:'booking' as const})),...blocked].sort((a,b)=>a.startAt.getTime()-b.startAt.getTime())}
+ async calculatePrice(input:PricingRequest){const privateBenefitAvailable=await this.privateBenefitAvailable(input);return calculateBookingPrice(input,{privateBenefitAvailable})}
+ async createBooking(input:BookingRequestInput,context:RequestContext){const resource=await this.resource(input.resourceId);if(resource.slug!==input.resourceSlug)throw new AppError(400,'RESOURCE_MISMATCH','Selected resource does not match pricing request');assertBookable(resource,input.startAt,input.endAt,input.attendees);const price=await this.calculatePrice(input);if(price.totalPrice>0&&!input.billingAddress)throw new AppError(400,'BILLING_ADDRESS_REQUIRED','Billing address is required for paid bookings');const reference=await this.nextReference(input.startAt);const status:BookingStatus=input.submissionType==='quote_request'?'quote_requested':'submitted';const booking=await BookingModel.create({...input,resourceSlug:undefined,requesterEmail:input.requesterEmail.toLowerCase(),privacyAcceptedAt:new Date(),reference,status,price,checklist:defaultChecklist});try{await BookingSlotModel.insertMany(bookingSlots(input.startAt,input.endAt).map(slotAt=>({resourceId:input.resourceId,bookingId:booking._id,slotAt})),{ordered:true})}catch(error){await Promise.all([BookingSlotModel.deleteMany({bookingId:booking._id}),BookingModel.deleteOne({_id:booking._id})]);if(this.isDuplicate(error))throw new AppError(409,'BOOKING_CONFLICT','The selected time is no longer available');throw error}await this.history(booking.id,reference,input.submissionType==='quote_request'?'booking.quote_requested':'booking.submitted',status,undefined,undefined,booking.toObject());await recordAudit({action:input.submissionType==='quote_request'?'booking.quote_requested':'booking.submitted',targetType:'booking',targetId:booking.id,context,metadata:{reference,resourceId:input.resourceId,startAt:input.startAt,endAt:input.endAt,status,totalPrice:price.totalPrice}});const managed=await this.getBooking(booking.id);await this.email(managed,input.submissionType==='quote_request'?'quote_requested':'booking_received');return{booking:this.toPublicStatus(managed,input.locale)}}
+ async getPublicBooking(reference:string,email:string,locale:BookingLocale){const booking=await BookingModel.findOne({reference,requesterEmail:email.trim().toLowerCase()}).populate('resourceId').lean() as unknown as BookingDoc|null;if(!booking)throw new AppError(404,'BOOKING_NOT_FOUND','Booking was not found');return this.toPublicStatus(this.toBookingRecord(booking),locale)}
+ async listAdminResources(){const resources=await BookingResourceModel.find({slug:{$in:allowedResourceSlugs}}).sort({slug:1}).lean() as unknown as ResourceDoc[];return resources.map(resource=>this.toResource(resource))}
+ async createResource(input:BookingResourceInput,actor:AuthPrincipal,context:RequestContext){const slug=this.allowedSlug(input.slug||input.name.en);if(await BookingResourceModel.exists({slug}))throw new AppError(409,'RESOURCE_SLUG_IN_USE','Resource already exists');const created=await BookingResourceModel.create({...input,imageUrl:input.imageUrl||undefined,slug});await recordAudit({actorId:actor.userId,action:'booking.resource_created',targetType:'booking_resource',targetId:created.id,context,metadata:{slug}});return this.toResource(created.toObject() as unknown as ResourceDoc)}
+ async updateResource(id:string,input:BookingResourceInput,actor:AuthPrincipal,context:RequestContext){this.assertId(id,'RESOURCE');const current=await BookingResourceModel.findById(id).lean() as unknown as ResourceDoc|null;if(!current||!allowedResourceSlugs.includes(current.slug as typeof allowedResourceSlugs[number]))throw new AppError(404,'BOOKING_RESOURCE_NOT_FOUND','Booking resource was not found');const slug=this.allowedSlug(input.slug||current.slug);const updated=await BookingResourceModel.findByIdAndUpdate(id,{$set:{...input,imageUrl:input.imageUrl||undefined,slug}},{new:true}).lean() as unknown as ResourceDoc;await recordAudit({actorId:actor.userId,action:'booking.resource_updated',targetType:'booking_resource',targetId:id,context,metadata:{slug,active:input.active}});return this.toResource(updated)}
+ async listBookings(query:{status?:BookingStatus;resourceId?:string;from?:Date;to?:Date}={}){const filter:Record<string,unknown>={};if(query.status)filter.status=query.status;if(query.resourceId)filter.resourceId=query.resourceId;if(query.from||query.to)filter.startAt={...(query.from?{$gte:query.from}:{}),...(query.to?{$lte:query.to}:{})};const bookings=await BookingModel.find(filter).populate('resourceId').sort({startAt:1,createdAt:-1}).lean() as unknown as BookingDoc[];return bookings.map(booking=>this.toBookingRecord(booking))}
+ async getDashboardSummary(){const now=new Date(),weekEnd=new Date(now.getTime()+7*86_400_000),monthStart=new Date(now.getFullYear(),now.getMonth(),1);const[pendingApprovals,waitingForSignature,quoteRequests,upcomingThisWeek,completedThisMonth]=await Promise.all([BookingModel.countDocuments({status:'submitted'}),BookingModel.countDocuments({status:'waiting_for_signature'}),BookingModel.countDocuments({status:'quote_requested'}),BookingModel.countDocuments({status:{$in:activeStatuses},startAt:{$gte:now,$lte:weekEnd}}),BookingModel.countDocuments({status:'completed',updatedAt:{$gte:monthStart}})]);return{pendingApprovals,waitingForSignature,quoteRequests,upcomingThisWeek,completedThisMonth}}
+ async getBooking(id:string){this.assertId(id,'BOOKING');const booking=await BookingModel.findById(id).populate('resourceId').lean() as unknown as BookingDoc|null;if(!booking)throw new AppError(404,'BOOKING_NOT_FOUND','Booking was not found');return this.toBookingRecord(booking)}
+ async updateBooking(id:string,input:Parameters<BookingService['updateBooking']>[1],actor:AuthPrincipal,context:RequestContext){const existing=await this.getBooking(id);if(['completed','cancelled','rejected'].includes(existing.status))throw new AppError(409,'BOOKING_FINALIZED','Finalized bookings cannot be edited');const resourceId=input.resourceId||existing.resource.id,startAt=input.startAt||existing.startAt,endAt=input.endAt||existing.endAt,attendees=input.attendees||existing.attendees,resource=await this.resource(resourceId);assertBookable(resource,startAt,endAt,attendees);const oldSlots=await BookingSlotModel.find({bookingId:id}).lean();await BookingSlotModel.deleteMany({bookingId:id});try{await BookingSlotModel.insertMany(bookingSlots(startAt,endAt).map(slotAt=>({resourceId,bookingId:id,slotAt})),{ordered:true})}catch(error){await BookingSlotModel.deleteMany({bookingId:id});if(oldSlots.length)await BookingSlotModel.insertMany(oldSlots.map(slot=>({resourceId:slot.resourceId,bookingId:slot.bookingId,slotAt:slot.slotAt})));if(this.isDuplicate(error))throw new AppError(409,'BOOKING_CONFLICT','The selected time is no longer available');throw error}const checklist=input.checklist?.map(item=>({...item,completedAt:item.completed?item.completedAt||new Date():undefined,completedBy:item.completed?item.completedBy||actor.userId:undefined}));const booking=await BookingModel.findByIdAndUpdate(id,{$set:{...input,...(checklist?{checklist}:{}),resourceId,startAt,endAt}},{new:true}).populate('resourceId').lean() as unknown as BookingDoc;await this.history(id,existing.reference,'booking.updated',existing.status,actor.userId,input.internalNotes,booking);await recordAudit({actorId:actor.userId,action:'booking.updated',targetType:'booking',targetId:id,context,metadata:{reference:existing.reference,resourceId,startAt,endAt}});return this.toBookingRecord(booking)}
+ async setBookingStatus(id:string,status:BookingStatus,note:string|undefined,actor:AuthPrincipal,context:RequestContext){const existing=await this.getBooking(id),allowed:Record<BookingStatus,BookingStatus[]>={submitted:['approved','rejected','cancelled'],quote_requested:['quote_sent','rejected','cancelled'],quote_sent:['approved','rejected','cancelled'],approved:['contract_generated','cancelled','completed'],contract_generated:['waiting_for_signature','cancelled'],waiting_for_signature:['signed','cancelled'],signed:['completed','cancelled'],completed:[],cancelled:[],rejected:[]};if(!allowed[existing.status].includes(status))throw new AppError(409,'INVALID_BOOKING_TRANSITION',`Cannot change booking from ${existing.status} to ${status}`);if(['rejected','cancelled','completed'].includes(status))await BookingSlotModel.deleteMany({bookingId:id});const booking=await BookingModel.findByIdAndUpdate(id,{$set:{status,publicNotes:note||existing.publicNotes,decisionAt:new Date(),decidedBy:actor.userId}},{new:true}).populate('resourceId').lean() as unknown as BookingDoc;await this.history(id,existing.reference,`booking.${status}`,status,actor.userId,note,booking);await recordAudit({actorId:actor.userId,action:`booking.${status}`,targetType:'booking',targetId:id,context,metadata:{reference:existing.reference}});const managed=this.toBookingRecord(booking);if(status==='approved')await this.email(managed,'booking_approved');if(status==='completed')await this.email(managed,'booking_completed');return managed}
+ async sendQuote(id:string,price:PriceBreakdown,notes:string|undefined,actor:AuthPrincipal,context:RequestContext){const existing=await this.getBooking(id);if(existing.status!=='quote_requested')throw new AppError(409,'QUOTE_NOT_REQUESTED','Booking is not waiting for a quote');const normalized={...price,currency:'EUR' as const,minimumHours:existing.price.minimumHours,billableHours:existing.price.billableHours,pricingRuleVersion:existing.price.pricingRuleVersion,manualOverride:true};const booking=await BookingModel.findByIdAndUpdate(id,{$set:{price:normalized,quoteNotes:notes,status:'quote_sent',publicNotes:notes}},{new:true}).populate('resourceId').lean() as unknown as BookingDoc;await this.history(id,existing.reference,'booking.quote_sent','quote_sent',actor.userId,notes,booking);await recordAudit({actorId:actor.userId,action:'booking.quote_sent',targetType:'booking',targetId:id,context,metadata:{reference:existing.reference,totalPrice:normalized.totalPrice}});const managed=this.toBookingRecord(booking);await this.email(managed,'quote_sent');return managed}
+ async generateContract(id:string,language:'en'|'sv'|'fi',actor:AuthPrincipal,context:RequestContext){const booking=await this.getBooking(id);if(!['approved','contract_generated','waiting_for_signature'].includes(booking.status))throw new AppError(409,'CONTRACT_NOT_ALLOWED','Contract can only be generated after approval');if(!this.options.doorCode)throw new AppError(503,'DOOR_CODE_NOT_CONFIGURED','Cor House door code is not configured');const pdf=await createContractPdf(booking,{language,doorCode:this.options.doorCode,landlordAddress:this.options.landlordAddress||'Cor House, Arcada campus, Helsinki, Finland',landlordEmail:this.options.landlordEmail||'info@asken.fi'});const contract=await BookingContractModel.create({bookingId:id,bookingReference:booking.reference,generatedBy:actor.userId,language,templateVersion:CONTRACT_TEMPLATE_VERSION,termsVersion:CONTRACT_TERMS_VERSION,status:'contract_generated'}),nextStatus=booking.status==='approved'?'contract_generated':booking.status;await BookingModel.updateOne({_id:id},{$set:{status:nextStatus}});await this.history(id,booking.reference,'booking.contract_generated',nextStatus,actor.userId,`Language: ${language}`);await recordAudit({actorId:actor.userId,action:'booking.contract_generated',targetType:'booking_contract',targetId:contract.id,context,metadata:{reference:booking.reference,language,templateVersion:CONTRACT_TEMPLATE_VERSION}});await this.email({...booking,status:nextStatus},'contract_ready');return{metadata:this.toContract(contract.toObject()),filename:`${booking.reference}-${language}-contract.pdf`,pdf}}
+ async listContracts(id:string){this.assertId(id,'BOOKING');return(await BookingContractModel.find({bookingId:id}).sort({generatedAt:-1}).lean()).map(contract=>this.toContract(contract))}
+ async setContractStatus(id:string,status:'waiting_for_signature'|'signed',actor:AuthPrincipal,context:RequestContext){const booking=await this.getBooking(id);if(status==='waiting_for_signature'&&booking.status!=='contract_generated'||status==='signed'&&booking.status!=='waiting_for_signature')throw new AppError(409,'INVALID_CONTRACT_TRANSITION','Invalid contract status transition');await BookingContractModel.updateMany({bookingId:id},{$set:{status}});const updated=await BookingModel.findByIdAndUpdate(id,{$set:{status}},{new:true}).populate('resourceId').lean() as unknown as BookingDoc;await this.history(id,booking.reference,`booking.${status}`,status,actor.userId);await recordAudit({actorId:actor.userId,action:`booking.${status}`,targetType:'booking_contract',targetId:id,context,metadata:{reference:booking.reference}});return this.toBookingRecord(updated)}
+ async listHistory(id:string):Promise<BookingHistoryEntry[]>{this.assertId(id,'BOOKING');return(await BookingHistoryModel.find({bookingId:id}).sort({occurredAt:-1}).lean()).map(entry=>({id:entry._id.toString(),action:entry.action,status:entry.status as BookingStatus,reference:entry.bookingReference,actorId:entry.actorId?.toString(),note:entry.note||undefined,occurredAt:entry.occurredAt}))}
+ private async privateBenefitAvailable(input:PricingRequest){if(input.bookingType!=='internal_ask'||input.internalAskPurpose!=='private_booking'||!input.requesterEmail||!input.mandateYear)return false;const email=input.requesterEmail.toLowerCase();if(!new Set(this.options.boardMemberEmails||[]).has(email))return false;return!await BookingModel.exists({bookingType:'internal_ask',internalAskPurpose:'private_booking',requesterEmail:email,mandateYear:input.mandateYear,'price.benefitApplied':'board_private_booking',status:{$nin:['cancelled','rejected']}})}
+ private async nextReference(_bookingDate:Date){const year=Number(new Intl.DateTimeFormat('en',{timeZone:'Europe/Helsinki',year:'numeric'}).format(new Date())),counter=await BookingReferenceCounterModel.findOneAndUpdate({year},{$inc:{sequence:1}},{upsert:true,new:true});if(counter.sequence>9999)throw new AppError(409,'REFERENCE_SEQUENCE_EXHAUSTED','Annual booking reference sequence is exhausted');return`COR-${year}-${String(counter.sequence).padStart(4,'0')}`}
+ private async resource(id:string){this.assertId(id,'RESOURCE');const resource=await BookingResourceModel.findOne({_id:id,slug:{$in:allowedResourceSlugs}}).lean() as unknown as ResourceDoc|null;if(!resource)throw new AppError(404,'BOOKING_RESOURCE_NOT_FOUND','Booking resource was not found');return this.toResource(resource)}
+ private toResource(resource:ResourceDoc):BookingResource{return{id:resource._id.toString(),slug:resource.slug,name:resource.name,floor:resource.floor,description:resource.description,location:resource.location,rules:resource.rules,capacity:resource.capacity,accessibility:resource.accessibility,imageUrl:resource.imageUrl,active:resource.active,requiresApproval:resource.requiresApproval,minDurationMinutes:resource.minDurationMinutes,maxDurationMinutes:resource.maxDurationMinutes,advanceBookingDays:resource.advanceBookingDays,openingHours:resource.openingHours,blackoutPeriods:resource.blackoutPeriods,createdAt:resource.createdAt,updatedAt:resource.updatedAt}}
+ private toPublicResource(resource:ResourceDoc|BookingResource,locale:BookingLocale):PublicBookingResource{return{id:'_id'in resource?resource._id.toString():resource.id,slug:resource.slug,name:resource.name[locale],floor:resource.floor[locale],description:resource.description[locale],location:resource.location[locale],rules:resource.rules[locale],capacity:resource.capacity,accessibility:resource.accessibility[locale],imageUrl:resource.imageUrl,requiresApproval:resource.requiresApproval,minDurationMinutes:resource.minDurationMinutes,maxDurationMinutes:resource.maxDurationMinutes,advanceBookingDays:resource.advanceBookingDays,openingHours:resource.openingHours}}
+ private toBookingRecord(booking:BookingDoc):BookingRecord{const resource=booking.resourceId as ResourceDoc;return{id:booking._id.toString(),reference:booking.reference,resource:this.toResource(resource),resourceId:resource._id.toString(),resourceSlug:resource.slug,startAt:booking.startAt,endAt:booking.endAt,requesterName:booking.requesterName,requesterEmail:booking.requesterEmail,requesterPhone:booking.requesterPhone,organization:booking.organization,billingAddress:booking.billingAddress,bookingType:booking.bookingType,internalAskPurpose:booking.internalAskPurpose,mandateYear:booking.mandateYear,kitchenExtra:booking.kitchenExtra,saunaExtra:booking.saunaExtra,purpose:booking.purpose,attendees:booking.attendees,accessibilityNeeds:booking.accessibilityNeeds,locale:booking.locale,submissionType:booking.submissionType,privacyAccepted:true,status:booking.status,price:booking.price,quoteNotes:booking.quoteNotes,publicNotes:booking.publicNotes,internalNotes:booking.internalNotes,checklist:booking.checklist||[],decisionAt:booking.decisionAt,createdAt:booking.createdAt,updatedAt:booking.updatedAt}}
+ private toPublicStatus(booking:BookingRecord,locale:BookingLocale):PublicBookingStatus{return{reference:booking.reference,status:booking.status,resource:this.toPublicResource(booking.resource,locale),bookingType:booking.bookingType,startAt:booking.startAt,endAt:booking.endAt,requesterName:booking.requesterName,purpose:booking.purpose,price:booking.price,publicNotes:booking.publicNotes,createdAt:booking.createdAt,updatedAt:booking.updatedAt}}
+ private async history(bookingId:string,reference:string,action:string,status:BookingStatus,actorId?:string,note?:string,snapshot?:unknown){await BookingHistoryModel.create({bookingId,bookingReference:reference,action,status,actorId,note,snapshot,occurredAt:new Date()})}
+ private async email(booking:BookingRecord,type:'booking_received'|'quote_requested'|'quote_sent'|'booking_approved'|'contract_ready'|'booking_completed'){const sv=booking.locale==='sv',labels={booking_received:sv?'Bokning mottagen':'Booking received',quote_requested:sv?'Offertförfrågan mottagen':'Quote requested',quote_sent:sv?'Offert skickad':'Quote sent',booking_approved:sv?'Bokning godkänd':'Booking approved',contract_ready:sv?'Avtal klart':'Contract ready',booking_completed:sv?'Bokning slutförd':'Booking completed'};const text=sv?`${labels[type]} för ${booking.reference}. Status: ${booking.status}. Total: ${booking.price.totalPrice.toFixed(2)} EUR.`:`${labels[type]} for ${booking.reference}. Status: ${booking.status}. Total: ${booking.price.totalPrice.toFixed(2)} EUR.`;try{await this.notify({type,to:booking.requesterEmail,subject:`${labels[type]} ${booking.reference}`,text})}catch{await recordAudit({action:'booking.notification_failed',targetType:'booking',targetId:booking.id,context:{},metadata:{reference:booking.reference,type}})}}
+ private toContract(contract:any):ContractMetadata{return{id:contract._id.toString(),bookingId:contract.bookingId.toString(),bookingReference:contract.bookingReference,generatedBy:contract.generatedBy.toString(),generatedAt:contract.generatedAt,language:contract.language,templateVersion:contract.templateVersion,termsVersion:contract.termsVersion,status:contract.status}}
+ private allowedSlug(value:string){const slug=slugify(value);if(!allowedResourceSlugs.includes(slug as typeof allowedResourceSlugs[number]))throw new AppError(400,'RESOURCE_NOT_ALLOWED','Only the three Cor House resources are bookable');return slug}
+ private assertId(id:string,kind:string){if(!Types.ObjectId.isValid(id))throw new AppError(400,`INVALID_${kind}_ID`,`${kind.toLowerCase()} identifier is invalid`)}
+ private isDuplicate(error:unknown){const candidate=error as{code?:number;writeErrors?:Array<{code?:number}>};return candidate.code===11000||Boolean(candidate.writeErrors?.some(item=>item.code===11000))}
 }

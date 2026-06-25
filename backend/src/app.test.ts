@@ -127,10 +127,12 @@ const sampleEvent: ManagedEvent = { id: '507f1f77bcf86cd799439042', contentId: '
 const publicEvent: PublicEvent = { id: sampleEvent.id, slug: sampleEvent.slug, ...sampleEvent.translations.sv, startAt: sampleEvent.startAt, endAt: sampleEvent.endAt, eventStatus: 'scheduled', temporalStatus: 'upcoming', category: { slug: eventCategory.slug, label: eventCategory.labels.sv }, featured: true, locale: 'sv' };
 function createEventService(): EventService { return { listAdminEvents: jest.fn(async()=>[sampleEvent]), getAdminEvent: jest.fn(async()=>sampleEvent), createEvent: jest.fn(async()=>sampleEvent), updateEvent: jest.fn(async(_id,input)=>({...sampleEvent,version:input.expectedVersion+1})), deleteEvent: jest.fn(async()=>undefined), publishEvent: jest.fn(async(_id,v)=>({...sampleEvent,publicationStatus:'published' as const,version:v+1})), setFeatured: jest.fn(async(_id,featured)=>({...sampleEvent,featured})), listPublicEvents: jest.fn(async q=>({events:[{...publicEvent,locale:q.locale}],total:1,page:q.page,limit:q.limit})), getPublicEvent: jest.fn(async(_slug,locale)=>({...publicEvent,locale})), calendar: jest.fn(async q=>[{...publicEvent,locale:q.locale}]), listCategories: jest.fn(async()=>[eventCategory]), createCategory: jest.fn(async input=>({...eventCategory,labels:input.labels})), updateCategory: jest.fn(async(_id,input)=>({...eventCategory,labels:input.labels})), deleteCategory: jest.fn(async()=>undefined) }; }
 
-const bookingResource: BookingResource = { id: '507f1f77bcf86cd799439051', slug: 'meeting-room', name: { en: 'Meeting room', sv: 'Mötesrum' }, description: { en: 'A room', sv: 'Ett rum' }, location: { en: 'Cor', sv: 'Cor' }, rules: { en: 'Rules', sv: 'Regler' }, capacity: 20, accessibility: { en: 'Step-free', sv: 'Stegfri' }, active: true, requiresApproval: true, minDurationMinutes: 30, maxDurationMinutes: 240, advanceBookingDays: 365, openingHours: [{ weekday: 2, start: '08:00', end: '20:00' }], blackoutPeriods: [], createdAt: new Date(), updatedAt: new Date() };
-const bookingRecord: BookingRecord = { id: '507f1f77bcf86cd799439052', reference: 'ASK-1234ABCD', resourceId: bookingResource.id, resource: bookingResource, startAt: new Date('2030-01-01T10:00:00Z'), endAt: new Date('2030-01-01T11:00:00Z'), requesterName: 'Student', requesterEmail: 'student@example.com', purpose: 'Meeting', attendees: 4, locale: 'en', privacyAccepted: true, status: 'pending', createdAt: new Date(), updatedAt: new Date() };
-const publicBooking: PublicBookingStatus = { reference: bookingRecord.reference, status: 'pending', resource: { id: bookingResource.id, slug: bookingResource.slug, name: bookingResource.name.en, description: bookingResource.description.en, location: bookingResource.location.en, rules: bookingResource.rules.en, capacity: bookingResource.capacity, accessibility: bookingResource.accessibility.en, requiresApproval: true, minDurationMinutes: 30, maxDurationMinutes: 240, advanceBookingDays: 365, openingHours: bookingResource.openingHours }, startAt: bookingRecord.startAt, endAt: bookingRecord.endAt, requesterName: bookingRecord.requesterName, purpose: bookingRecord.purpose, createdAt: new Date(), updatedAt: new Date() };
-function createBookingService(): BookingService { return { listPublicResources: jest.fn(async()=>[publicBooking.resource]), getPublicResource: jest.fn(async()=>publicBooking.resource), getAvailability: jest.fn(async()=>[]), createBooking: jest.fn(async()=>({booking:publicBooking,accessCode:'abcdefghijklmnopqrstuvwx'})), getPublicBooking: jest.fn(async()=>publicBooking), listAdminResources: jest.fn(async()=>[bookingResource]), createResource: jest.fn(async()=>bookingResource), updateResource: jest.fn(async()=>bookingResource), listBookings: jest.fn(async()=>[bookingRecord]), getBooking: jest.fn(async()=>bookingRecord), updateBooking: jest.fn(async()=>bookingRecord), setBookingStatus: jest.fn(async(_id,status)=>({...bookingRecord,status})), listHistory: jest.fn(async()=>[{id:'507f1f77bcf86cd799439053',action:'booking.requested',status:'pending' as const,occurredAt:new Date()}]) }; }
+const text={en:'Meeting Room & Sauna',sv:'Kabinettet & Bastu',fi:'Kabinetti ja sauna'};
+const price={currency:'EUR' as const,rentalPrice:120,kitchenFee:25,saunaFee:20,discount:0,totalPrice:165,minimumHours:4,billableHours:4,pricingRuleVersion:'2026.1',manualOverride:false};
+const bookingResource: BookingResource = { id:'507f1f77bcf86cd799439051',slug:'meeting-room-sauna',name:text,floor:{en:'Floor 2',sv:'Våning 2',fi:'2. kerros'},description:text,location:{en:'Cor',sv:'Cor',fi:'Cor'},rules:{en:'Rules',sv:'Regler',fi:'Säännöt'},capacity:20,accessibility:{en:'Step-free',sv:'Stegfri',fi:'Esteetön'},active:true,requiresApproval:true,minDurationMinutes:30,maxDurationMinutes:720,advanceBookingDays:365,openingHours:[{weekday:2,start:'08:00',end:'23:59'}],blackoutPeriods:[],createdAt:new Date(),updatedAt:new Date() };
+const bookingRecord: BookingRecord = { id:'507f1f77bcf86cd799439052',reference:'COR-2026-0001',resourceId:bookingResource.id,resourceSlug:bookingResource.slug,resource:bookingResource,startAt:new Date('2026-07-01T10:00:00Z'),endAt:new Date('2026-07-01T14:00:00Z'),requesterName:'Student',requesterEmail:'student@example.com',bookingType:'ask_member',kitchenExtra:true,saunaExtra:true,purpose:'Meeting',attendees:4,locale:'en',submissionType:'booking_request',privacyAccepted:true,status:'submitted',price,checklist:[],createdAt:new Date(),updatedAt:new Date() };
+const publicBooking: PublicBookingStatus = { reference:bookingRecord.reference,status:'submitted',resource:{id:bookingResource.id,slug:bookingResource.slug,name:bookingResource.name.en,floor:bookingResource.floor.en,description:bookingResource.description.en,location:bookingResource.location.en,rules:bookingResource.rules.en,capacity:bookingResource.capacity,accessibility:bookingResource.accessibility.en,requiresApproval:true,minDurationMinutes:30,maxDurationMinutes:720,advanceBookingDays:365,openingHours:bookingResource.openingHours},bookingType:'ask_member',startAt:bookingRecord.startAt,endAt:bookingRecord.endAt,requesterName:bookingRecord.requesterName,purpose:bookingRecord.purpose,price,createdAt:new Date(),updatedAt:new Date() };
+function createBookingService(): BookingService { return { listPublicResources:jest.fn(async()=>[publicBooking.resource]),getPublicResource:jest.fn(async()=>publicBooking.resource),getAvailability:jest.fn(async()=>[]),calculatePrice:jest.fn(async()=>price),createBooking:jest.fn(async()=>({booking:publicBooking})),getPublicBooking:jest.fn(async()=>publicBooking),listAdminResources:jest.fn(async()=>[bookingResource]),createResource:jest.fn(async()=>bookingResource),updateResource:jest.fn(async()=>bookingResource),listBookings:jest.fn(async()=>[bookingRecord]),getDashboardSummary:jest.fn(async()=>({pendingApprovals:1,waitingForSignature:0,quoteRequests:0,upcomingThisWeek:1,completedThisMonth:0})),getBooking:jest.fn(async()=>bookingRecord),updateBooking:jest.fn(async()=>bookingRecord),setBookingStatus:jest.fn(async(_id,status)=>({...bookingRecord,status})),sendQuote:jest.fn(async()=>({...bookingRecord,status:'quote_sent' as const})),generateContract:jest.fn(async()=>({metadata:{id:'507f1f77bcf86cd799439060',bookingId:bookingRecord.id,bookingReference:bookingRecord.reference,generatedBy:adminPrincipal.userId,generatedAt:new Date(),language:'en' as const,templateVersion:'2026.1',termsVersion:'2026.1',status:'contract_generated' as const},filename:'contract.pdf',pdf:Buffer.from('%PDF')})),listContracts:jest.fn(async()=>[]),setContractStatus:jest.fn(async(_id,status)=>({...bookingRecord,status})),listHistory:jest.fn(async()=>[{id:'507f1f77bcf86cd799439053',action:'booking.submitted',status:'submitted' as const,reference:bookingRecord.reference,occurredAt:new Date()}]) }; }
 
 function buildApp(identityService = createIdentityService(), cmsService = createCmsService(), newsService = createNewsService(), eventService = createEventService(), bookingService = createBookingService()) {
   return createApp({ env, identityService, cmsService, newsService, eventService, bookingService });
@@ -282,9 +284,9 @@ describe('API foundation and identity integration', () => {
     const service = createBookingService(); const app = buildApp(createIdentityService(), createCmsService(), createNewsService(), createEventService(), service);
     expect((await request(app).get('/api/v1/bookings/resources?locale=en')).status).toBe(200);
     expect((await request(app).get(`/api/v1/bookings/availability?resourceId=${bookingResource.id}&from=2030-01-01T00:00:00.000Z&to=2030-01-02T00:00:00.000Z`)).status).toBe(200);
-    const created = await request(app).post('/api/v1/bookings').send({ resourceId: bookingResource.id, startAt:'2030-01-01T10:00:00.000Z', endAt:'2030-01-01T11:00:00.000Z', requesterName:'Student', requesterEmail:'student@example.com', purpose:'Meeting', attendees:4, locale:'en', privacyAccepted:true });
-    expect(created.status).toBe(201); expect(created.body.data.booking.reference).toBe('ASK-1234ABCD');
-    expect((await request(app).post('/api/v1/bookings/status').send({ reference:'ASK-1234ABCD', accessCode:'abcdefghijklmnopqrstuvwx', locale:'en' })).status).toBe(200);
+    const created = await request(app).post('/api/v1/bookings').send({ resourceId:bookingResource.id,resourceSlug:bookingResource.slug,startAt:'2026-07-01T10:00:00.000Z',endAt:'2026-07-01T14:00:00.000Z',requesterName:'Student',requesterEmail:'student@example.com',bookingType:'ask_member',kitchenExtra:true,saunaExtra:true,billingAddress:{name:'Student',address:'Street 1',postalCode:'00100',city:'Helsinki',country:'Finland'},purpose:'Meeting',attendees:4,locale:'en',submissionType:'booking_request',privacyAccepted:true });
+    expect(created.status).toBe(201); expect(created.body.data.booking.reference).toBe('COR-2026-0001');
+    expect((await request(app).post('/api/v1/bookings/status').send({ reference:'COR-2026-0001',email:'student@example.com',locale:'en' })).status).toBe(200);
   });
 
   it('protects booking administration and supports approval history', async () => {
@@ -294,6 +296,21 @@ describe('API foundation and identity integration', () => {
     expect((await request(app).get('/api/v1/admin/bookings').set('Cookie',cookie)).status).toBe(200);
     expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/status`).set('Cookie',cookie).send({status:'approved',note:'Approved'})).body.data.booking.status).toBe('approved');
     expect((await request(app).get(`/api/v1/admin/bookings/${bookingRecord.id}/history`).set('Cookie',cookie)).status).toBe(200);
+  });
+  it('calculates prices and supports quote and contract workflows',async()=>{
+    const service=createBookingService(),app=buildApp(createIdentityService(),createCmsService(),createNewsService(),createEventService(),service);
+    const calculated=await request(app).post('/api/v1/bookings/price').send({bookingType:'ask_member',resourceSlug:'main-hall',startAt:'2026-07-01T10:00:00.000Z',endAt:'2026-07-01T14:00:00.000Z',kitchenExtra:true,saunaExtra:true});
+    expect(calculated.status).toBe(200);expect(calculated.body.data.price.totalPrice).toBe(165);
+    const session=await login(app),cookie=cookies(session);
+    expect((await request(app).get('/api/v1/admin/bookings/dashboard').set('Cookie',cookie)).body.data.summary.pendingApprovals).toBe(1);
+    expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/quote`).set('Cookie',cookie).send({rentalPrice:100,kitchenFee:0,saunaFee:20,discount:0,totalPrice:120,notes:'Manual quote'})).status).toBe(200);
+    const contract=await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/contracts`).set('Cookie',cookie).send({language:'sv'});
+    expect(contract.status).toBe(200);expect(contract.headers['content-type']).toContain('application/pdf');
+    expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/contract-status`).set('Cookie',cookie).send({status:'waiting_for_signature'})).status).toBe(200);
+  });
+  it('requires booking write permission for contract generation',async()=>{
+    const principal={...adminPrincipal,permissions:['booking.read']},app=buildApp(createIdentityService(principal)),session=await login(app);
+    expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/contracts`).set('Cookie',cookies(session)).send({language:'en'})).status).toBe(403);
   });
   it('rejects unsupported content types', async () => {
     const app = buildApp();
@@ -316,14 +333,14 @@ describe('Booking workflow integration', () => {
   it('runs request, conflict, approval, status, history, cancellation, and release through HTTP', async () => {
     let current: BookingRecord = { ...bookingRecord };
     let occupied = false;
-    const history: BookingHistoryEntry[] = [{ id: '507f1f77bcf86cd799439053', action: 'booking.requested', status: 'pending' as const, occurredAt: new Date() }];
+    const history: BookingHistoryEntry[] = [{ id:'507f1f77bcf86cd799439053',action:'booking.submitted',status:'submitted',reference:bookingRecord.reference,occurredAt:new Date() }];
     const service = createBookingService();
 
     service.createBooking = jest.fn(async () => {
       if (occupied) throw new AppError(409, 'BOOKING_CONFLICT', 'The selected time is no longer available');
       occupied = true;
-      current = { ...bookingRecord, status: 'pending' };
-      return { booking: { ...publicBooking, status: current.status }, accessCode: 'abcdefghijklmnopqrstuvwx' };
+      current = { ...bookingRecord, status: 'submitted' };
+      return { booking: { ...publicBooking, status: current.status } };
     });
     service.getAvailability = jest.fn(async () => occupied ? [{ startAt: current.startAt, endAt: current.endAt, kind: 'booking' as const }] : []);
     service.listBookings = jest.fn(async () => [current]);
@@ -344,13 +361,19 @@ describe('Booking workflow integration', () => {
     const app = buildApp(createIdentityService(), createCmsService(), createNewsService(), createEventService(), service);
     const payload = {
       resourceId: bookingResource.id,
-      startAt: '2030-01-01T10:00:00.000Z',
-      endAt: '2030-01-01T11:00:00.000Z',
+      resourceSlug: bookingResource.slug,
+      startAt: '2026-07-01T10:00:00.000Z',
+      endAt: '2026-07-01T14:00:00.000Z',
       requesterName: 'Student',
       requesterEmail: 'student@example.com',
+      bookingType: 'ask_member',
+      kitchenExtra: true,
+      saunaExtra: true,
+      billingAddress: { name:'Student',address:'Street 1',postalCode:'00100',city:'Helsinki',country:'Finland' },
       purpose: 'Meeting',
       attendees: 4,
       locale: 'en',
+      submissionType: 'booking_request',
       privacyAccepted: true,
     };
 
@@ -366,7 +389,7 @@ describe('Booking workflow integration', () => {
     const cookie = cookies(session);
     expect((await request(app).put(`/api/v1/admin/bookings/${bookingRecord.id}`).set('Cookie', cookie).send({ purpose: 'Updated meeting' })).status).toBe(200);
     expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/status`).set('Cookie', cookie).send({ status: 'approved' })).body.data.booking.status).toBe('approved');
-    expect((await request(app).post('/api/v1/bookings/status').send({ reference: bookingRecord.reference, accessCode: 'abcdefghijklmnopqrstuvwx', locale: 'sv' })).body.data.booking.status).toBe('approved');
+    expect((await request(app).post('/api/v1/bookings/status').send({ reference:bookingRecord.reference,email:bookingRecord.requesterEmail,locale:'sv' })).body.data.booking.status).toBe('approved');
     expect((await request(app).get(`/api/v1/admin/bookings/${bookingRecord.id}/history`).set('Cookie', cookie)).body.data.history.length).toBeGreaterThanOrEqual(3);
     expect((await request(app).post(`/api/v1/admin/bookings/${bookingRecord.id}/status`).set('Cookie', cookie).send({ status: 'cancelled' })).body.data.booking.status).toBe('cancelled');
     expect((await request(app).get(availabilityPath)).body.data.intervals).toHaveLength(0);

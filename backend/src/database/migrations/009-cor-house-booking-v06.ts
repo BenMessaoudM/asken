@@ -1,0 +1,17 @@
+import { Db, ObjectId } from 'mongodb';
+import { Migration } from './types';
+const localized=(en:string,sv:string,fi:string)=>({en,sv,fi});
+const resources=[
+ {slug:'kitchen',name:localized('Kitchen','Köket','Keittiö'),floor:localized('Floor 1','Våning 1','1. kerros'),capacity:8},
+ {slug:'main-hall',name:localized('Main Hall','Salen','Juhlasali'),floor:localized('Floor 1','Våning 1','1. kerros'),capacity:80},
+ {slug:'meeting-room-sauna',name:localized('Meeting Room & Sauna','Kabinettet & Bastu','Kabinetti ja sauna'),floor:localized('Floor 2','Våning 2','2. kerros'),capacity:20},
+];
+export const corHouseBookingV06Migration:Migration={id:'009-cor-house-booking-v06',description:'Finalize Cor House resources, references, pricing, quotes, and contract metadata',up:async(database:Db)=>{
+ const collection=database.collection('bookingresources'),now=new Date(),openingHours=[1,2,3,4,5,6,0].map(weekday=>({weekday,start:'08:00',end:'23:59'}));
+ for(const resource of resources)await collection.updateOne({slug:resource.slug},{$set:{...resource,description:localized('Cor House bookable resource.','Bokningsbar resurs i Cor-huset.','Cor-talon varattava tila.'),location:localized('Cor House, Arcada campus','Cor-huset, Arcadas campus','Cor-talo, Arcadan kampus'),rules:localized('Follow the rental contract and ASK instructions.','Följ hyresavtalet och ASK:s anvisningar.','Noudata vuokrasopimusta ja ASK:n ohjeita.'),accessibility:localized('Contact ASK for accessibility arrangements.','Kontakta ASK för tillgänglighetsarrangemang.','Ota yhteyttä ASK:hon esteettömyysjärjestelyistä.'),active:true,requiresApproval:true,minDurationMinutes:30,maxDurationMinutes:720,advanceBookingDays:365,openingHours,blackoutPeriods:[],schemaVersion:2,updatedAt:now},$setOnInsert:{_id:new ObjectId(),createdAt:now}},{upsert:true});
+ await collection.updateMany({slug:{$nin:resources.map(resource=>resource.slug)}},{$set:{active:false}});
+ const bookings=database.collection('bookings'),documents=await bookings.find({reference:{$not:/^COR-\d{4}-\d{4}$/}}).sort({createdAt:1}).toArray(),sequences=new Map<number,number>();
+ for(const booking of documents){const source=booking.createdAt||now,year=new Date(source).getUTCFullYear(),sequence=(sequences.get(year)||0)+1;sequences.set(year,sequence);const reference=`COR-${year}-${String(sequence).padStart(4,'0')}`,status=booking.status==='pending'?'submitted':booking.status;await bookings.updateOne({_id:booking._id},{$set:{reference,status,bookingType:'external',submissionType:'booking_request',kitchenExtra:false,saunaExtra:false,price:{currency:'EUR',rentalPrice:0,kitchenFee:0,saunaFee:0,discount:0,totalPrice:0,minimumHours:0,billableHours:0,pricingRuleVersion:'legacy',manualOverride:false},checklist:[],schemaVersion:2},$unset:{accessCodeHash:''}});await database.collection('bookinghistories').updateMany({bookingId:booking._id},{$set:{bookingReference:reference,status}})}
+ for(const[year,sequence]of sequences)await database.collection('bookingreferencecounters').updateOne({year},{$max:{sequence}},{upsert:true});
+ await database.collection('bookingreferencecounters').createIndex({year:1},{unique:true});await database.collection('bookingcontracts').createIndex({bookingId:1,generatedAt:-1});await database.collection('bookingcontracts').createIndex({bookingReference:1});await bookings.createIndex({status:1,startAt:1});await bookings.createIndex({requesterEmail:1,mandateYear:1,bookingType:1});
+},down:async()=>{}};

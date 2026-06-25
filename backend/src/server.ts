@@ -26,7 +26,7 @@ export async function startServer() {
     eventService: new MongooseEventService(cmsService),
     bookingService: new MongooseBookingService(async (notification) => {
       await transporter.sendMail({ from: env.SMTP_USER, to: notification.to, subject: notification.subject, text: notification.text.replaceAll('/booking/', env.FRONTEND_URL + '/booking/') });
-    }),
+    }, { doorCode: env.COR_HOUSE_DOOR_CODE, landlordAddress: env.COR_HOUSE_LANDLORD_ADDRESS, landlordEmail: env.COR_HOUSE_LANDLORD_EMAIL, boardMemberEmails: env.COR_HOUSE_BOARD_MEMBER_EMAILS?.split(',').map((email) => email.trim().toLowerCase()).filter(Boolean) }),
     sendMessage: async (message) => {
       await transporter.sendMail({ from: env.SMTP_USER, to: env.SMTP_USER, subject: 'New Message', text: message });
     },

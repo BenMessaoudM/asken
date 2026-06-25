@@ -1,15 +1,11 @@
 import { model, Schema, Types } from 'mongoose';
-
+const billingAddress = new Schema({ name:{type:String,required:true},address:{type:String,required:true},postalCode:{type:String,required:true},city:{type:String,required:true},country:{type:String,required:true},vatOrBusinessId:String,referenceNumber:String },{_id:false});
+const price = new Schema({ currency:{type:String,enum:['EUR'],required:true},rentalPrice:{type:Number,required:true},kitchenFee:{type:Number,required:true},saunaFee:{type:Number,required:true},discount:{type:Number,required:true},totalPrice:{type:Number,required:true},minimumHours:{type:Number,required:true},billableHours:{type:Number,required:true},benefitApplied:String,pricingRuleVersion:{type:String,required:true},manualOverride:{type:Boolean,required:true,default:false} },{_id:false});
+const checklistItem = new Schema({key:{type:String,required:true},label:{type:String,required:true},completed:{type:Boolean,required:true,default:false},completedAt:Date,completedBy:{type:Types.ObjectId,ref:'User'}},{_id:false});
 const schema = new Schema({
-  reference: { type: String, required: true, unique: true, index: true }, accessCodeHash: { type: String, required: true },
-  resourceId: { type: Types.ObjectId, ref: 'BookingResource', required: true, index: true },
-  startAt: { type: Date, required: true, index: true }, endAt: { type: Date, required: true, index: true },
-  requesterName: { type: String, required: true }, requesterEmail: { type: String, required: true, lowercase: true }, requesterPhone: String,
-  organization: String, purpose: { type: String, required: true }, attendees: { type: Number, required: true }, accessibilityNeeds: String,
-  locale: { type: String, enum: ['en', 'sv'], required: true }, privacyAcceptedAt: { type: Date, required: true },
-  status: { type: String, enum: ['pending', 'approved', 'rejected', 'cancelled'], required: true, index: true },
-  publicNotes: String, internalNotes: String, decisionAt: Date, decidedBy: { type: Types.ObjectId, ref: 'User' }, schemaVersion: { type: Number, default: 1 },
-}, { timestamps: true });
-schema.index({ resourceId: 1, startAt: 1, endAt: 1 });
-schema.index({ requesterEmail: 1, createdAt: -1 });
-export const BookingModel = model('Booking', schema);
+ reference:{type:String,required:true,unique:true,index:true},resourceId:{type:Types.ObjectId,ref:'BookingResource',required:true,index:true},startAt:{type:Date,required:true,index:true},endAt:{type:Date,required:true,index:true},requesterName:{type:String,required:true},requesterEmail:{type:String,required:true,lowercase:true,index:true},requesterPhone:String,organization:String,billingAddress,
+ bookingType:{type:String,enum:['internal_ask','arcada_association','ask_member','alumni','external'],required:true,index:true},internalAskPurpose:{type:String,enum:['official_activity','private_booking']},mandateYear:Number,kitchenExtra:{type:Boolean,required:true,default:false},saunaExtra:{type:Boolean,required:true,default:false},purpose:{type:String,required:true},attendees:{type:Number,required:true},accessibilityNeeds:String,locale:{type:String,enum:['en','sv'],required:true},submissionType:{type:String,enum:['booking_request','quote_request'],required:true},privacyAcceptedAt:{type:Date,required:true},
+ status:{type:String,enum:['submitted','quote_requested','quote_sent','approved','contract_generated','waiting_for_signature','signed','completed','cancelled','rejected'],required:true,index:true},price:{type:price,required:true},quoteNotes:String,publicNotes:String,internalNotes:String,checklist:{type:[checklistItem],default:[]},decisionAt:Date,decidedBy:{type:Types.ObjectId,ref:'User'},schemaVersion:{type:Number,default:2}
+},{timestamps:true});
+schema.index({resourceId:1,startAt:1,endAt:1});schema.index({status:1,startAt:1});schema.index({requesterEmail:1,mandateYear:1,bookingType:1});
+export const BookingModel=model('Booking',schema);

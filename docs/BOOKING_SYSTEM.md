@@ -1,51 +1,91 @@
-# Booking System — Release v0.6
+# Cor House Booking System — Release v0.6
 
-Release v0.6 provides bilingual public booking requests and authenticated booking operations for Arcada Student Union – ASK.
+Release v0.6 provides the finalized Cor House request, quote, approval, contract, signature, and completion workflow.
 
 ## Public workflow
 
-1. The visitor selects an active resource and reviews localized capacity, accessibility, rules, and opening hours.
-2. The availability API returns pending and approved intervals plus resource blackout periods.
-3. The visitor submits a validated request and accepts the privacy notice.
-4. The backend creates a non-guessable reference and access code, reserves 15-minute occupancy slots, records history/audit events, and sends a bilingual confirmation email.
-5. The visitor can retrieve status with the reference and access code at `/booking/status`.
+1. Select one of the three configured Cor House resources.
+2. Select the booking type and optional kitchen/sauna services.
+3. Review the server-calculated price breakdown.
+4. Enter requester and required billing information.
+5. Submit either a booking request or quote request.
+6. Receive a `COR-YYYY-XXXX` reference.
+7. Check public status using the reference and requester email.
 
-Pending and approved bookings reserve slots. Rejected and cancelled bookings release them. A unique MongoDB index on `{ resourceId, slotAt }` prevents overlapping requests even when submissions race.
+Public status responses never expose MongoDB identifiers, door codes, internal notes, or contract metadata.
+
+## Bookable resources
+
+Only these slugs are accepted by the backend:
+
+| Slug | English | Swedish | Finnish | Floor | Capacity |
+| --- | --- | --- | --- | --- | ---: |
+| `kitchen` | Kitchen | Köket | Keittiö | 1 | 8 |
+| `main-hall` | Main Hall | Salen | Juhlasali | 1 | 80 |
+| `meeting-room-sauna` | Meeting Room & Sauna | Kabinettet & Bastu | Kabinetti ja sauna | 2 | 20 |
+
+Migration `009-cor-house-booking-v06` upserts these resources and disables other resource records.
+
+## References
+
+References use `COR-YYYY-XXXX`. An atomic yearly counter prevents duplicate references and resets sequence numbering by reference-generation calendar year.
+
+## Booking types and pricing
+
+Supported types are Internal ASK, Arcada Association, ASK Member, Alumni, and External. Pricing is implemented in `backend/src/booking/pricing.ts`, not in the clients.
+
+- Arcada Association: Monday–Thursday free; Friday–Sunday €75; kitchen included; sauna €30.
+- ASK Member: four-hour minimum; €30/hour Monday–Thursday; €40/hour Friday–Sunday; kitchen €25; sauna €20.
+- Alumni: four-hour minimum; €40/hour Monday–Thursday; €50/hour Friday–Sunday; kitchen €35; sauna €25.
+- External: four-hour minimum; first four hours €65/hour; later hours €40/hour; kitchen €60; sauna €40.
+- Internal official activity: unlimited and free.
+- Internal private booking: one free booking per eligible board-member email and mandate year, then ASK Member pricing.
+
+Current eligible board-member emails are configured through `COR_HOUSE_BOARD_MEMBER_EMAILS`. Pricing rule version `2026.1` has explicit validity dates. Quote administrators can override a requested quote breakdown.
+
+## Billing
+
+Paid bookings require billing name, address, postal code, city, and country. VAT/business ID and reference number are optional. This includes paid Arcada Association bookings.
+
+## Status lifecycle
+
+- Submitted
+- Quote Requested
+- Quote Sent
+- Approved
+- Contract Generated
+- Waiting for Signature
+- Signed
+- Completed
+- Cancelled
+- Rejected
+
+Pending lifecycle states reserve conflict slots. Cancelled, rejected, and completed records release slots while retaining booking and activity history.
 
 ## Administration
 
-Users require `booking.read` to view bookings, resources, calendars, and history. `booking.write` permits resource management, edits, notes, approval, rejection, and cancellation. All state-changing operations create platform audit events; booking-specific history stores status, actor, note, timestamp, and a snapshot where applicable.
+The booking dashboard includes pending approval, waiting-for-signature, quote-request, upcoming-week, and completed-month cards. Staff can manage resources, opening hours, blackouts, requester details, billing data, prices, quotes, notes, checklist items, contract status, and the booking timeline.
 
-The admin booking module provides list and calendar views, filters, conflict-safe editing, status actions, internal/public notes, resource configuration, opening hours, blackout periods, and bilingual resource content.
+`booking.read` permits read access. `booking.write` is required for resource changes, quote delivery, booking transitions, contract generation, and contract-status changes.
 
-## Persistence
+## Email foundation
 
-- `bookingresources`: bilingual catalogue data, policy limits, opening hours, and blackouts.
-- `bookings`: requester details, time range, status, secure status credentials, decisions, and notes.
-- `bookingslots`: 15-minute occupancy records with a unique resource/time index.
-- `bookinghistories`: immutable booking workflow history.
-- `auditevents`: shared security and administrative audit trail.
+The module defines booking received, quote requested, quote sent, booking approved, contract ready, reminder, and booking completed email types. Current transactional messages use the configured SMTP transport. Door codes are never included in email content.
 
-Migration `007-booking-system` creates the booking schema indexes. Migration `008-remove-legacy-booking-indexes` removes indexes belonging to the retired placeholder booking model.
+## Security
 
-## Local verification
-
-Start MongoDB and the development SMTP sink, then run migrations and seed permissions before starting the backend:
-
-```sh
-cd backend
-npm run migrate
-npm run seed
-npm run smtp:dev
-npm run dev
-```
-
-Start the clients separately with `npm run dev` in `frontend` and `admin`. The default public, admin, API, and SMTP ports are 5173, 5174, 3000, and 1025 respectively.
+- Door code configuration is server-side through `COR_HOUSE_DOOR_CODE`.
+- Door codes appear only in generated contract PDFs.
+- Contract endpoints require `booking.write`.
+- Contract generation and status changes create audit and booking-history entries containing the public reference.
+- Generated PDFs are streamed to the authorized administrator and are not stored in MongoDB.
+- Signed documents remain in Visma Sign.
 
 ## Validation
 
 ```sh
 cd backend && npm run typecheck && npm test && npm run build
-cd ../frontend && npm run build
 cd ../admin && npm test && npm run build
+cd ../frontend && npm run build
+git diff --check
 ```

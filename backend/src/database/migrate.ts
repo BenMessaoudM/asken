@@ -8,6 +8,7 @@ import { newsBlogMigration } from './migrations/005-news-blog';
 import { eventsManagementMigration } from './migrations/006-events-management';
 import { bookingSystemMigration } from './migrations/007-booking-system';
 import { removeLegacyBookingIndexesMigration } from './migrations/008-remove-legacy-booking-indexes';
+import { corHouseBookingV06Migration } from './migrations/009-cor-house-booking-v06';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -19,6 +20,7 @@ const migrations: Migration[] = [
   eventsManagementMigration,
   bookingSystemMigration,
   removeLegacyBookingIndexesMigration,
+  corHouseBookingV06Migration,
 ];
 
 export async function runMigrations() {

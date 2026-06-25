@@ -35,3 +35,11 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}, retry 
   }
   return parseResponse<T>(response)
 }
+
+export async function apiDownload(path:string,body:unknown,retry=true):Promise<{blob:Blob;filename:string}>{
+  const response=await fetch(`${apiBaseUrl}${path}`,{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  if(response.status===401&&retry){const refreshed=await fetch(`${apiBaseUrl}/auth/refresh`,{method:'POST',credentials:'include'});if(refreshed.ok)return apiDownload(path,body,false)}
+  if(!response.ok)return parseResponse<never>(response);
+  const disposition=response.headers.get('content-disposition')||'';
+  return{blob:await response.blob(),filename:disposition.match(/filename="?([^";]+)"?/)?.[1]||'contract.pdf'};
+}

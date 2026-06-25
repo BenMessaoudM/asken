@@ -17,7 +17,7 @@ Use strong independent JWT secrets and a policy-compliant initial Super Admin pa
 
 ## Public website
 
-Release v0.5 provides the bilingual public website. Release v0.6 replaces the Booking placeholder with a resource catalogue, availability, request, confirmation, and status workflow; see `docs/BOOKING_SYSTEM.md`. Published CMS pages use locale-specific slugs such as `home-en` and `home-sv`; see `docs/PUBLIC_WEBSITE.md`.
+Release v0.5 provides the bilingual public website. Finalized v0.6 provides Cor House resources, pricing, quotes, billing, contract PDFs, manual signature tracking, and public booking status; see `docs/BOOKING_SYSTEM.md`. Published CMS pages use locale-specific slugs such as `home-en` and `home-sv`; see `docs/PUBLIC_WEBSITE.md`.
 
 ## Authentication
 

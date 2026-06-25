@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-06-24
 
-> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set, responsive navigation, persisted language selection, route metadata, reusable public components, and read-only published CMS page delivery. Release v0.6 adds the bilingual public booking workflow, conflict-safe availability, email/status access, authenticated booking and resource administration, notes, history, and audit logging. The 19% figure below remains the last full-project audit baseline until the next audit.
+> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set. Finalized Release v0.6 adds the Cor House resource catalogue, pricing engine, quote workflow, billing data, yearly public references, contract PDF generator, manual Visma Sign lifecycle, email foundation, dashboard summaries, checklist, timeline, blackouts, and secure reference-plus-email public status lookup. The 19% figure below remains the last full-project audit baseline until the next full audit.
 
 **Authoritative status source:** implemented code, migrations, automated tests, and successful local builds
 **Canonical Epic definitions:** `docs/TASK_BACKLOG.md`
@@ -28,7 +28,7 @@ The 19% estimate is weighted by the midpoint of each Epic's story-point range in
 | 7 — Events | Partial | 50% | Bilingual event CRUD, categories, dates, location, organizer, image metadata, status, featured state, Kide.app link, public filtering, calendar API, versions, permissions, and validation tests exist. Capacity, accessibility details, general registration workflow, add-to-calendar output, draft scheduling, archive/duplicate, location filtering, and notifications are missing. |
 | 8 — What's Happening at Cor | Not started | 0% | Permission/navigation placeholders exist, but no domain model, API, workflow, or public view exists. |
 | 9 — Collaborations | Not started | 0% | Permission/navigation placeholders and a generic content type exist, but no collaboration implementation exists. |
-| 10 — Booking System | **Partial (post-audit)** | 80% | Release v0.6 implements bilingual resources, availability, conflict-safe requests, email/status access, admin list/calendar workflows, approval/rejection/cancellation, editing, notes, resource management, history, permissions, and audit logging. Student accounts, self-service cancellation, reminders, retention automation, and browser/database concurrency suites remain. |
+| 10 — Booking System | **Substantially complete (post-audit)** | 92% | Finalized v0.6 implements fixed Cor House resources, pricing and benefits, quotes, billing, yearly references, availability/conflict protection, contract PDFs, manual signature workflow, notifications, dashboard operations, blackouts, checklist/history, permissions, and audit logging. Student accounts, self-service cancellation, scheduled reminders, retention automation, and browser/database concurrency suites remain. |
 | 11 — Tutor Module | Not started | 0% | No implementation found. |
 | 12 — Governance Portal | Not started | 0% | Navigation placeholder and generic content type only. |
 | 13 — Student Representative Management | Not started | 0% | No implementation found. |

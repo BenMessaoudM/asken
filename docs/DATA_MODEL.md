@@ -42,8 +42,10 @@ Publication status remains in CMS. Event operational status is `scheduled`, `pos
 ## Booking Entities
 
 - **Booking resource:** bilingual name, description, location, rules, and accessibility text; capacity, active/approval flags, duration and advance limits, weekly opening hours, blackout periods, and timestamps.
-- **Booking:** unique public reference, resource, start/end timestamps, requester contact and organization, purpose, attendee count, accessibility needs, locale, privacy acceptance time, status, public/internal notes, decision metadata, hashed status access code, and timestamps.
+- **Booking:** yearly `COR-YYYY-XXXX` public reference, resource, booking type, extras, start/end timestamps, requester and billing details, purpose, participants, accessibility needs, pricing breakdown, quote data, checklist, locale, privacy acceptance time, lifecycle status, notes, decision metadata, and timestamps.
+- **Booking contract:** booking/reference link, generator, generation date, language, template/terms versions, and manual-signature status. PDF bytes are not stored.
+- **Booking reference counter:** one atomic sequence per calendar year.
 - **Booking slot:** resource, booking, and one normalized 15-minute timestamp. The unique `{ resourceId, slotAt }` index is the concurrency control that prevents double booking.
 - **Booking history:** booking, action, resulting status, actor, note, timestamp, and optional snapshot.
 
-Pending and approved bookings own slots. Rejection or cancellation deletes their slots while preserving the booking and history records. Shared audit events record public requests and authenticated mutations without storing access codes or authentication secrets.
+Active request, quote, approval, contract, and signature states own slots. Rejection, cancellation, or completion deletes slots while preserving booking and history records. Shared audit events use the public booking reference and never store door codes.
