@@ -44,6 +44,51 @@ export function formatDateTime(value?: string | Date | null) {
   return date && time ? `${date} ${time}` : date || time;
 }
 
+export function parseDate(value: string): Date | null {
+  const match = value.trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day), 0, 0, 0, 0);
+  if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day)) return null;
+  return date;
+}
+
+export function parseDateTime(value: string): Date | null {
+  const match = value.trim().match(/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})$/);
+  if (!match) return null;
+  const [, day, month, year, hour, minute] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), 0, 0);
+  if (
+    date.getFullYear() !== Number(year) ||
+    date.getMonth() !== Number(month) - 1 ||
+    date.getDate() !== Number(day) ||
+    date.getHours() !== Number(hour) ||
+    date.getMinutes() !== Number(minute)
+  ) return null;
+  return date;
+}
+
+export interface DateTimePickerValue { date: string; time: string; }
+export type DateTimeRangeValidation = 'required' | 'invalid' | 'order' | null;
+
+export function formatDateTimePickerValue(value?: string | Date | null): DateTimePickerValue {
+  return { date: formatDate(value), time: formatTime(value) };
+}
+
+export function parseDateTimePickerValue(value: DateTimePickerValue): Date | null {
+  if (!value.date.trim() || !value.time.trim()) return null;
+  if (!/^\d{2}:\d{2}$/.test(value.time.trim())) return null;
+  return parseDateTime(value.date.trim() + ' ' + value.time.trim());
+}
+
+export function validateDateTimeRange(start: DateTimePickerValue, end: DateTimePickerValue): DateTimeRangeValidation {
+  if (!start.date.trim() || !start.time.trim() || !end.date.trim() || !end.time.trim()) return 'required';
+  const startAt = parseDateTimePickerValue(start);
+  const endAt = parseDateTimePickerValue(end);
+  if (!startAt || !endAt) return 'invalid';
+  return endAt > startAt ? null : 'order';
+}
+
 export function formatTimeRange(start?: string | Date | null, end?: string | Date | null) {
   const startTime = formatTime(start);
   const endTime = formatTime(end);

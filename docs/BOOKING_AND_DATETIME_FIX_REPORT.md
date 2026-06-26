@@ -1,75 +1,64 @@
 # Booking and Date/Time Fix Report
 
-Date: 2026-06-26
+## Components changed
 
-## Summary
+- Admin booking detail: `admin/src/pages/BookingEditor.tsx`
+  - Replaced the start/end combined text inputs with a controlled custom date-time picker.
+  - The picker stores editable values as separate `date` and `time` fields and converts them to ISO only when saving.
 
-This focused fix keeps ASK Swedish-first while tightening Cor House booking language support, paid-booking billing validation, and presentation date/time formatting. It does not add new product modules, change date storage, migrate URLs, integrate Visma, or redesign the platform.
+- Public booking request form: `frontend/src/pages/Booking.tsx`
+  - Replaced the start/end combined text inputs with the same custom date-time picker pattern.
+  - Pricing calculation and booking submission parse picker values through shared helpers before sending ISO strings to the API.
 
-## Date/time formatting changed
+- Shared helpers:
+  - `admin/src/utils/dateTime.ts`
+  - `frontend/src/utils/dateTime.ts`
 
-- Added shared presentation helpers for backend, admin, and public frontend.
-- Updated public News, Events, Booking, Booking status, CMS/public detail views, admin booking dashboard/detail timeline, admin CMS lists/version history, admin News scheduling, and admin Events date displays to use shared helpers.
-- Contract PDF dates and booking email date ranges now use shared backend formatting.
-- User-facing dates render as DD.MM.YYYY and times as 24-hour HH:mm. Backend storage remains ISO/RFC3339/UTC.
-- Remaining direct Intl.DateTimeFormat usage is internal backend logic for booking pricing, availability, and annual reference calculation, not user-facing display.
+## How the date-time picker works
 
-## Shared helpers added
+The booking start/end UI is now a custom date + time picker composed of controlled selects:
 
-- frontend/src/utils/dateTime.ts
-- admin/src/utils/dateTime.ts
-- backend/src/formatting/dateTime.ts
+- Day select: `DD`
+- Month select: `MM`
+- Year select: `YYYY`
+- Hour select: `HH` from `00` to `23`
+- Minute select: `mm` from `00` to `59`
 
-Helpers include formatDate, formatTime, formatDateTime, formatDateRange, and formatTimeRange. Missing or invalid dates return an empty string instead of broken output.
+The visible order is always `DD.MM.YYYY HH:mm`. The picker does not rely on browser locale rendering for date or time, so it does not show AM/PM or MM/DD/YYYY.
 
-## Booking language support added
+## Native datetime-local status
 
-- Public booking request form supports Svenska, English, and Suomi in that order.
-- Public booking status lookup supports Svenska, English, and Suomi in that order.
-- Svenska remains default. Finnish is scoped to booking/contract workflows and is not promoted as a global public-site language.
-- Backend booking validation accepts locale fi for booking requests and public resource/status responses.
+Browser-native `datetime-local` was replaced for booking start/end fields. The replacement is a controlled custom date + time input combination, not a wrapper around raw browser date-time display.
 
-## Billing address behavior added
+The availability date filter is not part of the booking start/end input scope and remains unchanged except for the existing shared date formatting behavior.
 
-- Paid public booking requests require billing name, billing address, postal code, city, and country.
-- VAT / Business ID and reference number remain optional.
-- Free bookings do not require billing fields.
-- Admin booking details now show billing completeness, editable billing fields, and a warning for paid bookings with incomplete billing data.
-- Paid booking contract generation is disabled in admin when billing is incomplete and blocked again on the backend before PDF generation.
+## Validation
 
-## Validation rules implemented
+Validation now runs before admin save, public pricing calculation, and public submission:
 
-- Shared backend billing helper enforces whether a paid booking requires complete billing data.
-- Booking creation uses the shared billing rule after server-side price calculation.
-- Contract generation uses the same rule before generating Swedish, English, or Finnish PDFs.
-- Public form blocks paid submission when required billing fields are incomplete.
+- Start and end are required.
+- Date/time values must parse as `DD.MM.YYYY HH:mm`.
+- End time must be after start time.
+- Existing backend booking constraints, including minimum duration and resource bookability rules, remain unchanged and continue to validate ISO/RFC3339/UTC payloads.
 
-## Booking emails and door codes
+## Storage
 
-- Booking notification text uses shared date range formatting.
-- Swedish, English, and Finnish booking notification text is available according to the booking locale.
-- Door codes remain excluded from normal booking email bodies and appear only in contract PDF generation.
+Backend storage and API payloads remain unchanged. Admin and public forms convert picker values to ISO strings before API calls.
 
-## What remains for later
+## Test coverage
 
-- Full platform-wide admin UI localization and namespaced email template files.
-- Browser-level E2E tests for paid/free booking billing flows and contract generation blocking.
-- Localized URL/slug migration and hreflang expansion.
-- Student self-service cancellation, reminders, notification retry state, and retention/anonymization jobs.
+Added admin helper tests for:
 
-## Validation results
+- Formatting dates as `DD.MM.YYYY`.
+- Formatting times as `HH:mm`.
+- Formatting admin booking detail start/end picker values.
+- Formatting public booking form start/end picker values.
+- Parsing picker values to ISO safely.
+- Required, invalid, and end-before-start validation.
 
-- Backend typecheck: passed.
-- Backend build: passed.
-- Backend tests: passed, 15 suites and 65 tests.
-- Admin build: passed.
-- Admin tests: passed, 7 suites and 15 tests.
-- Frontend build: passed.
-- git diff --check: passed.
+Existing backend date/time formatting tests still cover backend-facing date/time output such as `20.08.2026 18:00–23:00`.
 
-## Risks and follow-up recommendations
+## Remaining risks
 
-- Admin and public booking flows were build-tested but not browser-E2E tested.
-- Billing completeness is intentionally based on required invoice address fields only; VAT/business ID and reference number stay optional.
-- Booker categories and pricing rules are now persisted configuration records managed from the existing booking backoffice. Current prices are seeded defaults, and each booking stores the pricing rule version used so existing bookings do not silently change.
-- Recommended next priority is a focused browser/accessibility test pass for the Cor House booking paid/free journeys before starting any new product module.
+- The custom picker uses fixed select controls to avoid browser locale display. This is predictable but less calendar-like than a full calendar widget.
+- Frontend has no existing test runner script in `frontend/package.json`; public form behavior is covered through shared helper tests and verified by frontend build.

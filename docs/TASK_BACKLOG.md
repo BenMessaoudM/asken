@@ -4,22 +4,32 @@ This backlog translates `PROJECT_MASTER_SPEC.md` and `GAP_ANALYSIS.md` into impl
 
 **Status authority:** This document defines canonical Epic numbering, scope, and acceptance criteria. Current implementation status and completion estimates are maintained in `PROJECT_STATUS.md`.
 
-## Audited Status Summary — 2026-06-24
+## Audited Status Summary — 2026-06-26
 
 | Epic | Status |
 | --- | --- |
-| Epic 1 — Platform Foundation and API Standards | Completed |
+| Epic 1 — Platform Foundation and API Standards | Mostly complete |
 | Epic 2 — Identity, Authentication, and Authorization | Partial |
-| Epic 3 — Bilingual Content and Localization | Partial |
+| Epic 3 — Bilingual Content and Localization | Partial; recommended next priority |
 | Epic 4 — ASK Design System and Public Website | Partial |
 | Epic 5 — Backoffice Content Management | Partial |
 | Epic 6 — News and Blog | Partial |
 | Epic 7 — Events | Partial |
-| Epics 8–16 | Not started as product capabilities |
-| Epic 17 — WCAG 2.1 AA Accessibility | Partial |
+| Epic 8 — What's Happening at Cor | Placeholder only |
+| Epic 9 — Collaborations | Placeholder/static only |
+| Epic 10 — Booking System | Substantial, not production-complete |
+| Epic 11 — Tutor Module | Not started |
+| Epic 12 — Governance Portal | Placeholder/static only |
+| Epic 13 — Student Representative Management | Not started |
+| Epic 14 — Knowledge Transfer System | Not started |
+| Epic 15 — AI-Assisted Translation | Not started |
+| Epic 16 — GDPR and Data Governance | Foundational only |
+| Epic 17 — WCAG 2.1 AA Accessibility | Partial/informal |
 | Epic 18 — Testing, Delivery, and Production Operations | Partial |
 
-Partial implementations do not satisfy the complete acceptance criteria or the master specification’s Definition of Done. See `PROJECT_STATUS.md` for evidence, percentages, gaps, and verification results.
+Current full-project audit: docs/PROJECT_ADVANCEMENT_AUDIT.md. Overall completion is estimated at 32%, with booking at 84%, public website at 58%, admin backoffice at 55%, backend/API at 62%, and production readiness at 28%.
+
+Partial implementations do not satisfy the complete acceptance criteria or the master specification's Definition of Done. Placeholder UI, static content, and documentation-only capabilities are not counted as complete product implementation.
 
 **Estimate scale:** 1 story point (SP) is roughly one focused developer day. Estimates are planning ranges, not commitments.
 

@@ -34,6 +34,7 @@ export type BookingEmailType = 'booking_received' | 'quote_requested' | 'quote_s
 export interface BookingNotification { type: BookingEmailType; to: string; subject: string; text: string; }
 export type BookingNotifier = (notification: BookingNotification) => Promise<void>;
 export interface BookingDashboardSummary { pendingApprovals: number; waitingForSignature: number; quoteRequests: number; upcomingThisWeek: number; completedThisMonth: number; }
+export interface CorHouseBookingSettings { doorCodeConfigured: boolean; doorCode?: string; landlordAddress?: string; landlordEmail?: string; }
 
 export interface BookingService {
   listPublicResources(locale: BookingLocale): Promise<PublicBookingResource[]>;
@@ -48,6 +49,8 @@ export interface BookingService {
   updateCategory(key: BookingType, input: BookingCategoryInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingCategory>;
   listPricingRules(): Promise<BookingPricingRule[]>;
   updatePricingRule(id: string, input: BookingPricingRuleInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingPricingRule>;
+  getCorHouseSettings(): Promise<CorHouseBookingSettings>;
+  updateCorHouseSettings(input: { doorCode?: string; landlordAddress?: string; landlordEmail?: string }, actor: AuthPrincipal, context: RequestContext): Promise<CorHouseBookingSettings>;
   createResource(input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingResource>;
   updateResource(id: string, input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingResource>;
   listBookings(query?: { status?: BookingStatus; resourceId?: string; from?: Date; to?: Date }): Promise<BookingRecord[]>;

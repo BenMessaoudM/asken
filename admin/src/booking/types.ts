@@ -11,4 +11,5 @@ export interface BookingRecord{id:string;reference:string;resourceId:string;reso
 export interface BookingHistory{id:string;action:string;status:BookingStatus;reference?:string;actorId?:string;note?:string;occurredAt:string}
 export interface ContractMetadata{id:string;bookingId:string;bookingReference:string;generatedBy:string;generatedAt:string;language:'en'|'sv'|'fi';templateVersion:string;termsVersion:string;status:'contract_generated'|'waiting_for_signature'|'signed'}
 export interface DashboardSummary{pendingApprovals:number;waitingForSignature:number;quoteRequests:number;upcomingThisWeek:number;completedThisMonth:number}
+export interface CorHouseBookingSettings{doorCodeConfigured:boolean;doorCode?:string;landlordAddress?:string;landlordEmail?:string}
 export interface ResourcePayload{slug?:string;name:LocalizedText;floor:LocalizedText;description:LocalizedText;location:LocalizedText;rules:LocalizedText;capacity:number;accessibility:LocalizedText;imageUrl?:string;active:boolean;requiresApproval:boolean;minDurationMinutes:number;maxDurationMinutes:number;advanceBookingDays:number;openingHours:OpeningHours[];blackoutPeriods:BlackoutPeriod[]}
