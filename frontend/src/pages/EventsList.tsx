@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { resolvePublicLanguage } from '../localization/languages'
 import Icon from '../components/Icon'
 import { formatDateTime } from '../utils/dateTime'
 import EventCard from '../components/EventCard'
@@ -11,7 +12,7 @@ import { EventCategory, EventLocale, PublicEvent } from '../events/types'
 
 export default function EventsList() {
   const { t, i18n } = useTranslation()
-  const locale = (i18n.resolvedLanguage?.startsWith('en') ? 'en' : 'sv') as EventLocale
+  const locale = resolvePublicLanguage(i18n.resolvedLanguage) as EventLocale
   const [events, setEvents] = useState<PublicEvent[]>([])
   const [categories, setCategories] = useState<EventCategory[]>([])
   const [category, setCategory] = useState('')

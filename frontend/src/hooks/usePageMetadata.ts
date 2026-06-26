@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { getSeoAlternates } from '../localization/languages'
 import { useSiteLocale } from './useSiteLocale'
 
 function setMeta(selector: string, attribute: string, value: string) {
@@ -33,11 +34,7 @@ export function usePageMetadata(title: string, description: string, path: string
       document.head.appendChild(canonical)
     }
     canonical.href = canonicalUrl
-    const alternates = [
-      { hreflang: 'sv', href: canonicalUrl },
-      { hreflang: 'en', href: canonicalUrl },
-      { hreflang: 'x-default', href: canonicalUrl },
-    ]
+    const alternates = getSeoAlternates(path, import.meta.env.VITE_SITE_URL || window.location.origin)
     alternates.forEach((alternate) => {
       let link = document.head.querySelector<HTMLLinkElement>("link[rel=\"alternate\"][hreflang=\"" + alternate.hreflang + "\"]")
       if (!link) {

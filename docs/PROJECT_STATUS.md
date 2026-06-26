@@ -6,20 +6,20 @@
 
 ## Executive Status
 
-**Estimated overall completion: 32%.**
+**Estimated overall completion: 35%.**
 
-The platform has a working technical foundation, secure administration authentication, generic CMS foundations, usable News and Events slices, a public website route set, and a substantial Cor House booking system. Booking is the most advanced product area after v0.6, configurable pricing, billing address handling, contract generation, status lookup, and DD.MM.YYYY/24-hour date-time presentation work.
+The platform has a working technical foundation, secure administration authentication, generic CMS foundations, usable News and Events slices, a public website route set, a substantial Cor House booking system, and a completed shared Swedish-first multilingual foundation for existing modules. Booking is the most advanced product area after v0.6, configurable pricing, billing address handling, contract generation, status lookup, and DD.MM.YYYY/24-hour date-time presentation work.
 
-The platform is not production-ready. The largest remaining areas are complete Swedish-first multilingual workflows, complete CMS editorial workflows, managed media, GDPR/data governance, accessibility assurance, production operations, browser E2E coverage, and product modules that are still placeholders or static pages.
+The platform is not production-ready. The largest remaining areas are complete CMS editorial workflows, full admin/validation localization, localized URL migration, managed media, GDPR/data governance, accessibility assurance, production operations, browser E2E coverage, and product modules that are still placeholders or static pages.
 
 ## Current Aggregate Completion
 
 | Area | Completion % |
 |---|---:|
-| Overall project completion | 32% |
+| Overall project completion | 35% |
 | Public website completion | 58% |
 | Admin backoffice completion | 55% |
-| Backend/API completion | 62% |
+| Backend/API completion | 64% |
 | Booking system completion | 84% |
 | Production readiness | 28% |
 
@@ -37,7 +37,7 @@ The platform is not production-ready. The largest remaining areas are complete S
 | Configurable Booking Categories & Pricing | Substantial | 78% | Models, migration seed data, APIs, and admin editing exist. Temporal edge cases and E2E coverage remain. |
 | Billing Address Workflow | Substantial | 80% | Paid booking billing collection and admin review exist. Invoicing/accounting integration remains. |
 | Date/Time Formatting | Substantial | 85% | Shared helpers and booking picker UI use DD.MM.YYYY and 24-hour time. Older non-booking paths remain a formatting risk. |
-| Multilingual Foundation Swedish-first | Partial | 45% | Locale constants, fallback helpers, public i18n, admin field ordering, and docs exist. Full admin localization, translation workflows, localized slugs, and email localization remain. |
+| Multilingual Foundation Swedish-first | Shared foundation complete | 68% | Shared constants/helpers, Swedish-first fallback, booking/contract Finnish scoping, metadata/status model, booking email templates, SEO alternates, and tests exist. Full admin UI localization, backend validation localization, persisted review workflow, stale automation, and localized slug migration remain. |
 | Admin Backoffice | Partial | 55% | Users, roles, content, News, Events, booking, resources, pricing, and settings exist. Several modules are placeholders. |
 | Public Frontend | Partial | 60% | Main route set, i18n shell, content pages, News, Events, booking, and status lookup exist. Several pages are static/hard-coded. |
 | Organization | Minimal/static only | 12% | Public static content exists; no domain model or admin workflow. |
@@ -59,18 +59,16 @@ The platform is not production-ready. The largest remaining areas are complete S
 - Configurable booking categories and pricing rules.
 - Billing address workflow for paid bookings.
 - Shared date/time formatting helpers and booking date-time picker presentation.
-- Initial Swedish-first multilingual foundation.
+- Shared Swedish-first multilingual foundation for existing modules.
 
 ## Current Risks and Blockers
 
 - Current validated worktree is dirty with uncommitted booking/date-time/settings changes.
 - Migrations 009 and 010 are present but must be run manually in each target database.
 - Several admin modules are placeholders.
-- Multilingual behavior is incomplete and should be finished before new content-heavy modules.
+- Multilingual shared foundation is complete enough for the next content-heavy module, but Organization must use the shared model from the start.
 - GDPR/data governance, accessibility conformance, browser E2E tests, and production operations are launch blockers.
 
 ## Recommended Next Epic
 
-Continue **Epic 3 - Bilingual Content and Localization** before starting Organization, Collaborations, Live at Cor, Alumni, Theme Manager, or Media Library.
-
-The next task should complete the Swedish-first multilingual foundation across admin UI, public UI, backend validation/errors, content translation workflow, localized slugs/metadata, and email templates, with tests for critical bilingual journeys.
+Start **Organization** next, using the completed Swedish-first multilingual foundation. Do not create a separate translation model. Keep localized slug migration, full admin UI localization, and stale translation workflow as platform follow-up work.

@@ -1,8 +1,8 @@
 # ASK Digital Platform Project Advancement Audit
 
-**Audit date:** 2026-06-26  
-**Audited branch:** main  
-**Latest commit:** a76a6e8 feat(booking): make categories and pricing configurable  
+**Audit date:** 2026-06-26
+**Audited branch:** main
+**Latest commit:** a45decf chore(project): update advancement audit and booking hardening
 **Scope:** inspection, validation, completion estimate, and documentation update only
 
 ## Executive Summary
@@ -11,14 +11,14 @@ The platform has moved beyond the previous pre-booking baseline. Release v0.5 de
 
 The project is still not production-ready. The strongest implemented areas are platform foundation, booking, authentication/RBAC, News, Events, and the core public/admin shells. The main gaps are complete Swedish-first multilingual workflows, media library, content review/approval workflows, GDPR/data governance, accessibility assurance, production operations, and several feature modules that remain placeholders or static pages.
 
-**Realistic overall completion:** 32%.
+**Realistic overall completion after multilingual foundation:** 35%.
 
 ## Repository State
 
 | Check | Result |
 |---|---|
 | Current branch | main |
-| Latest commit | a76a6e8 feat(booking): make categories and pricing configurable |
+| Latest commit | a45decf chore(project): update advancement audit and booking hardening |
 | Tags | v0.5, v0.6.0 |
 | Local sync with origin/main | Synced by local refs: origin/main...HEAD = 0 behind / 0 ahead |
 | Working tree clean | No |
@@ -103,7 +103,7 @@ The migration runner records applied migrations in the _migrations collection. T
 | Configurable Booking Categories & Pricing | Substantial | 78% | Category and pricing rule models, migration seed data, backend routes/services, and admin editing exist. UX polish, audit depth, temporal rule edge cases, and end-to-end browser tests remain. |
 | Billing Address Workflow | Substantial | 80% | Paid bookings collect billing data, admin reviews billing details, and contracts use billing data. Remaining gaps are invoicing integration, validation breadth, and downstream accounting automation. |
 | Date/Time Formatting | Substantial | 85% | Shared helpers in backend/admin/frontend format DD.MM.YYYY and 24-hour time. Booking inputs no longer depend on raw browser datetime display. Remaining risk is older non-booking date input/display paths and locale assumptions in future code. |
-| Multilingual Foundation Swedish-first | Partial | 45% | Locale constants, fallback helpers, public i18next setup, admin field ordering, and metadata foundations exist. Full admin localization, translation workflow, stale indicators, localized URLs/slugs, and complete email localization remain. |
+| Multilingual Foundation Swedish-first | Shared foundation complete | 68% | Shared constants/helpers, Swedish-first fallback, booking/contract Finnish scoping, metadata/status model, booking email templates, SEO alternates, and tests exist. Full admin UI localization, backend validation localization, persisted review workflow, stale automation, and localized slug migration remain. |
 | Admin Backoffice | Partial | 55% | Real admin pages exist for auth/session restoration, users, roles, content, News, Events, booking, resources, pricing, and settings. Cor Activities, Collaborations, Governance, and general Settings are placeholders. |
 | Public Frontend | Partial | 60% | Public app has the main route set, i18n shell, content pages, News, Events, booking, and status lookup. Several pages are static/hard-coded and lack full CMS, SEO, media, search, and accessibility verification. |
 | Organization | Minimal/static only | 12% | Public About/Board style pages exist, but no organization domain model, admin workflow, member records, or governance data model exists. |
@@ -122,10 +122,10 @@ The migration runner records applied migrations in the _migrations collection. T
 
 | Area | Completion % |
 |---|---:|
-| Overall project completion | 32% |
+| Overall project completion | 35% |
 | Public website completion | 58% |
 | Admin backoffice completion | 55% |
-| Backend/API completion | 62% |
+| Backend/API completion | 64% |
 | Booking system completion | 84% |
 | Production readiness | 28% |
 
@@ -141,13 +141,13 @@ The overall estimate is conservative and weighted by implementation-backed produ
 - Cor House booking resources, availability, conflict checks, pricing, billing, references, contracts, status lookup, history/checklist, and admin lifecycle.
 - Configurable booking categories and pricing rules.
 - Shared date/time formatting helpers across backend, admin, and frontend.
-- Swedish-first multilingual foundation and public i18next setup.
+- Swedish-first multilingual foundation, shared fallback helpers, scoped booking/contract Finnish support, booking email templates, and public i18next setup.
 
 ## Partially Implemented Features
 
 - Public website content management and complete managed content coverage.
 - Admin backoffice beyond the currently implemented content/news/events/booking/user/role modules.
-- Bilingual content workflows and admin localization.
+- Bilingual content review workflows, full admin localization, backend validation localization, and localized URL migration.
 - Editorial preview, review, approval, archive, restore, and translation completeness states.
 - Booking lifecycle hardening for reminders, retention, self-service, and browser-level verification.
 - Accessibility and production operations.
@@ -186,10 +186,10 @@ The overall estimate is conservative and weighted by implementation-backed produ
 
 ## Recommended Next Priority
 
-The next step should be **Multilingual Foundation**, not Organization.
+The next step can be **Organization**, using the completed shared multilingual foundation.
 
-Reasoning: Organization, Collaborations, Live at Cor, Alumni, and other content-heavy modules all depend on consistent bilingual content storage, validation, admin localization, localized URLs/slugs, fallback behavior, and translated emails. Starting new modules before this foundation is complete would duplicate patterns and increase migration risk.
+Reasoning: the shared Swedish-first language constants, fallback behavior, scoped Finnish booking/contract support, metadata/status model, booking email templates, and SEO alternate helper are now in place for existing modules. Organization should reuse this model rather than creating a separate translation pattern.
 
 Recommended next Codex task:
 
-> Complete the Swedish-first multilingual foundation across admin, public frontend, backend validation/errors, content translation workflow, localized slugs/metadata, and booking/news/events email templates, with tests for critical bilingual journeys.
+> Implement the Organization foundation using the shared Swedish-first multilingual model, without starting Alumni, Collaborations, Live at Cor, Theme Manager, or Media Library.

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { resolvePublicLanguage } from '../localization/languages'
 import Icon from '../components/Icon'
 import PublicLayout from '../components/PublicLayout'
 import { usePageMetadata } from '../hooks/usePageMetadata'
@@ -11,7 +12,7 @@ import { formatDateTime } from '../utils/dateTime'
 export default function EventDetail() {
   const { slug } = useParams()
   const { t, i18n } = useTranslation()
-  const locale = (i18n.resolvedLanguage?.startsWith('en') ? 'en' : 'sv') as EventLocale
+  const locale = resolvePublicLanguage(i18n.resolvedLanguage) as EventLocale
   const [event, setEvent] = useState<PublicEvent | null>(null)
   const [error, setError] = useState('')
 

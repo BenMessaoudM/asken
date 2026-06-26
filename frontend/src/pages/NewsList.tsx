@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { resolvePublicLanguage } from '../localization/languages'
 import Icon from '../components/Icon'
 import NewsCard from '../components/NewsCard'
 import { usePageMetadata } from '../hooks/usePageMetadata'
@@ -10,7 +11,7 @@ import { NewsCategory, NewsLocale, PublicNewsArticle } from '../news/types'
 
 export default function NewsList() {
   const { t, i18n } = useTranslation()
-  const locale = (i18n.resolvedLanguage?.startsWith('en') ? 'en' : 'sv') as NewsLocale
+  const locale = resolvePublicLanguage(i18n.resolvedLanguage) as NewsLocale
   const [articles, setArticles] = useState<PublicNewsArticle[]>([])
   const [categories, setCategories] = useState<NewsCategory[]>([])
   const [category, setCategory] = useState('')

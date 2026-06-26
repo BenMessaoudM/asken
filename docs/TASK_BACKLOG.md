@@ -10,7 +10,7 @@ This backlog translates `PROJECT_MASTER_SPEC.md` and `GAP_ANALYSIS.md` into impl
 | --- | --- |
 | Epic 1 — Platform Foundation and API Standards | Mostly complete |
 | Epic 2 — Identity, Authentication, and Authorization | Partial |
-| Epic 3 — Bilingual Content and Localization | Partial; recommended next priority |
+| Epic 3 — Bilingual Content and Localization | Shared foundation complete; workflow follow-ups remain |
 | Epic 4 — ASK Design System and Public Website | Partial |
 | Epic 5 — Backoffice Content Management | Partial |
 | Epic 6 — News and Blog | Partial |
@@ -27,7 +27,7 @@ This backlog translates `PROJECT_MASTER_SPEC.md` and `GAP_ANALYSIS.md` into impl
 | Epic 17 — WCAG 2.1 AA Accessibility | Partial/informal |
 | Epic 18 — Testing, Delivery, and Production Operations | Partial |
 
-Current full-project audit: docs/PROJECT_ADVANCEMENT_AUDIT.md. Overall completion is estimated at 32%, with booking at 84%, public website at 58%, admin backoffice at 55%, backend/API at 62%, and production readiness at 28%.
+Current full-project audit: docs/PROJECT_ADVANCEMENT_AUDIT.md. Overall completion is estimated at 35%, with booking at 84%, public website at 58%, admin backoffice at 55%, backend/API at 64%, multilingual foundation at 68%, and production readiness at 28%.
 
 Partial implementations do not satisfy the complete acceptance criteria or the master specification's Definition of Done. Placeholder UI, static content, and documentation-only capabilities are not counted as complete product implementation.
 
@@ -91,7 +91,7 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 
 **Technical Notes**
 
-- 2026-06-26 foundation: Swedish-first language constants, fallback helpers, optional translation metadata, admin language ordering, Finnish booking language support, shared DD.MM.YYYY/24-hour presentation helpers, and docs/MULTILINGUAL_ARCHITECTURE.md are in place. Complete workflow, localized URLs, and full UI/email localization remain.
+- 2026-06-26 foundation: Swedish-first shared language constants/helpers, fallback rules, translation status metadata, admin language ordering, scoped Finnish booking/contract support, booking email templates, SEO alternate helper, shared DD.MM.YYYY/24-hour presentation helpers, and docs/MULTILINGUAL_ARCHITECTURE.md are in place. Full admin UI localization, backend validation localization, persisted review workflow, stale automation, and localized URL migration remain.
 - Expand the existing i18next setup into namespaced resources.
 - Model translations as structured fields or related records with revision metadata.
 - Add automated checks for missing keys and bilingual critical journeys.
