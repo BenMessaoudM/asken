@@ -1,7 +1,9 @@
 import { AuthPrincipal, RequestContext } from '../identity/types';
 
-export const supportedLocales = ['en', 'sv'] as const;
-export type SupportedLocale = typeof supportedLocales[number];
+import { PublicLanguage, TranslationMetadata, publicLanguages } from '../localization/languages';
+
+export const supportedLocales = publicLanguages;
+export type SupportedLocale = PublicLanguage;
 
 export interface LocalizedArticleContent {
   title: string;
@@ -31,6 +33,7 @@ export interface ManagedNewsArticle {
   status: 'draft' | 'scheduled' | 'published';
   version: number;
   translations: Record<SupportedLocale, LocalizedArticleContent>;
+  translationMeta?: Partial<Record<SupportedLocale, TranslationMetadata>>;
   categories: NewsTaxonomyItem[];
   tags: NewsTaxonomyItem[];
   featured: boolean;

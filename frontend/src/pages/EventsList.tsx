@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from '../components/Icon'
+import { formatDateTime } from '../utils/dateTime'
 import EventCard from '../components/EventCard'
 import { usePageMetadata } from '../hooks/usePageMetadata'
 import PublicLayout from '../components/PublicLayout'
@@ -54,7 +55,7 @@ export default function EventsList() {
         {!loading && !error && <>
           {featured && <article className="mt-10 overflow-hidden rounded-[2rem] bg-ask-mesh text-white shadow-2xl lg:grid lg:grid-cols-2">
             {featured.imageUrl ? <img src={featured.imageUrl} alt={featured.imageAlt || ''} className="h-full min-h-72 w-full object-cover" /> : <div className="grid min-h-72 place-items-center bg-white/5"><Icon name="calendar" className="h-16 w-16 text-ask-400" /></div>}
-            <div className="flex flex-col justify-center p-8 sm:p-10"><p className="font-bold text-ask-gold">{t('events.featured')}</p><h2 className="mt-3 text-3xl font-black sm:text-4xl"><Link to={`/events/${featured.slug}`}>{featured.title}</Link></h2><p className="mt-4 text-lg text-white/70">{featured.location} · {new Date(featured.startAt).toLocaleString(locale)}</p><Link to={`/events/${featured.slug}`} className="mt-7 inline-flex items-center gap-2 font-bold text-ask-gold">{t('events.title')}<Icon name="arrow" /></Link></div>
+            <div className="flex flex-col justify-center p-8 sm:p-10"><p className="font-bold text-ask-gold">{t('events.featured')}</p><h2 className="mt-3 text-3xl font-black sm:text-4xl"><Link to={`/events/${featured.slug}`}>{featured.title}</Link></h2><p className="mt-4 text-lg text-white/70">{featured.location} · {formatDateTime(featured.startAt)}</p><Link to={`/events/${featured.slug}`} className="mt-7 inline-flex items-center gap-2 font-bold text-ask-gold">{t('events.title')}<Icon name="arrow" /></Link></div>
           </article>}
           <section className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.filter((event) => event.id !== featured?.id).map((event) => <EventCard key={event.id} event={event} locale={locale} />)}

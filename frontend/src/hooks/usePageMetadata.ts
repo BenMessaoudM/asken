@@ -33,5 +33,20 @@ export function usePageMetadata(title: string, description: string, path: string
       document.head.appendChild(canonical)
     }
     canonical.href = canonicalUrl
+    const alternates = [
+      { hreflang: 'sv', href: canonicalUrl },
+      { hreflang: 'en', href: canonicalUrl },
+      { hreflang: 'x-default', href: canonicalUrl },
+    ]
+    alternates.forEach((alternate) => {
+      let link = document.head.querySelector<HTMLLinkElement>("link[rel=\"alternate\"][hreflang=\"" + alternate.hreflang + "\"]")
+      if (!link) {
+        link = document.createElement('link')
+        link.rel = 'alternate'
+        link.hreflang = alternate.hreflang
+        document.head.appendChild(link)
+      }
+      link.href = alternate.href
+    })
   }, [content.organizationName, description, locale, path, title])
 }

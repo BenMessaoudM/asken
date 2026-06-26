@@ -6,6 +6,7 @@ import PublicLayout from '../components/PublicLayout'
 import { usePageMetadata } from '../hooks/usePageMetadata'
 import { getNewsArticle } from '../news/api'
 import { NewsLocale, PublicNewsArticle } from '../news/types'
+import { formatDate } from '../utils/dateTime'
 
 export default function NewsDetail() {
   const { slug } = useParams()
@@ -32,7 +33,7 @@ export default function NewsDetail() {
           <div className="flex flex-wrap gap-2 text-sm font-bold uppercase tracking-wider text-ask-600 dark:text-ask-400">{article.categories.map((item) => <span key={item.slug}>{item.label}</span>)}</div>
           <h1 className="mt-4 text-4xl font-black leading-tight tracking-tight sm:text-6xl">{article.title}</h1>
           <p className="mt-5 text-xl leading-8 text-black/60 dark:text-white/60">{article.summary}</p>
-          <time className="mt-5 block text-sm font-semibold text-black/45 dark:text-white/45">{new Date(article.publishedAt).toLocaleDateString(locale)}</time>
+          <time className="mt-5 block text-sm font-semibold text-black/45 dark:text-white/45">{formatDate(article.publishedAt)}</time>
           {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || ''} className="mt-10 max-h-[36rem] w-full rounded-[2rem] object-cover shadow-soft" />}
           <div className="mx-auto mt-10 max-w-3xl space-y-6 text-lg leading-8">{article.body.split(/\n{2,}/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
           {article.tags.length > 0 && <div className="mx-auto mt-10 flex max-w-3xl flex-wrap gap-2">{article.tags.map((tag) => <span key={tag.slug} className="rounded-full bg-ask-50 px-3 py-1.5 text-sm font-semibold text-ask-600 dark:bg-ask-600/15 dark:text-ask-400">#{tag.label}</span>)}</div>}

@@ -1,4 +1,6 @@
-export type SiteLocale = 'en' | 'sv'
+import { PublicLanguage } from '../localization/languages'
+
+export type SiteLocale = PublicLanguage
 export type PageKey = 'about' | 'board' | 'membership' | 'associations' | 'cor-house' | 'booking' | 'privacy' | 'accessibility'
 
 export interface ContentSection {

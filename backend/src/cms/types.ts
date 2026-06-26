@@ -1,4 +1,5 @@
 import { AuthPrincipal, RequestContext } from '../identity/types';
+import { PublicLanguage, TranslationMetadata } from '../localization/languages';
 
 export const contentTypes = [
   'page',
@@ -32,6 +33,8 @@ export interface ManagedContent {
   version: number;
   sections: ManagedContentSection[];
   publishedAt?: Date;
+  sourceLanguage?: PublicLanguage;
+  translationMeta?: Partial<Record<PublicLanguage, TranslationMetadata>>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +49,8 @@ export interface ContentSummary {
   sectionCount: number;
   publishedAt?: Date;
   updatedAt: Date;
+  sourceLanguage?: PublicLanguage;
+  translationMeta?: Partial<Record<PublicLanguage, TranslationMetadata>>;
 }
 
 export interface ContentVersionSummary {

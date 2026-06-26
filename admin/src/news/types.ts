@@ -1,4 +1,6 @@
-export type NewsLocale = 'en' | 'sv'
+import { PublicLanguage } from '../localization/languages'
+
+export type NewsLocale = PublicLanguage
 export type NewsStatus = 'draft' | 'scheduled' | 'published'
 
 export interface NewsTranslation {

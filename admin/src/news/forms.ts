@@ -2,7 +2,7 @@ import { NewsTranslation } from './types'
 
 export function createEmptyTranslations(): { en: NewsTranslation; sv: NewsTranslation } {
   const empty = (): NewsTranslation => ({ title: '', summary: '', body: '', imageUrl: '', imageAlt: '' })
-  return { en: empty(), sv: empty() }
+  return { sv: empty(), en: empty() }
 }
 
 export function toDatetimeLocal(value?: string) {

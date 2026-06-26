@@ -1,10 +1,11 @@
 import { AuthPrincipal, RequestContext } from '../identity/types';
-export type EventLocale = 'en' | 'sv';
+import { PublicLanguage, TranslationMetadata } from '../localization/languages';
+export type EventLocale = PublicLanguage;
 export type EventStatus = 'scheduled' | 'postponed' | 'cancelled';
 export interface EventTranslation { title: string; description: string; organizer: string; location: string; imageAlt?: string; }
 export interface EventCategory { id: string; slug: string; labels: { en: string; sv: string }; createdAt: Date; updatedAt: Date; }
 export interface EventInput { slug?: string; translations: Record<EventLocale, EventTranslation>; imageUrl?: string; startAt: Date; endAt: Date; categoryId: string; eventStatus: EventStatus; featured: boolean; kideAppUrl?: string; }
-export interface ManagedEvent extends Omit<EventInput, 'categoryId'> { id: string; contentId: string; slug: string; publicationStatus: 'draft' | 'published'; temporalStatus: 'upcoming' | 'past'; version: number; category: EventCategory; publishedAt?: Date; createdAt: Date; updatedAt: Date; }
+export interface ManagedEvent extends Omit<EventInput, 'categoryId'> { translationMeta?: Partial<Record<EventLocale, TranslationMetadata>>; id: string; contentId: string; slug: string; publicationStatus: 'draft' | 'published'; temporalStatus: 'upcoming' | 'past'; version: number; category: EventCategory; publishedAt?: Date; createdAt: Date; updatedAt: Date; }
 export interface PublicEvent { id: string; slug: string; title: string; description: string; organizer: string; location: string; imageUrl?: string; imageAlt?: string; startAt: Date; endAt: Date; eventStatus: EventStatus; temporalStatus: 'upcoming' | 'past'; category: { slug: string; label: string }; featured: boolean; kideAppUrl?: string; locale: EventLocale; }
 export interface EventQuery { locale: EventLocale; search?: string; category?: string; period?: 'upcoming' | 'past'; featured?: boolean; from?: Date; to?: Date; page: number; limit: number; }
 export interface EventService {

@@ -5,6 +5,7 @@ import { AppError } from '../../http/errors';
 import { recordAudit } from '../../identity/services/audit';
 import { AuthPrincipal, RequestContext } from '../../identity/types';
 import { ContentModel } from '../../cms/models/Content';
+import { TranslationMetadata, localizedObject, localizedValue } from '../../localization/languages';
 import { NewsArticleModel } from '../models/NewsArticle';
 import { NewsArticleVersionModel } from '../models/NewsArticleVersion';
 import { NewsCategoryModel } from '../models/NewsCategory';
@@ -32,6 +33,7 @@ interface ArticleDocument {
   _id: Types.ObjectId;
   contentId: Types.ObjectId;
   translations: NewsArticleInput['translations'];
+  translationMeta?: Partial<Record<SupportedLocale, TranslationMetadata>>;
   categoryIds: Types.ObjectId[];
   tagIds: Types.ObjectId[];
   featured: boolean;
@@ -71,7 +73,7 @@ export class MongooseNewsService implements NewsService {
   async createArticle(input: NewsArticleInput, actor: AuthPrincipal, context: RequestContext): Promise<ManagedNewsArticle> {
     await this.validateTaxonomy(input.categoryIds, input.tagIds);
     const content = await this.cmsService.createContent({
-      contentType: 'news', title: input.translations.en.title, slug: input.slug, sections: [],
+      contentType: 'news', title: input.translations.sv.title, slug: input.slug, sections: [],
     }, actor, context);
     try {
       const article = await NewsArticleModel.create({
@@ -92,7 +94,7 @@ export class MongooseNewsService implements NewsService {
     const existing = await NewsArticleModel.findById(articleId).lean() as unknown as ArticleDocument | null;
     if (!existing) throw new AppError(404, 'NEWS_NOT_FOUND', 'News article was not found');
     const content = await this.cmsService.updateContent({
-      contentId: existing.contentId.toString(), contentType: 'news', title: input.translations.en.title,
+      contentId: existing.contentId.toString(), contentType: 'news', title: input.translations.sv.title,
       slug: input.slug, sections: [], expectedVersion: input.expectedVersion,
     }, actor, context);
     const article = await NewsArticleModel.findByIdAndUpdate(articleId, {
@@ -200,7 +202,7 @@ export class MongooseNewsService implements NewsService {
       if (!content) return [];
       return [{
         id: article._id.toString(), contentId: article.contentId.toString(), slug: content.slug,
-        status: this.status(content), version: content.version, translations: article.translations,
+        status: this.status(content), version: content.version, translations: article.translations, translationMeta: article.translationMeta,
         categories: article.categoryIds.map((id) => categoryMap.get(id.toString())).filter((item): item is NewsTaxonomyItem => Boolean(item)),
         tags: article.tagIds.map((id) => tagMap.get(id.toString())).filter((item): item is NewsTaxonomyItem => Boolean(item)),
         featured: article.featured, publishedAt: content.publishedAt, scheduledAt: article.scheduledAt,
@@ -214,11 +216,11 @@ export class MongooseNewsService implements NewsService {
     const contentMap = new Map(contents.map((content) => [content._id.toString(), content]));
     return articles.map((article) => {
       const content = contentMap.get(article.contentId.toString())!;
-      const translation = article.translations[locale] || article.translations.en;
+      const translation = localizedObject(article.translations, locale) || article.translations.sv;
       return {
         id: article._id.toString(), slug: content.slug, ...translation, locale,
-        categories: article.categoryIds.map((id) => categoryMap.get(id.toString())).filter((item): item is NewsTaxonomyItem => Boolean(item)).map((item) => ({ slug: item.slug, label: item.labels[locale] })),
-        tags: article.tagIds.map((id) => tagMap.get(id.toString())).filter((item): item is NewsTaxonomyItem => Boolean(item)).map((item) => ({ slug: item.slug, label: item.labels[locale] })),
+        categories: article.categoryIds.map((id) => categoryMap.get(id.toString())).filter((item): item is NewsTaxonomyItem => Boolean(item)).map((item) => ({ slug: item.slug, label: localizedValue(item.labels, locale) })),
+        tags: article.tagIds.map((id) => tagMap.get(id.toString())).filter((item): item is NewsTaxonomyItem => Boolean(item)).map((item) => ({ slug: item.slug, label: localizedValue(item.labels, locale) })),
         featured: article.featured, publishedAt: content.publishedAt!,
       };
     });
@@ -249,7 +251,7 @@ export class MongooseNewsService implements NewsService {
     await NewsArticleVersionModel.create({
       articleId: article._id, contentId: article.contentId, version,
       snapshot: {
-        translations: article.translations, categoryIds: article.categoryIds,
+        translations: article.translations, translationMeta: article.translationMeta, categoryIds: article.categoryIds,
         tagIds: article.tagIds, featured: article.featured, scheduledAt: article.scheduledAt,
       },
       actorId,
@@ -263,13 +265,13 @@ export class MongooseNewsService implements NewsService {
 
   private async listTaxonomy(kind: TaxonomyKind): Promise<NewsTaxonomyItem[]> {
     const model = this.taxonomyModel(kind);
-    const items = await model.find().sort({ 'labels.en': 1 }).lean() as unknown as TaxonomyDocument[];
+    const items = await model.find().sort({ 'labels.sv': 1 }).lean() as unknown as TaxonomyDocument[];
     return items.map((item) => this.toTaxonomy(item));
   }
 
   private async createTaxonomy(kind: TaxonomyKind, input: { slug?: string; labels: LocalizedLabel }, code: string): Promise<NewsTaxonomyItem> {
     const model = this.taxonomyModel(kind);
-    const slug = this.taxonomySlug(input.slug || input.labels.en);
+    const slug = this.taxonomySlug(input.slug || input.labels.sv);
     try {
       const item = await model.create({ slug, labels: input.labels }) as unknown as { toObject(): TaxonomyDocument };
       return this.toTaxonomy(item.toObject());
@@ -283,7 +285,7 @@ export class MongooseNewsService implements NewsService {
     const model = this.taxonomyModel(kind);
     this.assertId(id, code);
     try {
-      const item = await model.findByIdAndUpdate(id, { $set: { slug: this.taxonomySlug(input.slug || input.labels.en), labels: input.labels } }, { new: true }).lean() as unknown as TaxonomyDocument | null;
+      const item = await model.findByIdAndUpdate(id, { $set: { slug: this.taxonomySlug(input.slug || input.labels.sv), labels: input.labels } }, { new: true }).lean() as unknown as TaxonomyDocument | null;
       if (!item) throw new AppError(404, `${code}_NOT_FOUND`, `${this.capitalize(code)} was not found`);
       return this.toTaxonomy(item);
     } catch (error) {

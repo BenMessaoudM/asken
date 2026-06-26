@@ -9,6 +9,7 @@ import { eventsManagementMigration } from './migrations/006-events-management';
 import { bookingSystemMigration } from './migrations/007-booking-system';
 import { removeLegacyBookingIndexesMigration } from './migrations/008-remove-legacy-booking-indexes';
 import { corHouseBookingV06Migration } from './migrations/009-cor-house-booking-v06';
+import { bookingConfigurablePricingMigration } from './migrations/010-booking-configurable-pricing';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -21,6 +22,7 @@ const migrations: Migration[] = [
   bookingSystemMigration,
   removeLegacyBookingIndexesMigration,
   corHouseBookingV06Migration,
+  bookingConfigurablePricingMigration,
 ];
 
 export async function runMigrations() {

@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit';
 import { BookingRecord, ContractLanguage } from './types';
 import { CONTRACT_TEMPLATE_VERSION, CONTRACT_TERMS_VERSION, contractTemplates } from './contractTemplates';
+import { formatDate, formatTime } from '../formatting/dateTime';
 const officialNames:Record<ContractLanguage,string>={en:'Arcada Student Union – ASK',sv:'Arcada Studerandekår – ASK',fi:'Arcada opiskelijakunta – ASK'};
 const typeLabels:Record<ContractLanguage,Record<BookingRecord['bookingType'],string>>={
  en:{internal_ask:'Internal ASK',arcada_association:'Arcada Association',ask_member:'ASK Member',alumni:'Alumni',external:'External'},
@@ -8,9 +9,8 @@ const typeLabels:Record<ContractLanguage,Record<BookingRecord['bookingType'],str
  fi:{internal_ask:'ASK:n sisäinen',arcada_association:'Arcada-yhdistys',ask_member:'ASK:n jäsen',alumni:'Alumni',external:'Ulkopuolinen'}
 };
 const euros=(value:number)=>`${value.toFixed(2)} €`;
-const locale=(language:ContractLanguage)=>language==='fi'?'fi-FI':language==='sv'?'sv-FI':'en-FI';
-const date=(value:Date,language:ContractLanguage)=>new Intl.DateTimeFormat(locale(language),{dateStyle:'long',timeZone:'Europe/Helsinki'}).format(value);
-const time=(value:Date,language:ContractLanguage)=>new Intl.DateTimeFormat(locale(language),{timeStyle:'short',timeZone:'Europe/Helsinki'}).format(value);
+const date=(value:Date,_language:ContractLanguage)=>formatDate(value);
+const time=(value:Date,_language:ContractLanguage)=>formatTime(value);
 export interface ContractPdfOptions{language:ContractLanguage;doorCode:string;landlordAddress:string;landlordEmail:string}
 export function createContractPdf(booking:BookingRecord,options:ContractPdfOptions):Promise<Buffer>{
  const template=contractTemplates[options.language],billing=booking.billingAddress;

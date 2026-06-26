@@ -6,7 +6,14 @@ import { getPublishedPage } from './api'
 export function useCmsPage(pageKey: string, locale: SiteLocale) {
   const query = useQuery({
     queryKey: ['cms-page', pageKey, locale],
-    queryFn: () => getPublishedPage(`${pageKey}-${locale}`),
+    queryFn: async () => {
+      try {
+        return await getPublishedPage(pageKey + '-' + locale)
+      } catch (error) {
+        if (locale === 'en' && error instanceof PublicApiError && error.status === 404) return getPublishedPage(pageKey + '-sv')
+        throw error
+      }
+    },
     retry: (count, error) => !(error instanceof PublicApiError && error.status === 404) && count < 1,
     staleTime: 60_000,
   })

@@ -5,6 +5,7 @@ import { apiRequest, ApiError } from '../api/client'
 import { createSection, normalizeSections, sectionLabels } from '../cms/sections'
 import { CmsContent, CmsSection, ContentType, ContentVersion, SectionType, contentTypeLabels, contentTypes } from '../cms/types'
 import PageSectionEditor from '../components/PageSectionEditor'
+import { formatDateTime } from '../utils/dateTime'
 
 function cleanData(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(cleanData)
@@ -123,7 +124,7 @@ export default function ContentEditor() {
         <div>
           <Link to="/content" className="text-sm font-semibold text-ask-600 dark:text-ask-400">← Content</Link>
           <h1 className="mt-2 text-3xl font-bold">{isNew ? 'Create content' : title || 'Edit content'}</h1>
-          {content && <p className="mt-1 text-sm text-gray-500 dark:text-white/45">{contentTypeLabels[content.contentType]} · Status: {content.status} · Version {content.version}{content.publishedAt ? ` · Published ${new Date(content.publishedAt).toLocaleString()}` : ''}</p>}
+          {content && <p className="mt-1 text-sm text-gray-500 dark:text-white/45">{contentTypeLabels[content.contentType]} · Status: {content.status} · Version {content.version}{content.publishedAt ? ` · Published ${formatDateTime(content.publishedAt)}` : ''}</p>}
         </div>
         {canWrite && !isNew && <div className="flex gap-2">{content?.status === 'draft' && <button disabled={saving} onClick={() => void publish()} className="rounded-xl bg-ask-600 px-4 py-2.5 font-semibold text-white">Publish</button>}<button onClick={() => void remove()} className="rounded-xl border border-red-200 px-4 py-2.5 font-semibold text-red-700 dark:border-red-500/30 dark:text-red-300">Delete</button></div>}
       </div>
@@ -145,7 +146,7 @@ export default function ContentEditor() {
         </div>
         {canWrite && <div className="sticky bottom-4 flex justify-end"><button disabled={saving} className="rounded-xl bg-ask-600 px-6 py-3 font-semibold text-white shadow-xl shadow-ask-600/25 disabled:opacity-50">{saving ? 'Saving…' : isNew ? 'Create draft' : 'Save draft'}</button></div>}
       </form>
-      {!isNew && <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"><h2 className="font-bold">Version history</h2><ul className="mt-3 divide-y divide-black/5 dark:divide-white/10">{versions.map((version) => <li key={version.id} className="flex items-center justify-between py-3 text-sm"><span>Version {version.version} · {version.status} · {contentTypeLabels[version.contentType]}</span><time className="text-gray-500 dark:text-white/40">{new Date(version.createdAt).toLocaleString()}</time></li>)}</ul></div>}
+      {!isNew && <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"><h2 className="font-bold">Version history</h2><ul className="mt-3 divide-y divide-black/5 dark:divide-white/10">{versions.map((version) => <li key={version.id} className="flex items-center justify-between py-3 text-sm"><span>Version {version.version} · {version.status} · {contentTypeLabels[version.contentType]}</span><time className="text-gray-500 dark:text-white/40">{formatDateTime(version.createdAt)}</time></li>)}</ul></div>}
     </section>
   )
 }

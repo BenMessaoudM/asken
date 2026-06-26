@@ -14,7 +14,7 @@ const translationSchema = z.object({
   }
 });
 
-const translationsSchema = z.object({ en: translationSchema, sv: translationSchema });
+const translationsSchema = z.object({ sv: translationSchema, en: translationSchema });
 const objectId = z.string().regex(/^[a-f\d]{24}$/i, 'Invalid identifier');
 const uniqueIds = z.array(objectId).max(50).transform((ids) => [...new Set(ids)]);
 
@@ -33,7 +33,7 @@ export const publishArticleSchema = z.object({
 export const featuredSchema = z.object({ featured: z.boolean() });
 export const taxonomySchema = z.object({
   slug: z.string().trim().max(120).optional(),
-  labels: z.object({ en: z.string().trim().min(1).max(100), sv: z.string().trim().min(1).max(100) }),
+  labels: z.object({ sv: z.string().trim().min(1).max(100), en: z.string().trim().min(1).max(100) }),
 });
 export const localeSchema = z.enum(supportedLocales).default('sv');
 export const publicNewsQuerySchema = z.object({

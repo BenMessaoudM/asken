@@ -1,7 +1,8 @@
 import { AuthPrincipal, RequestContext } from '../identity/types';
+import { ContractLanguageCode } from '../localization/languages';
 
-export type BookingLocale = 'en' | 'sv';
-export type ContractLanguage = 'en' | 'sv' | 'fi';
+export type BookingLocale = 'sv' | 'en' | 'fi';
+export type ContractLanguage = ContractLanguageCode;
 export type BookingType = 'internal_ask' | 'arcada_association' | 'ask_member' | 'alumni' | 'external';
 export type InternalAskPurpose = 'official_activity' | 'private_booking';
 export type BookingSubmissionType = 'booking_request' | 'quote_request';
@@ -16,6 +17,11 @@ export interface BookingResource extends BookingResourceInput { id: string; slug
 export interface PublicBookingResource { id: string; slug: string; name: string; floor: string; description: string; location: string; rules: string; capacity: number; accessibility: string; imageUrl?: string; requiresApproval: boolean; minDurationMinutes: number; maxDurationMinutes: number; advanceBookingDays: number; openingHours: OpeningHours[]; }
 export interface BillingAddress { name: string; address: string; postalCode: string; city: string; country: string; vatOrBusinessId?: string; referenceNumber?: string; }
 export interface PriceBreakdown { currency: 'EUR'; rentalPrice: number; kitchenFee: number; saunaFee: number; discount: number; totalPrice: number; minimumHours: number; billableHours: number; benefitApplied?: 'official_ask_activity' | 'board_private_booking'; pricingRuleVersion: string; manualOverride: boolean; }
+export interface BookingCategoryInput { key: BookingType; name: LocalizedText; description: LocalizedText; active: boolean; displayOrder: number; billingAddressRequired: boolean; contractRequired: boolean; quoteRequestAllowed: boolean; public: boolean; }
+export interface BookingCategory extends BookingCategoryInput { id: string; createdAt: Date; updatedAt: Date; }
+export interface PublicBookingCategory { key: BookingType; name: string; description: string; billingAddressRequired: boolean; contractRequired: boolean; quoteRequestAllowed: boolean; }
+export interface BookingPricingRuleInput { version: string; resourceId?: string; resourceSlug: string; bookingType: BookingType; active: boolean; displayOrder: number; validFrom: Date; validUntil?: Date; minimumHours: number; weekdayHourly?: number; weekendHourly?: number; weekdayFixedPrice?: number; weekendFixedPrice?: number; fixedBookingPrice?: number; firstHours?: number; firstHoursHourly?: number; additionalHourly?: number; kitchenFee: number; saunaFee: number; kitchenIncluded: boolean; saunaIncluded: boolean; manualOverrideAllowed: boolean; }
+export interface BookingPricingRule extends BookingPricingRuleInput { id: string; createdAt: Date; updatedAt: Date; }
 export interface PricingRequest { bookingType: BookingType; internalAskPurpose?: InternalAskPurpose; requesterEmail?: string; mandateYear?: number; resourceSlug: string; startAt: Date; endAt: Date; kitchenExtra: boolean; saunaExtra: boolean; }
 export interface BookingRequestInput extends PricingRequest { resourceId: string; requesterName: string; requesterEmail: string; requesterPhone?: string; organization?: string; billingAddress?: BillingAddress; purpose: string; attendees: number; accessibilityNeeds?: string; locale: BookingLocale; submissionType: BookingSubmissionType; privacyAccepted: true; }
 export interface BookingChecklistItem { key: string; label: string; completed: boolean; completedAt?: Date; completedBy?: string; }
@@ -31,12 +37,17 @@ export interface BookingDashboardSummary { pendingApprovals: number; waitingForS
 
 export interface BookingService {
   listPublicResources(locale: BookingLocale): Promise<PublicBookingResource[]>;
+  listPublicCategories(locale: BookingLocale): Promise<PublicBookingCategory[]>;
   getPublicResource(slug: string, locale: BookingLocale): Promise<PublicBookingResource>;
   getAvailability(resourceId: string, from: Date, to: Date): Promise<Array<{ startAt: Date; endAt: Date; kind: 'booking' | 'blackout' }>>;
   calculatePrice(input: PricingRequest): Promise<PriceBreakdown>;
   createBooking(input: BookingRequestInput, context: RequestContext): Promise<{ booking: PublicBookingStatus }>;
   getPublicBooking(reference: string, email: string, locale: BookingLocale): Promise<PublicBookingStatus>;
   listAdminResources(): Promise<BookingResource[]>;
+  listAdminCategories(): Promise<BookingCategory[]>;
+  updateCategory(key: BookingType, input: BookingCategoryInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingCategory>;
+  listPricingRules(): Promise<BookingPricingRule[]>;
+  updatePricingRule(id: string, input: BookingPricingRuleInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingPricingRule>;
   createResource(input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingResource>;
   updateResource(id: string, input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingResource>;
   listBookings(query?: { status?: BookingStatus; resourceId?: string; from?: Date; to?: Date }): Promise<BookingRecord[]>;

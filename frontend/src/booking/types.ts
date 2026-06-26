@@ -1,6 +1,7 @@
-export type BookingLocale='en'|'sv';
+export type BookingLocale='sv'|'en'|'fi';
 export type BookingType='internal_ask'|'arcada_association'|'ask_member'|'alumni'|'external';
 export type BookingStatus='submitted'|'quote_requested'|'quote_sent'|'approved'|'contract_generated'|'waiting_for_signature'|'signed'|'completed'|'cancelled'|'rejected';
+export interface BookingCategory{key:BookingType;name:string;description:string;billingAddressRequired:boolean;contractRequired:boolean;quoteRequestAllowed:boolean}
 export interface PriceBreakdown{currency:'EUR';rentalPrice:number;kitchenFee:number;saunaFee:number;discount:number;totalPrice:number;minimumHours:number;billableHours:number;benefitApplied?:string;pricingRuleVersion:string;manualOverride:boolean}
 export interface BookingResource{id:string;slug:'kitchen'|'main-hall'|'meeting-room-sauna';name:string;floor:string;description:string;location:string;rules:string;capacity:number;accessibility:string;imageUrl?:string;requiresApproval:boolean;minDurationMinutes:number;maxDurationMinutes:number;advanceBookingDays:number;openingHours:Array<{weekday:number;start:string;end:string}>}
 export interface BillingAddress{name:string;address:string;postalCode:string;city:string;country:string;vatOrBusinessId?:string;referenceNumber?:string}

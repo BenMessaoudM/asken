@@ -7,12 +7,19 @@ Release v0.6 provides the finalized Cor House request, quote, approval, contract
 1. Select one of the three configured Cor House resources.
 2. Select the booking type and optional kitchen/sauna services.
 3. Review the server-calculated price breakdown.
-4. Enter requester and required billing information.
+4. Enter requester details and, for paid bookings, required billing information.
 5. Submit either a booking request or quote request.
 6. Receive a `COR-YYYY-XXXX` reference.
 7. Check public status using the reference and requester email.
 
 Public status responses never expose MongoDB identifiers, door codes, internal notes, or contract metadata.
+
+## Language and date/time presentation
+
+The public booking request and status forms support Svenska, English, and Suomi in that order. Svenska remains the default and Finnish is scoped to booking/contract workflows rather than becoming a global public-site language.
+
+User-facing booking dates render as DD.MM.YYYY; times render as 24-hour HH:mm. Date-time ranges use examples such as 20.08.2026 18:00-23:00. API payloads and database storage remain ISO/UTC.
+
 
 ## Bookable resources
 
@@ -32,7 +39,9 @@ References use `COR-YYYY-XXXX`. An atomic yearly counter prevents duplicate refe
 
 ## Booking types and pricing
 
-Supported types are Internal ASK, Arcada Association, ASK Member, Alumni, and External. Pricing is implemented in `backend/src/booking/pricing.ts`, not in the clients.
+Supported types are Internal ASK, Arcada Association, ASK Member, Alumni, and External. Booker categories are persisted configuration records with Swedish, English, and Finnish labels, descriptions, display order, active/public flags, billing requirements, contract requirements, and quote-request permissions. Admins can update these from the booking backoffice.
+
+Pricing is persisted as configurable booking pricing rules, not hidden frontend/admin/backend constants. Current prices are seeded defaults through migration 010-booking-configurable-pricing; future ASK boards can update prices from the backoffice without developer work.
 
 - Arcada Association: Monday–Thursday free; Friday–Sunday €75; kitchen included; sauna €30.
 - ASK Member: four-hour minimum; €30/hour Monday–Thursday; €40/hour Friday–Sunday; kitchen €25; sauna €20.
@@ -41,11 +50,11 @@ Supported types are Internal ASK, Arcada Association, ASK Member, Alumni, and Ex
 - Internal official activity: unlimited and free.
 - Internal private booking: one free booking per eligible board-member email and mandate year, then ASK Member pricing.
 
-Current eligible board-member emails are configured through `COR_HOUSE_BOARD_MEMBER_EMAILS`. Pricing rule version `2026.1` has explicit validity dates. Quote administrators can override a requested quote breakdown.
+Current eligible board-member emails are configured through COR_HOUSE_BOARD_MEMBER_EMAILS. Seeded pricing rules have explicit versions and validity dates. Each booking stores the pricing rule version used in its price snapshot so existing bookings do not silently change when rules are edited later. Quote administrators can manually override a requested quote breakdown with notes.
 
 ## Billing
 
-Paid bookings require billing name, address, postal code, city, and country. VAT/business ID and reference number are optional. This includes paid Arcada Association bookings.
+Paid bookings require billing name, address, postal code, city, and country. VAT/business ID and reference number are optional. This includes External, ASK Member, Alumni, and paid Arcada Association bookings. Free internal official activity, free Arcada Association bookings, and the free ASK board private booking benefit are not blocked by billing validation. Paid contract generation is blocked until billing is complete.
 
 ## Status lifecycle
 

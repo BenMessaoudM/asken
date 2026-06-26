@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-06-24
 
-> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set. Finalized Release v0.6 adds the Cor House resource catalogue, pricing engine, quote workflow, billing data, yearly public references, contract PDF generator, manual Visma Sign lifecycle, email foundation, dashboard summaries, checklist, timeline, blackouts, and secure reference-plus-email public status lookup. The 19% figure below remains the last full-project audit baseline until the next full audit.
+> **Post-audit implementation note (2026-06-25):** Release v0.5 adds the complete required public route set. Finalized Release v0.6 adds the Cor House resource catalogue, pricing engine, quote workflow, billing data, yearly public references, contract PDF generator, manual Visma Sign lifecycle, email foundation, dashboard summaries, checklist, timeline, blackouts, and secure reference-plus-email public status lookup. A 2026-06-26 multilingual foundation pass added Swedish-first language constants, fallback helpers, optional translation metadata, admin language ordering, and architecture documentation. A focused 2026-06-26 booking/date-time fix added shared DD.MM.YYYY/24-hour presentation helpers, Finnish booking flow support, paid-booking billing validation, and admin billing review before contract generation. The 19% figure below remains the last full-project audit baseline until the next full audit.
 
 **Authoritative status source:** implemented code, migrations, automated tests, and successful local builds
 **Canonical Epic definitions:** `docs/TASK_BACKLOG.md`
@@ -21,7 +21,7 @@ The 19% estimate is weighted by the midpoint of each Epic's story-point range in
 | --- | --- | ---: | --- |
 | 1 — Platform Foundation and API Standards | **Completed** | 85% | Three-package architecture, versioned API, standard errors, request IDs, environment validation, health/readiness, migrations, seeds, CI, tests, and builds are implemented. List conventions and shared persistence models are not fully applied. |
 | 2 — Identity, Authentication, and Authorization | Partial | 70% | Persisted users, bcrypt passwords, JWT access/rotating refresh sessions, HttpOnly cookies, backend RBAC, user/role administration, password change, rate limiting, and audit events are implemented. Password reset, account recovery, MFA, seeded role coverage, lockout controls, and database integration tests are missing. |
-| 3 — Bilingual Content and Localization | Partial | 35% | Public News and Events UI strings and their managed content are English/Swedish. Generic CMS content and the admin interface are primarily English-only. Translation review state, stale detection, persisted locale choice, localized slugs/URLs, metadata coverage, and bilingual emails are missing. |
+| 3 — Bilingual Content and Localization | Partial | 42% | Swedish-first language constants, fallback helpers, optional translation metadata foundations, public Swedish defaults, admin language ordering, and multilingual architecture documentation now exist. Generic CMS translation grouping, full admin UI localization, persisted review workflow, stale detection automation, localized slugs/URLs, complete metadata coverage, and reusable bilingual email templates remain incomplete. |
 | 4 — ASK Design System and Public Website | Partial | 25% | Admin brand tokens, responsive admin layout, a small public header, and News/Events pages exist. The public app lacks a complete tokenized design system, global navigation, footer, contact/service pages, platform search, sitemap, social metadata, and verified performance targets. |
 | 5 — Backoffice Content Management | Partial | 40% | Protected CMS routes, typed content, structured sections, optimistic version checks, draft/publish behavior, version history, admin lists, and editors exist. Preview, review/approval, archive/restore, media library, bulk operations, pagination, and translation completeness are missing. |
 | 6 — News and Blog | Partial | 65% | Bilingual article CRUD, categories, tags, featured state, scheduled visibility, version snapshots, public search/list/detail views, permissions, and validation tests exist. Author/SEO fields, localized slugs, preview, archive/restore, related content, UI pagination, and rich-content sanitization are missing. |
@@ -75,9 +75,9 @@ No later Epic meets its complete acceptance criteria or the master specification
 
 - **Backend:** Express 5 and TypeScript with Mongoose persistence, Zod validation, Helmet, CORS controls, rate limiting, cookie parsing, Nodemailer, versioned `/api/v1` routes, standard errors, request IDs, and health/readiness endpoints.
 - **Identity:** MongoDB-backed users, roles, permissions, refresh sessions, and audit events. Access and refresh JWTs are issued through HttpOnly cookies; protected actions use backend permission middleware.
-- **Content:** A generic typed CMS stores content, ordered sections, publication state, optimistic versions, and immutable snapshots. News and Events specialize the generic content record with their own collections and APIs.
-- **Admin application:** React/Vite application with session restoration, permission-aware navigation and route guards, user/role administration, generic content editing, News management, Events management, Booking operations/resource management, and placeholder routes for later modules.
-- **Public application:** React/Vite application with i18next, responsive global navigation/footer, Home, About, Board, Membership, Contact, Associations, Cor House, Booking, Privacy, Accessibility, News list/detail, Events list/detail, and 404 routes. Published locale-specific CMS pages, News, Events, booking resources, availability, and booking status are loaded from public APIs.
+- **Content:** A generic typed CMS stores content, ordered sections, publication state, optimistic versions, immutable snapshots, and optional Swedish-first translation metadata. News and Events specialize the generic content record with their own collections and APIs.
+- **Admin application:** React/Vite application with session restoration, permission-aware navigation and route guards, user/role administration, generic content editing, News management, Events management, Booking operations/resource management, Swedish-first multilingual content field ordering, and placeholder routes for later modules.
+- **Public application:** React/Vite application with i18next, Swedish default/fallback language behavior, responsive global navigation/footer, Home, About, Board, Membership, Contact, Associations, Cor House, Booking, Privacy, Accessibility, News list/detail, Events list/detail, and 404 routes. Published locale-specific CMS pages, News, Events, booking resources, availability, and booking status are loaded from public APIs.
 - **Data evolution:** Eight ordered MongoDB migrations and development seed tooling exist. The seed creates permissions and a Super Admin but not the complete required role set.
 - **Delivery:** GitHub Actions builds all packages, runs backend checks/tests, and audits production dependencies. Admin tests exist locally but are not currently run by CI. The public frontend has no automated tests.
 
@@ -87,7 +87,7 @@ The following passed against the audited worktree:
 
 - Backend type check
 - Backend production build
-- Backend tests: 12 suites, 48 tests
+- Backend tests: 15 suites, 65 tests
 - Admin production build
 - Admin tests: 7 suites, 15 tests
 - Public frontend production build
@@ -98,15 +98,15 @@ The backend HTTP suite uses service doubles. Release v0.6 was additionally verif
 
 - Password reset, account recovery, MFA, login lockout, and broader refresh-token family reuse handling are absent.
 - Only the Super Admin system role is seeded; required role definitions are not established as deployable policy.
-- Generic content is monolingual while News and Events embed separate bilingual fields, creating inconsistent translation architecture.
-- Admin interface strings are not localized, locale selection is not persisted, and slugs are shared rather than language-specific.
+- Generic content remains record-per-language rather than grouped translations; News and Events embed separate bilingual fields.
+- Admin interface strings are not localized, locale selection is not persisted, translation review workflow is not enforced, and slugs are shared rather than language-specific.
 - CMS publication state is limited to draft/published; review, approval, archive, restore, and preview are absent.
 - Media uses external URLs. There is no media library, upload validation, usage tracking, or storage abstraction.
 - News and Events services coordinate writes across collections without transactions, allowing partial failures.
 - Deleting generic content also deletes version history, conflicting with stronger audit/record-retention expectations.
 - List pagination/filtering conventions exist but are not consistently applied to admin APIs; some public services load all matching records before slicing.
 - Events do not implement capacity, accessibility details, standard registration, add-to-calendar files, or change notifications.
-- Booking lacks student accounts, self-service cancellation, reminders, notification retry state, automated retention/anonymization, and browser-level accessibility tests.
+- Booking lacks student accounts, self-service cancellation, reminders, notification retry state, automated retention/anonymization, browser-level accessibility tests, and end-to-end billing/contract browser coverage.
 - Several later modules are visible in administration as placeholders despite having no backend implementation.
 - Test coverage lacks real MongoDB integration, frontend component coverage, browser E2E journeys, bilingual journey checks, and accessibility automation.
 - CI does not run the existing admin test suite.
@@ -119,7 +119,7 @@ The backend HTTP suite uses service doubles. Release v0.6 was additionally verif
 
 **Epic 3 — Bilingual Content and Localization**
 
-Epic 3 should be completed before adding Epic 8 or further content modules. News, Events, generic CMS content, the public application, and the admin application currently use inconsistent localization patterns. The next delivery should establish:
+Epic 3 should continue before adding Epic 8 or further content modules. The Swedish-first foundation is now documented in , but the next delivery should complete:
 
 1. One translation storage and revision strategy for managed content.
 2. English/Swedish admin UI localization and validation messages.

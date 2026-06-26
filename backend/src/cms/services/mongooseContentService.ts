@@ -24,6 +24,8 @@ interface LeanContent {
   status: 'draft' | 'published';
   version: number;
   publishedAt?: Date;
+  sourceLanguage?: 'sv' | 'en';
+  translationMeta?: ManagedContent['translationMeta'];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,7 +50,7 @@ export class MongooseContentService implements CmsService {
     return contents.map((content) => ({
       id: content._id.toString(), contentType: content.contentType, title: content.title,
       slug: content.slug, status: content.status, version: content.version,
-      sectionCount: content.sectionCount, publishedAt: content.publishedAt, updatedAt: content.updatedAt,
+      sectionCount: content.sectionCount, publishedAt: content.publishedAt, updatedAt: content.updatedAt, sourceLanguage: content.sourceLanguage, translationMeta: content.translationMeta,
     }));
   }
 
@@ -196,7 +198,7 @@ export class MongooseContentService implements CmsService {
     return {
       id: content._id.toString(), contentType: content.contentType, title: content.title,
       slug: content.slug, status: content.status, version: content.version,
-      publishedAt: content.publishedAt, createdAt: content.createdAt, updatedAt: content.updatedAt,
+      publishedAt: content.publishedAt, sourceLanguage: content.sourceLanguage, translationMeta: content.translationMeta, createdAt: content.createdAt, updatedAt: content.updatedAt,
       sections: sections.map((section): ManagedContentSection => ({
         id: section._id.toString(), type: section.type, position: section.position, data: section.data,
       })),

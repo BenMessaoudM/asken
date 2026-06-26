@@ -81,6 +81,7 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 
 **Technical Notes**
 
+- 2026-06-26 foundation: Swedish-first language constants, fallback helpers, optional translation metadata, admin language ordering, Finnish booking language support, shared DD.MM.YYYY/24-hour presentation helpers, and docs/MULTILINGUAL_ARCHITECTURE.md are in place. Complete workflow, localized URLs, and full UI/email localization remain.
 - Expand the existing i18next setup into namespaced resources.
 - Model translations as structured fields or related records with revision metadata.
 - Add automated checks for missing keys and bilingual critical journeys.
@@ -229,7 +230,8 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 **Technical Notes**
 
 - Use database-level safeguards or transactions for conflict prevention.
-- Store timezone-aware rules and UTC timestamps.
+- Store timezone-aware rules and UTC timestamps. Render all user-facing dates through shared DD.MM.YYYY and 24-hour helpers.
+- Paid booking requests and paid contract generation require complete billing name, address, postal code, city, and country; free bookings do not.
 - Separate resource policy, availability calculation, booking lifecycle, and notification services.
 
 **Estimated Effort:** 35–50 SP
