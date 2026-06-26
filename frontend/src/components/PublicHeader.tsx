@@ -14,15 +14,17 @@ export default function PublicHeader() {
   const moreRef = useRef<HTMLDivElement>(null)
   const primary = [
     { to: '/about', label: nav.about },
+    { to: '/organisation', label: nav.organization },
     { to: '/membership', label: nav.membership },
     { to: '/news', label: nav.news },
     { to: '/events', label: nav.events },
     { to: '/cor-house', label: nav.corHouse },
   ]
   const secondary = [
-    { to: '/board', label: nav.board },
+    { to: '/organisation/styrelsen', label: nav.board },
     { to: '/associations', label: nav.associations },
     { to: '/booking', label: nav.booking },
+    { to: '/alumner', label: nav.alumni },
     { to: '/contact', label: nav.contact },
   ]
   const routeClass = ({ isActive }: { isActive: boolean }) => `rounded-full px-3 py-2 text-sm font-bold transition ${isActive ? 'bg-ask-50 text-ask-600 dark:bg-white/10 dark:text-ask-400' : 'text-ask-ink/70 hover:bg-black/5 hover:text-ask-600 dark:text-white/70 dark:hover:bg-white/10'}`

@@ -24,6 +24,7 @@ interface SiteContent {
   nav: {
     home: string
     about: string
+    organization: string
     board: string
     membership: string
     associations: string
@@ -32,6 +33,8 @@ interface SiteContent {
     contact: string
     news: string
     events: string
+    alumni: string
+    getInvolved: string
     more: string
     join: string
     open: string
@@ -77,8 +80,8 @@ const en: SiteContent = {
   organizationName: 'Arcada Student Union – ASK',
   shortName: 'ASK',
   nav: {
-    home: 'Home', about: 'About', board: 'Board', membership: 'Membership', associations: 'Associations',
-    corHouse: 'Cor House', booking: 'Booking', contact: 'Contact', news: 'News', events: 'Events', more: 'More',
+    home: 'Home', about: 'About', organization: 'Organization', board: 'Board', membership: 'Membership', associations: 'Associations',
+    corHouse: 'Cor House', booking: 'Booking', contact: 'Contact', news: 'News', events: 'Events', alumni: 'Alumni', getInvolved: 'Get Involved', more: 'More',
     join: 'Join ASK', open: 'Open navigation', close: 'Close navigation', main: 'Main navigation', mobile: 'Mobile navigation',
   },
   common: { learnMore: 'Learn more', readMore: 'Read more', viewAll: 'View all', cmsUnavailable: 'Managed content is temporarily unavailable.' },
@@ -221,8 +224,8 @@ const sv: SiteContent = {
   organizationName: 'Arcada Studerandekår – ASK',
   shortName: 'ASK',
   nav: {
-    home: 'Hem', about: 'Om ASK', board: 'Styrelsen', membership: 'Medlemskap', associations: 'Föreningar',
-    corHouse: 'Cor-huset', booking: 'Bokning', contact: 'Kontakt', news: 'Nyheter', events: 'Evenemang', more: 'Mer',
+    home: 'Hem', about: 'Om ASK', organization: 'Organisation', board: 'Styrelsen', membership: 'Medlemskap', associations: 'Föreningar',
+    corHouse: 'Cor-huset', booking: 'Bokning', contact: 'Kontakt', news: 'Nyheter', events: 'Evenemang', alumni: 'Alumner', getInvolved: 'Engagera dig', more: 'Mer',
     join: 'Bli medlem', open: 'Öppna navigationen', close: 'Stäng navigationen', main: 'Huvudnavigation', mobile: 'Mobilnavigation',
   },
   common: { learnMore: 'Läs mer', readMore: 'Läs mer', viewAll: 'Visa alla', cmsUnavailable: 'Det redaktionella innehållet är tillfälligt otillgängligt.' },

@@ -2,16 +2,16 @@
 
 **Audit date:** 2026-06-26
 **Audited branch:** main
-**Latest commit:** a45decf chore(project): update advancement audit and booking hardening
+**Latest commit:** pending v0.7 organization commit
 **Scope:** inspection, validation, completion estimate, and documentation update only
 
 ## Executive Summary
 
-The platform has moved beyond the previous pre-booking baseline. Release v0.5 delivered the public website route set, and v0.6 delivered a substantial Cor House booking system with resources, availability, pricing, billing details, contract generation, status lookup, and admin operations. A later configurable pricing pass added editable booking categories and pricing rules. Date/time helpers and booking UI formatting are present in admin, frontend, and backend formatting layers.
+The platform has moved beyond the previous pre-booking baseline and now includes an Organization v0.7 foundation. Release v0.5 delivered the public website route set, and v0.6 delivered a substantial Cor House booking system with resources, availability, pricing, billing details, contract generation, status lookup, and admin operations. A later configurable pricing pass added editable booking categories and pricing rules. Date/time helpers and booking UI formatting are present in admin, frontend, and backend formatting layers.
 
 The project is still not production-ready. The strongest implemented areas are platform foundation, booking, authentication/RBAC, News, Events, and the core public/admin shells. The main gaps are complete Swedish-first multilingual workflows, media library, content review/approval workflows, GDPR/data governance, accessibility assurance, production operations, and several feature modules that remain placeholders or static pages.
 
-**Realistic overall completion after multilingual foundation:** 35%.
+**Realistic overall completion after Organization v0.7:** 38%.
 
 ## Repository State
 
@@ -21,7 +21,7 @@ The project is still not production-ready. The strongest implemented areas are p
 | Latest commit | a45decf chore(project): update advancement audit and booking hardening |
 | Tags | v0.5, v0.6.0 |
 | Local sync with origin/main | Synced by local refs: origin/main...HEAD = 0 behind / 0 ahead |
-| Working tree clean | No |
+| Working tree clean | No, v0.7 implementation in progress |
 | Uncommitted files | Booking/date-time/settings related modified files are present |
 | Untracked files | admin/src/utils/dateTime.test.ts |
 
@@ -74,10 +74,11 @@ Admin tests emitted non-failing Vite deprecation warnings.
 
 ## Migration Status
 
-Migrations are implemented and included in backend/src/database/migrate.ts through 010:
+Migrations are implemented and included in backend/src/database/migrate.ts through 011:
 
 - 009-cor-house-booking-v06: seeds Cor House booking resources, disables legacy resources, adds booking references, counters, contract indexes, and booking indexes.
 - 010-booking-configurable-pricing: seeds configurable booking categories and pricing rules, and adds category/pricing indexes.
+- 011-organization-v07: adds Organization indexes and default Role Badge, Fullmäktige, and Alumni public content.
 
 The migration runner records applied migrations in the _migrations collection. These migrations are not automatically run by backend startup, so development and production databases must run npm run migrate before relying on booking v0.6 or configurable pricing data.
 

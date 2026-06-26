@@ -21,6 +21,8 @@ const permissions = [
   ['collaborations.read', 'View collaboration management'],
   ['booking.read', 'View booking management'],
   ['booking.write', 'Manage resources and booking lifecycle'],
+  ['organization.read', 'View organization management'],
+  ['organization.write', 'Manage public organization information'],
   ['governance.read', 'View governance management'],
   ['settings.read', 'View administration settings'],
   ['audit.read', 'View security audit records'],

@@ -25,6 +25,9 @@ import { IdentityService } from './identity/types';
 import { BookingService } from './booking/types';
 import { createPublicBookingRouter } from './booking/routes/publicBookingRoutes';
 import { createAdminBookingRouter } from './booking/routes/adminBookingRoutes';
+import { OrganizationService } from './organization/types';
+import { createAdminOrganizationRouter } from './organization/routes/adminOrganizationRoutes';
+import { createPublicOrganizationRouter } from './organization/routes/publicOrganizationRoutes';
 
 export interface AppDependencies {
   env: Env;
@@ -33,6 +36,7 @@ export interface AppDependencies {
   newsService: NewsService;
   eventService: EventService;
   bookingService?: BookingService;
+  organizationService?: OrganizationService;
   isReady?: () => boolean;
   sendMessage?: (message: string) => Promise<void>;
 }
@@ -46,6 +50,7 @@ export function createApp({
   newsService,
   eventService,
   bookingService,
+  organizationService,
   isReady = () => mongoose.connection.readyState === 1,
   sendMessage = async () => undefined,
 }: AppDependencies) {
@@ -87,6 +92,12 @@ export function createApp({
   if (bookingService) {
     app.use('/api/v1/bookings', rateLimit({ windowMs: 15 * 60 * 1000, limit: env.NODE_ENV === 'test' ? 1000 : 60, standardHeaders: 'draft-8', legacyHeaders: false }), createPublicBookingRouter(bookingService));
     app.use('/api/v1/admin/bookings', createAdminBookingRouter(bookingService, identityService, env));
+  }
+  if (organizationService) {
+    app.use('/api/v1/organization', createPublicOrganizationRouter(organizationService));
+    app.use('/api/public/organization', createPublicOrganizationRouter(organizationService));
+    app.use('/api/v1/admin/organization', createAdminOrganizationRouter(organizationService, identityService, env));
+    app.use('/api/admin/organization', createAdminOrganizationRouter(organizationService, identityService, env));
   }
   app.use('/api/v1/admin', createAdminRouter(identityService, env));
 

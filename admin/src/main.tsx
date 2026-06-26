@@ -20,6 +20,7 @@ import BookingEditor from './pages/BookingEditor'
 import BookingResourceEditor from './pages/BookingResourceEditor'
 import EventEditor from './pages/EventEditor'
 import ModulePlaceholder from './pages/ModulePlaceholder'
+import OrganizationDashboard from './pages/OrganizationDashboard'
 import Roles from './pages/Roles'
 import Users from './pages/Users'
 import './index.css'
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { path: '/booking/resources/new', element: <PermissionGuard permission="booking.write"><BookingResourceEditor /></PermissionGuard> },
       { path: '/booking/resources/:id', element: <PermissionGuard permission="booking.write"><BookingResourceEditor /></PermissionGuard> },
       { path: '/booking/:id', element: protectedPage('/booking', <BookingEditor />) },
+      { path: '/organization', element: protectedPage('/organization', <OrganizationDashboard />) },
       { path: '/governance', element: placeholder('/governance') },
       { path: '/settings', element: placeholder('/settings') },
       { path: '/change-password', element: <ChangePassword /> },

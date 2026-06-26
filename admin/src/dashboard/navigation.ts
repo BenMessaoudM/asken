@@ -8,6 +8,7 @@ export type DashboardIcon =
   | 'cor'
   | 'collaborations'
   | 'booking'
+  | 'organization'
   | 'governance'
   | 'settings'
 
@@ -29,6 +30,7 @@ export const dashboardModules: DashboardModule[] = [
   { path: '/cor-activities', label: 'Cor Activities', description: 'What is happening at Cor', permission: 'cor_activities.read', icon: 'cor' },
   { path: '/collaborations', label: 'Collaborations', description: 'Partners and student benefits', permission: 'collaborations.read', icon: 'collaborations' },
   { path: '/booking', label: 'Booking', description: 'Resources and reservations', permission: 'booking.read', icon: 'booking' },
+  { path: '/organization', label: 'Organisation', description: 'Board, council, committees, staff, recruitment and alumni', permission: 'organization.read', icon: 'organization' },
   { path: '/governance', label: 'Governance', description: 'Boards, meetings, and records', permission: 'governance.read', icon: 'governance' },
   { path: '/settings', label: 'Settings', description: 'Platform configuration', permission: 'settings.read', icon: 'settings' }
 ]

@@ -7,6 +7,7 @@ import { MongooseNewsService } from './news/services/mongooseNewsService';
 import { MongooseEventService } from './events/services/mongooseEventService';
 import { MongooseIdentityService } from './identity/services/mongooseIdentityService';
 import { MongooseBookingService } from './booking/services/mongooseBookingService';
+import { MongooseOrganizationService } from './organization/services/mongooseOrganizationService';
 
 export async function startServer() {
   const env = loadEnv();
@@ -24,6 +25,7 @@ export async function startServer() {
     cmsService,
     newsService: new MongooseNewsService(cmsService),
     eventService: new MongooseEventService(cmsService),
+    organizationService: new MongooseOrganizationService(),
     bookingService: new MongooseBookingService(async (notification) => {
       await transporter.sendMail({ from: env.SMTP_USER, to: notification.to, subject: notification.subject, text: notification.text.replaceAll('/booking/', env.FRONTEND_URL + '/booking/') });
     }, { doorCode: env.COR_HOUSE_DOOR_CODE, landlordAddress: env.COR_HOUSE_LANDLORD_ADDRESS, landlordEmail: env.COR_HOUSE_LANDLORD_EMAIL, boardMemberEmails: env.COR_HOUSE_BOARD_MEMBER_EMAILS?.split(',').map((email) => email.trim().toLowerCase()).filter(Boolean) }),
