@@ -30,6 +30,9 @@ import NewsDetail from './pages/NewsDetail'
 import NewsList from './pages/NewsList'
 import NotFound from './pages/NotFound'
 import Privacy from './pages/Privacy'
+import Governance from './pages/Governance'
+import FullmaktigeDocuments from './pages/FullmaktigeDocuments'
+import GovernanceDocumentDetail from './pages/GovernanceDocumentDetail'
 import './index.css'
 
 const router = createBrowserRouter([
@@ -54,6 +57,10 @@ const router = createBrowserRouter([
   { path: '/cor-house', element: <CorHouse /> },
   { path: '/booking', element: <Booking /> },
   { path: '/booking/status', element: <BookingStatus /> },
+  { path: '/styrning', element: <Governance /> },
+  { path: '/governance', element: <Governance /> },
+  { path: '/styrning/fullmaktige', element: <FullmaktigeDocuments /> },
+  { path: '/styrning/dokument/:slug', element: <GovernanceDocumentDetail /> },
   { path: '/privacy', element: <Privacy /> },
   { path: '/accessibility', element: <Accessibility /> },
   { path: '/news', element: <NewsList /> },

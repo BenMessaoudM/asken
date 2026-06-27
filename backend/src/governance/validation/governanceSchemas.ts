@@ -1,0 +1,17 @@
+import { z } from 'zod';
+import { publicLanguages } from '../../localization/languages';
+const localizedTextSchema = z.object({ sv: z.string().trim().default(''), en: z.string().trim().default('') });
+const requiredLocalizedTextSchema = localizedTextSchema.refine((value) => value.sv.length > 0 || value.en.length > 0, { message: 'At least one language value is required' });
+const optionalString = z.string().trim().optional().or(z.literal('').transform(() => undefined));
+const optionalEmail = z.string().trim().email().optional().or(z.literal('').transform(() => undefined));
+const optionalUrl = z.string().trim().url().optional().or(z.literal('').transform(() => undefined));
+const dateSchema = z.coerce.date().optional();
+export const governanceDocumentTypeSchema = z.enum(['meeting_notice','agenda','minutes','statutes','regulations','annual_report','financial_statement','policy','other']);
+export const governanceBodySchema = z.enum(['fullmaktige','student_union','other']);
+export const governanceLanguageSchema = z.enum(['sv','en','bilingual']);
+export const governanceLocaleSchema = z.object({ lang: z.enum(publicLanguages).default('sv') });
+export const governanceDocumentQuerySchema = z.object({ documentType: governanceDocumentTypeSchema.optional(), governanceBody: governanceBodySchema.optional(), language: governanceLanguageSchema.optional(), year: z.coerce.number().int().min(1900).max(2200).optional(), published: z.coerce.boolean().optional(), publicOnly: z.coerce.boolean().optional() });
+export const governanceDocumentInputSchema = z.object({ title: requiredLocalizedTextSchema, slug: optionalString, description: localizedTextSchema.default({ sv: '', en: '' }), documentType: governanceDocumentTypeSchema, governanceBody: governanceBodySchema.default('fullmaktige'), meetingDate: dateSchema, publishDate: dateSchema, documentDate: dateSchema, year: z.coerce.number().int().min(1900).max(2200).optional(), language: governanceLanguageSchema.default('sv'), fileUrl: z.string().trim().url(), fileName: optionalString, externalUrl: optionalUrl, fileSize: z.coerce.number().int().nonnegative().optional(), isPublic: z.boolean().default(false), isPublished: z.boolean().default(false), publishedAt: dateSchema, displayOrder: z.coerce.number().int().default(100), tags: localizedTextSchema.default({ sv: '', en: '' }), createdBy: optionalString, updatedBy: optionalString });
+export const governanceSettingsInputSchema = z.object({ intro: localizedTextSchema.default({ sv: '', en: '' }), documentPolicyText: localizedTextSchema.default({ sv: '', en: '' }), contactEmail: optionalEmail, visible: z.boolean().default(true) });
+export const slugParamsSchema = z.object({ slug: z.string().trim().min(1) });
+export const idParamsSchema = z.object({ id: z.string().trim().min(1) });

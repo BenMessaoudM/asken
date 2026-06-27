@@ -14,6 +14,7 @@ import { organizationV07Migration } from './migrations/011-organization-v07';
 import { bookingHardeningV08Migration } from './migrations/012-booking-hardening-v08';
 import { organizationBylawsAlignmentMigration } from './migrations/013-organization-bylaws-alignment';
 import { studentRepresentativesMigration } from './migrations/014-student-representatives';
+import { publicGovernanceMigration } from './migrations/015-public-governance';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -31,6 +32,7 @@ const migrations: Migration[] = [
   bookingHardeningV08Migration,
   organizationBylawsAlignmentMigration,
   studentRepresentativesMigration,
+  publicGovernanceMigration,
 ];
 
 export async function runMigrations() {

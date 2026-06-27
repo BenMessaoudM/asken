@@ -27,6 +27,7 @@ const permissions = [
   ['representatives.read', 'View student representatives management'],
   ['representatives.write', 'Manage student representative bodies, people, and calls'],
   ['governance.read', 'View governance management'],
+  ['governance.write', 'Manage and publish public governance documents'],
   ['settings.read', 'View administration settings'],
   ['audit.read', 'View security audit records'],
 ] as const;

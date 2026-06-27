@@ -208,3 +208,9 @@ The Organization module now reflects ASK bylaws/regulations by adding Äldres R�
 The Organisation area now includes a Studeranderepresentanter / Student Representatives foundation. Backend models, APIs, migration `014-student-representatives`, admin management, public pages, and documentation are implemented for representative bodies, public representatives, and calls for applications.
 
 The implementation is intentionally not a voting system, election counter, candidate portal, student login workflow, or full application workflow. Public privacy rules hide representative email addresses unless explicit contact visibility is enabled.
+
+## Public Governance Update
+
+The Governance placeholder has been replaced with a scoped public governance document module focused on Fullmäktige/public documents. It adds backend models/APIs, migration `015-public-governance`, admin document/settings management, public pages, filters, and publication privacy enforcement.
+
+The module intentionally excludes Board meeting management, Board agendas/protocols, internal notes, voting, election counting, file storage, Media Library, and OCR/import.

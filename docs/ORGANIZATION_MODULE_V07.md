@@ -145,3 +145,7 @@ APIs:
 Migration `014-student-representatives` seeds the seven bylaws-listed Arcada bodies and `representatives.read` / `representatives.write` permissions. No fake student representatives are seeded. Public representative emails remain private unless an admin explicitly enables public contact visibility.
 
 See `docs/STUDENT_REPRESENTATIVES_MODULE.md` for the full v0.8 scope, exclusions, privacy rules, APIs, and migration notes.
+
+## Public Governance Links
+
+Fullmäktige public information now links to the Public Governance document module for meeting notices, agendas, and minutes. Public routes are `/styrning/fullmaktige` and `/styrning/dokument/:slug`. Board documents and internal governance workflows remain excluded from the Organisation module.

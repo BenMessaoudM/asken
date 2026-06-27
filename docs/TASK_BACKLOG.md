@@ -453,3 +453,10 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 - Add browser E2E coverage for `/organisation/studeranderepresentanter`, body detail pages, and the admin representatives tabs.
 - Decide whether future calls should integrate with Lime CRM, email-only handling, or another external application form.
 - Keep election/voting workflows separate from this information module unless ASK explicitly scopes a full election system later.
+
+## Public Governance Follow-ups
+
+- Enter real Fullmäktige notices, agendas, minutes, statutes, regulations, annual reports, financial statements, and policies after ASK publication approval.
+- Add browser E2E coverage for `/styrning`, `/styrning/fullmaktige`, document detail, admin document editing, and publish/unpublish.
+- Add Media Library integration later to replace manual file URLs.
+- Consider document versioning and related-document grouping if governance publishing workflows require them.

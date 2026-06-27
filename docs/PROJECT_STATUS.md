@@ -88,3 +88,9 @@ Organisation now includes Studeranderepresentanter / Student Representatives as 
 Seeded bodies include Yrkeshögskolans styrelse, Omprövningsnämnden, Branschråd, Kvalitetsråd, Forskningsråd, Pedagogiska rådet, and Rådet för kvalitet och samhällsansvar. No fake representatives are seeded.
 
 Public pages are available at `/organisation/studeranderepresentanter` and `/organisation/studeranderepresentanter/:slug`. Admin management is available at `/representatives` with `representatives.read` and `representatives.write` permissions. Migration `014-student-representatives` must be run in each target environment.
+
+## Public Governance Module
+
+Public Governance / Offentlig styrning is now implemented for public Fullmäktige and governance documents. It includes backend document/settings models, public/admin APIs, admin `/governance`, public `/styrning`, `/governance`, `/styrning/fullmaktige`, and `/styrning/dokument/:slug` pages.
+
+The module stores document URLs and metadata only. Public endpoints expose only `isPublic && isPublished` documents. Board agendas/protocols, internal notes, voting, file storage, OCR/import, and Media Library are explicitly out of scope. Migration `015-public-governance` must be run in each target environment.
