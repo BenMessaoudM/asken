@@ -76,3 +76,7 @@ Recommended next priority: **Tutor Module** or the broader student engagement wo
 ## Booking Hardening Patch
 
 Booking now includes Cor-huset-style contract alignment, Fastighets Ab Cor-huset landlord / ASK contact role separation, Arcada Association no-contract handling, paid Arcada bill-basis generation, soft delete, and door-code scoping. Migration `012-booking-hardening-v08` must be run in each environment.
+
+## Organisation Bylaws Alignment
+
+Organisation now includes Äldres Råd / Elders’ Council as a bylaws-aligned advisory body appointed by Fullmäktige, with nine-member / three-year mandate wording, contact email `aldresrad@asken.fi`, admin editing, public page, and migration `013-organization-bylaws-alignment`.

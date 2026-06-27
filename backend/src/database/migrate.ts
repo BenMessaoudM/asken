@@ -12,6 +12,7 @@ import { corHouseBookingV06Migration } from './migrations/009-cor-house-booking-
 import { bookingConfigurablePricingMigration } from './migrations/010-booking-configurable-pricing';
 import { organizationV07Migration } from './migrations/011-organization-v07';
 import { bookingHardeningV08Migration } from './migrations/012-booking-hardening-v08';
+import { organizationBylawsAlignmentMigration } from './migrations/013-organization-bylaws-alignment';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -27,6 +28,7 @@ const migrations: Migration[] = [
   bookingConfigurablePricingMigration,
   organizationV07Migration,
   bookingHardeningV08Migration,
+  organizationBylawsAlignmentMigration,
 ];
 
 export async function runMigrations() {

@@ -7,6 +7,7 @@ import i18n from './i18n'
 import About from './pages/About'
 import Tutoring from './pages/Tutoring'
 import StudentCouncil from './pages/StudentCouncil'
+import EldersCouncil from './pages/EldersCouncil'
 import OrganizationPeople from './pages/OrganizationPeople'
 import Organization from './pages/Organization'
 import GetInvolved from './pages/GetInvolved'
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
   { path: '/organisation/personal', element: <OrganizationPeople type="staff" /> },
   { path: '/organisation/kommitteer', element: <Committees /> },
   { path: '/organisation/fullmaktige', element: <StudentCouncil /> },
+  { path: '/organisation/aldres-rad', element: <EldersCouncil /> },
   { path: '/organisation/tutoring', element: <Tutoring /> },
   { path: '/organisation/engagera-dig', element: <GetInvolved /> },
   { path: '/organisation/alumner', element: <Alumni /> },

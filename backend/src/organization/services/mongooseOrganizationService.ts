@@ -4,11 +4,12 @@ import { AppError } from '../../http/errors';
 import { localizedValue } from '../../localization/languages';
 import { AlumniPageContentModel } from '../models/AlumniPageContent';
 import { CommitteeModel } from '../models/Committee';
+import { EldersCouncilSettingsModel } from '../models/EldersCouncilSettings';
 import { OrganizationPersonModel } from '../models/OrganizationPerson';
 import { OrganizationRoleBadgeModel } from '../models/OrganizationRoleBadge';
 import { RecruitmentCampaignModel } from '../models/RecruitmentCampaign';
 import { StudentCouncilSettingsModel } from '../models/StudentCouncilSettings';
-import { AlumniPageContent, Committee, LocalizedText, OrganizationLocale, OrganizationPerson, OrganizationPersonType, OrganizationService, PublicAlumniPageContent, PublicCommittee, PublicOrganizationPerson, PublicRecruitmentCampaign, PublicStudentCouncilSettings, RecruitmentCampaign, RecruitmentCampaignStatus, RoleBadge, StudentCouncilSettings } from '../types';
+import { AlumniPageContent, Committee, EldersCouncilSettings, LocalizedText, OrganizationLocale, OrganizationPerson, OrganizationPersonType, OrganizationService, PublicAlumniPageContent, PublicCommittee, PublicEldersCouncilSettings, PublicOrganizationPerson, PublicRecruitmentCampaign, PublicStudentCouncilSettings, RecruitmentCampaign, RecruitmentCampaignStatus, RoleBadge, StudentCouncilSettings } from '../types';
 
 type AnyDoc = Record<string, any>;
 
@@ -23,6 +24,12 @@ const defaultCouncil = {
   title: { sv: 'Fullmäktige', en: 'Student Council' },
   description: { sv: 'Fullmäktige är ASK:s högsta beslutande organ.', en: 'The Student Council is ASK’s highest decision-making body.' },
   contactEmail: 'info@asken.fi', members: [], documentLinks: [], visible: true,
+};
+const defaultEldersCouncil = {
+  singletonKey: 'elders-council',
+  title: { sv: 'Äldres Råd', en: 'Elders’ Council' },
+  description: { sv: 'Äldres Råd är ett rådgivande organ för studerandekåren. Rådet utses av Fullmäktige och består enligt reglementet av nio medlemmar med treårigt mandat. Fullmäktige kompletterar avgående medlemmar årligen vid höstmötet.', en: 'The Elders’ Council is an advisory body of the Student Union. It is appointed by the Student Council and, under the regulations, consists of nine members with a three-year mandate. The Student Council supplements outgoing members annually at the autumn meeting.' },
+  contactEmail: 'aldresrad@asken.fi', members: [], visible: true,
 };
 const defaultAlumni = {
   singletonKey: 'alumni',
@@ -45,6 +52,7 @@ export class MongooseOrganizationService implements OrganizationService {
       committees: { sv: 'Se kommittéer och kontaktvägar.', en: 'See committees and contact channels.' },
       tutoring: { sv: 'Information om tutoring för nya och utbytesstuderande.', en: 'Information about tutoring for new and exchange students.' },
       staff: { sv: 'Kontakt till ASK:s personal.', en: 'Contact ASK staff.' },
+      elders: { sv: 'Äldres Råd är studerandekårens rådgivande organ, utsett av Fullmäktige.', en: 'The Elders’ Council is the Student Union advisory body appointed by the Student Council.' },
       alumni: { sv: 'ASK Alumni, nätverk och Cor-huset för alumner.', en: 'ASK Alumni, network and Cor House for alumni.' },
       involved: { sv: 'Aktuella sätt att engagera dig i ASK.', en: 'Current ways to get involved in ASK.' },
     };
@@ -52,7 +60,7 @@ export class MongooseOrganizationService implements OrganizationService {
       sections: [
         ['board', 'Styrelsen / Board', '/organisation/styrelsen'], ['council', 'Fullmäktige / Student Council', '/organisation/fullmaktige'],
         ['committees', 'Kommittéer / Committees', '/organisation/kommitteer'], ['tutoring', 'Tutoring', '/organisation/tutoring'],
-        ['staff', 'Personal / Staff', '/organisation/personal'], ['alumni', 'Alumner / Alumni', '/alumner'], ['involved', 'Engagera dig / Get Involved', '/organisation/engagera-dig'],
+        ['staff', 'Personal / Staff', '/organisation/personal'], ['elders', 'Äldres Råd / Elders’ Council', '/organisation/aldres-rad'], ['alumni', 'Alumner / Alumni', '/alumner'], ['involved', 'Engagera dig / Get Involved', '/organisation/engagera-dig'],
       ].map(([key, label, href]) => ({ key, label, href, description: localizedValue(descriptions[key], locale) })),
       featuredCampaigns: (await this.listPublicRecruitmentCampaigns(locale)).filter((campaign) => campaign.featured),
     };
@@ -67,6 +75,7 @@ export class MongooseOrganizationService implements OrganizationService {
     return docs.map((doc: AnyDoc): PublicCommittee => ({ id: doc._id.toString(), name: localizedValue(doc.name, locale), slug: doc.slug, description: localizedValue(doc.description, locale), responsibilities: localizedValue(doc.responsibilities, locale), contactEmail: doc.contactEmail, contactPerson: doc.contactPersonId ? byId.get(doc.contactPersonId.toString()) : undefined, members: (doc.personIds || []).map((personId: Types.ObjectId) => byId.get(personId.toString())).filter(Boolean) as PublicOrganizationPerson[] }));
   }
   async getPublicStudentCouncil(locale: OrganizationLocale) { return this.publicCouncil(await this.getStudentCouncil(), locale); }
+  async getPublicEldersCouncil(locale: OrganizationLocale) { return this.publicEldersCouncil(await this.getEldersCouncil(), locale); }
   async listPublicRecruitmentCampaigns(locale: OrganizationLocale) {
     const docs = await RecruitmentCampaignModel.find({ active: true, published: true }).sort({ featured: -1, displayOrder: 1, openingDate: 1 }).lean();
     const people = await this.publicPeople(await OrganizationPersonModel.find({ _id: { $in: docs.map((d: AnyDoc) => d.contactPersonId).filter(Boolean) }, active: true, visible: true }).lean(), locale);
@@ -88,6 +97,8 @@ export class MongooseOrganizationService implements OrganizationService {
   async deactivateCommittee(id: string) { this.id(id); const r = await CommitteeModel.updateOne({ _id: id }, { $set: { active: false, visible: false } }); if (!r.matchedCount) throw new AppError(404, 'COMMITTEE_NOT_FOUND', 'Committee was not found'); }
   async getStudentCouncil() { const doc = await StudentCouncilSettingsModel.findOneAndUpdate({ singletonKey: 'student-council' }, { $setOnInsert: defaultCouncil }, { upsert: true, new: true }).lean(); return this.council(doc); }
   async updateStudentCouncil(input: Omit<StudentCouncilSettings, 'id' | 'updatedAt'>) { const doc = await StudentCouncilSettingsModel.findOneAndUpdate({ singletonKey: 'student-council' }, { $set: input }, { upsert: true, new: true }).lean(); return this.council(doc); }
+  async getEldersCouncil() { const doc = await EldersCouncilSettingsModel.findOneAndUpdate({ singletonKey: 'elders-council' }, { $setOnInsert: defaultEldersCouncil }, { upsert: true, new: true }).lean(); return this.eldersCouncil(doc); }
+  async updateEldersCouncil(input: Omit<EldersCouncilSettings, 'id' | 'updatedAt'>) { const doc = await EldersCouncilSettingsModel.findOneAndUpdate({ singletonKey: 'elders-council' }, { $set: input }, { upsert: true, new: true }).lean(); return this.eldersCouncil(doc); }
   async listRecruitmentCampaigns() { return (await RecruitmentCampaignModel.find().sort({ displayOrder: 1, openingDate: -1 }).lean()).map(this.campaign); }
   async createRecruitmentCampaign(input: Omit<RecruitmentCampaign, 'id' | 'createdAt' | 'updatedAt' | 'status'> & { status?: RecruitmentCampaignStatus }) { return this.campaign((await RecruitmentCampaignModel.create({ ...input, status: input.status || calculateRecruitmentStatus(input.openingDate, input.closingDate) })).toObject()); }
   async updateRecruitmentCampaign(id: string, input: Omit<RecruitmentCampaign, 'id' | 'createdAt' | 'updatedAt' | 'status'> & { status?: RecruitmentCampaignStatus }) { this.id(id); const doc = await RecruitmentCampaignModel.findByIdAndUpdate(id, { $set: { ...input, status: input.status || calculateRecruitmentStatus(input.openingDate, input.closingDate) } }, { new: true }).lean(); if (!doc) throw new AppError(404, 'RECRUITMENT_CAMPAIGN_NOT_FOUND', 'Recruitment campaign was not found'); return this.campaign(doc); }
@@ -101,6 +112,8 @@ export class MongooseOrganizationService implements OrganizationService {
   private committee = (doc: AnyDoc): Committee => ({ id: doc._id.toString(), name: doc.name || { sv: '', en: '' }, slug: doc.slug, description: doc.description || { sv: '', en: '' }, responsibilities: doc.responsibilities || { sv: '', en: '' }, contactEmail: doc.contactEmail, contactPersonId: doc.contactPersonId?.toString(), personIds: (doc.personIds || []).map((x: Types.ObjectId) => x.toString()), active: doc.active, visible: doc.visible, displayOrder: doc.displayOrder, createdAt: doc.createdAt, updatedAt: doc.updatedAt });
   private council = (doc: AnyDoc): StudentCouncilSettings => ({ id: doc._id.toString(), title: doc.title, description: doc.description, speakerName: doc.speakerName, speakerEmail: doc.speakerEmail, viceSpeakerName: doc.viceSpeakerName, viceSpeakerEmail: doc.viceSpeakerEmail, contactEmail: doc.contactEmail, members: (doc.members || []).sort((a: AnyDoc, b: AnyDoc) => a.displayOrder - b.displayOrder), documentLinks: doc.documentLinks || [], visible: doc.visible, updatedAt: doc.updatedAt });
   private publicCouncil(c: StudentCouncilSettings, locale: OrganizationLocale): PublicStudentCouncilSettings { return { title: localizedValue(c.title, locale), description: localizedValue(c.description, locale), speakerName: c.speakerName, speakerEmail: c.speakerEmail, viceSpeakerName: c.viceSpeakerName, viceSpeakerEmail: c.viceSpeakerEmail, contactEmail: c.contactEmail, members: c.members.filter((m) => m.active).sort((a, b) => a.displayOrder - b.displayOrder), documentLinks: c.documentLinks.map((d) => ({ label: localizedValue(d.label, locale), url: d.url, type: d.type })), visible: c.visible, updatedAt: c.updatedAt }; }
+  private eldersCouncil = (doc: AnyDoc): EldersCouncilSettings => ({ id: doc._id.toString(), title: doc.title, description: doc.description, contactEmail: doc.contactEmail, members: (doc.members || []).sort((a: AnyDoc, b: AnyDoc) => a.displayOrder - b.displayOrder), visible: doc.visible, updatedAt: doc.updatedAt });
+  private publicEldersCouncil(c: EldersCouncilSettings, locale: OrganizationLocale): PublicEldersCouncilSettings { return { title: localizedValue(c.title, locale), description: localizedValue(c.description, locale), contactEmail: c.contactEmail, members: c.members.filter((m) => m.active).sort((a, b) => a.displayOrder - b.displayOrder), visible: c.visible, updatedAt: c.updatedAt }; }
   private campaign = (doc: AnyDoc): RecruitmentCampaign => ({ id: doc._id.toString(), title: doc.title, description: doc.description, type: doc.type, openingDate: doc.openingDate, closingDate: doc.closingDate, ctaLabel: doc.ctaLabel, ctaUrl: doc.ctaUrl, contactPersonId: doc.contactPersonId?.toString(), contactEmail: doc.contactEmail, featured: doc.featured, published: doc.published, status: calculateRecruitmentStatus(doc.openingDate, doc.closingDate), displayOrder: doc.displayOrder, active: doc.active, createdAt: doc.createdAt, updatedAt: doc.updatedAt });
   private alumni = (doc: AnyDoc): AlumniPageContent => ({ id: doc._id.toString(), title: doc.title, intro: doc.intro, body: doc.body, heroImageUrl: doc.heroImageUrl, heroImageAltText: doc.heroImageAltText || { sv: '', en: '' }, benefits: doc.benefits || [], ctaPrimaryLabel: doc.ctaPrimaryLabel, ctaPrimaryUrl: doc.ctaPrimaryUrl, ctaSecondaryLabel: doc.ctaSecondaryLabel, ctaSecondaryUrl: doc.ctaSecondaryUrl, contactEmail: doc.contactEmail, published: doc.published, updatedAt: doc.updatedAt });
   private publicAlumni(a: AlumniPageContent, locale: OrganizationLocale): PublicAlumniPageContent { return { title: localizedValue(a.title, locale), intro: localizedValue(a.intro, locale), body: localizedValue(a.body, locale), heroImageUrl: a.heroImageUrl, heroImageAltText: localizedValue(a.heroImageAltText, locale), benefits: a.benefits.map((b) => localizedValue(b, locale)).filter(Boolean), ctaPrimaryLabel: localizedValue(a.ctaPrimaryLabel, locale), ctaPrimaryUrl: a.ctaPrimaryUrl, ctaSecondaryLabel: a.ctaSecondaryLabel ? localizedValue(a.ctaSecondaryLabel, locale) : undefined, ctaSecondaryUrl: a.ctaSecondaryUrl, contactEmail: a.contactEmail, published: a.published, updatedAt: a.updatedAt }; }

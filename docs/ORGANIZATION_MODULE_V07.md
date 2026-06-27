@@ -111,3 +111,15 @@ Fullmäktige may expose public document links, but v0.7 does not implement elect
 - Alumni CRM or mailing-list integration.
 - Recruitment application integration status callbacks from Lime CRM or another external system.
 - Browser E2E coverage for the new public/admin pages.
+
+## Bylaws Alignment: Äldres Råd / Elders' Council
+
+Organisation v0.7 now includes Äldres Råd as a separate advisory body, based on ASK's Swedish stadgar och reglemente as primary authority.
+
+Äldres Råd is not the Board, staff, a committee, or Alumni CRM. It is an advisory body of the Student Union. It is appointed by Fullmäktige and consists of nine members with a three-year mandate. Fullmäktige supplements outgoing members annually at the autumn meeting. Members may be graduates from Arcada or other people with good insight into ASK's activities.
+
+Public information is available at `/organisation/aldres-rad`. Admin editing is available under Organisation -> Äldres Råd and through `/api/v1/admin/organization/elders-council` with `organization.read` / `organization.write` permissions. Public API access is available at `/api/v1/organization/elders-council` and the compatibility alias `/api/public/organization/elders-council` through the existing public organization router alias.
+
+Default contact email: `aldresrad@asken.fi`.
+
+Migration `013-organization-bylaws-alignment` seeds default visible content and no fake members.

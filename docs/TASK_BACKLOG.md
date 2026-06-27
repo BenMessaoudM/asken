@@ -440,3 +440,9 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 - Persist Cor House settings in a dedicated settings collection if broader settings management is introduced.
 - Add browser E2E tests for public booking, admin booking documents, and soft deletion.
 - Define future GDPR retention/anonymization workflow separate from operational soft deletion.
+
+## Organisation Bylaws Follow-ups
+
+- Populate real Äldres Råd members once confirmed by ASK.
+- Add browser E2E coverage for the public Äldres Råd page and admin editor.
+- Continue validating organization terminology against Swedish stadgar och reglemente before expanding governance content.

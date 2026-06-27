@@ -44,6 +44,12 @@ export const studentCouncilInputSchema = z.object({
   visible: z.boolean().default(true),
 });
 
+export const eldersCouncilInputSchema = z.object({
+  title: requiredLocalized, description: localized.default({ sv: '', en: '' }), contactEmail: z.string().trim().email(),
+  members: z.array(z.object({ name: z.string().trim().min(1), title: z.string().trim().optional().or(z.literal('').transform(() => undefined)), mandateStart: date.optional(), mandateEnd: date.optional(), chairperson: z.boolean().default(false), secretary: z.boolean().default(false), active: z.boolean().default(true), displayOrder: z.coerce.number().int().default(100) })).default([]),
+  visible: z.boolean().default(true),
+});
+
 export const recruitmentInputSchema = z.object({
   title: requiredLocalized, description: localized.default({ sv: '', en: '' }), type: z.enum(['tutor', 'board', 'student_council', 'crew_member', 'staff', 'alumni', 'other']),
   openingDate: date, closingDate: date, ctaLabel: requiredLocalized, ctaUrl: z.string().trim().url(),

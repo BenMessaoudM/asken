@@ -5,7 +5,7 @@ import { AppError } from '../../http/errors';
 import { createAuthMiddleware } from '../../identity/middleware/auth';
 import { IdentityService } from '../../identity/types';
 import { OrganizationService } from '../types';
-import { alumniInputSchema, committeeInputSchema, objectIdSchema, personInputSchema, personTypeSchema, recruitmentInputSchema, roleBadgeInputSchema, studentCouncilInputSchema } from '../validation/organizationSchemas';
+import { alumniInputSchema, committeeInputSchema, eldersCouncilInputSchema, objectIdSchema, personInputSchema, personTypeSchema, recruitmentInputSchema, roleBadgeInputSchema, studentCouncilInputSchema } from '../validation/organizationSchemas';
 
 function parse<T extends z.ZodTypeAny>(schema: T, value: unknown): z.infer<T> {
   const result = schema.safeParse(value);
@@ -38,6 +38,8 @@ export function createAdminOrganizationRouter(service: OrganizationService, iden
 
   router.get('/student-council', requirePermission('organization.read'), async (_request, response) => response.json({ data: { studentCouncil: await service.getStudentCouncil() } }));
   router.put('/student-council', requirePermission('organization.write'), async (request, response) => response.json({ data: { studentCouncil: await service.updateStudentCouncil(parse(studentCouncilInputSchema, request.body) as never) } }));
+  router.get('/elders-council', requirePermission('organization.read'), async (_request, response) => response.json({ data: { eldersCouncil: await service.getEldersCouncil() } }));
+  router.put('/elders-council', requirePermission('organization.write'), async (request, response) => response.json({ data: { eldersCouncil: await service.updateEldersCouncil(parse(eldersCouncilInputSchema, request.body) as never) } }));
 
   router.get('/recruitment-campaigns', requirePermission('organization.read'), async (_request, response) => response.json({ data: { campaigns: await service.listRecruitmentCampaigns() } }));
   router.post('/recruitment-campaigns', requirePermission('organization.write'), async (request, response) => response.status(201).json({ data: { campaign: await service.createRecruitmentCampaign(parse(recruitmentInputSchema, request.body) as never) } }));

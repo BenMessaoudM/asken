@@ -198,3 +198,7 @@ Recommended next Codex task:
 ## Booking Hardening Update
 
 The booking system has been hardened with formal Cor-huset contract layout, Fastighets Ab Cor-huset landlord handling, ASK contact handling, Arcada Association bill-basis workflow, controlled DD.MM.YYYY/24-hour date-time inputs, soft deletion, and stricter door-code scope.
+
+## Organisation Bylaws Alignment
+
+The Organization module now reflects ASK bylaws/regulations by adding Äldres Råd / Elders’ Council as a separate advisory body, not board/staff/committee/alumni. It has public and admin API/UI support, default contact email, and seeded visible content without fake members.

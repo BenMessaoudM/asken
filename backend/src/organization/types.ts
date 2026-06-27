@@ -36,6 +36,7 @@ export interface PublicCommittee {
   contactPerson?: PublicOrganizationPerson; members: PublicOrganizationPerson[];
 }
 export interface StudentCouncilMember { name: string; title?: string; displayOrder: number; active: boolean; }
+export interface EldersCouncilMember { name: string; title?: string; mandateStart?: Date; mandateEnd?: Date; chairperson: boolean; secretary: boolean; active: boolean; displayOrder: number; }
 export interface StudentCouncilDocumentLink { label: LocalizedText; url: string; type: StudentCouncilDocumentType; }
 export interface StudentCouncilSettings {
   id: string; title: LocalizedText; description: LocalizedText; speakerName?: string; speakerEmail?: string;
@@ -47,6 +48,8 @@ export interface PublicStudentCouncilSettings {
   viceSpeakerEmail?: string; contactEmail: string; members: StudentCouncilMember[];
   documentLinks: Array<{ label: string; url: string; type: StudentCouncilDocumentType }>; visible: boolean; updatedAt: Date;
 }
+export interface EldersCouncilSettings { id: string; title: LocalizedText; description: LocalizedText; contactEmail: string; members: EldersCouncilMember[]; visible: boolean; updatedAt: Date; }
+export interface PublicEldersCouncilSettings { title: string; description: string; contactEmail: string; members: EldersCouncilMember[]; visible: boolean; updatedAt: Date; }
 export interface RecruitmentCampaign {
   id: string; title: LocalizedText; description: LocalizedText; type: RecruitmentCampaignType; openingDate: Date; closingDate: Date;
   ctaLabel: LocalizedText; ctaUrl: string; contactPersonId?: string; contactEmail?: string; featured: boolean; published: boolean;
@@ -75,6 +78,7 @@ export interface OrganizationService {
   listPublicPeople(type: OrganizationPersonType, locale: OrganizationLocale): Promise<PublicOrganizationPerson[]>;
   listPublicCommittees(locale: OrganizationLocale): Promise<PublicCommittee[]>;
   getPublicStudentCouncil(locale: OrganizationLocale): Promise<PublicStudentCouncilSettings>;
+  getPublicEldersCouncil(locale: OrganizationLocale): Promise<PublicEldersCouncilSettings>;
   listPublicRecruitmentCampaigns(locale: OrganizationLocale): Promise<PublicRecruitmentCampaign[]>;
   getPublicAlumni(locale: OrganizationLocale): Promise<PublicAlumniPageContent>;
   listPeople(type?: OrganizationPersonType): Promise<OrganizationPerson[]>;
@@ -91,6 +95,8 @@ export interface OrganizationService {
   deactivateCommittee(id: string): Promise<void>;
   getStudentCouncil(): Promise<StudentCouncilSettings>;
   updateStudentCouncil(input: Omit<StudentCouncilSettings, 'id' | 'updatedAt'>): Promise<StudentCouncilSettings>;
+  getEldersCouncil(): Promise<EldersCouncilSettings>;
+  updateEldersCouncil(input: Omit<EldersCouncilSettings, 'id' | 'updatedAt'>): Promise<EldersCouncilSettings>;
   listRecruitmentCampaigns(): Promise<RecruitmentCampaign[]>;
   createRecruitmentCampaign(input: Omit<RecruitmentCampaign, 'id' | 'createdAt' | 'updatedAt' | 'status'> & { status?: RecruitmentCampaignStatus }): Promise<RecruitmentCampaign>;
   updateRecruitmentCampaign(id: string, input: Omit<RecruitmentCampaign, 'id' | 'createdAt' | 'updatedAt' | 'status'> & { status?: RecruitmentCampaignStatus }): Promise<RecruitmentCampaign>;

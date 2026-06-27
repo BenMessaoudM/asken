@@ -19,15 +19,16 @@ const identityService: IdentityService = {
   listUsers: jest.fn(), createUser: jest.fn(), updateUser: jest.fn(), listRoles: jest.fn(), createRole: jest.fn(), updateRolePermissions: jest.fn(), listPermissions: jest.fn(),
 } as unknown as IdentityService;
 const organizationService: OrganizationService = {
-  overview: jest.fn(async () => ({ sections: [{ key: 'alumni', label: 'Alumner / Alumni', href: '/alumner', description: 'ASK Alumni' }], featuredCampaigns: [] })),
+  overview: jest.fn(async () => ({ sections: [{ key: 'elders', label: 'Äldres Råd / Elders’ Council', href: '/organisation/aldres-rad', description: 'Rådgivande organ' }], featuredCampaigns: [] })),
   listPublicPeople: jest.fn(async () => []), listPublicCommittees: jest.fn(async () => []),
   getPublicStudentCouncil: jest.fn(async () => ({ title: 'Fullmäktige', description: 'Public info', contactEmail: 'info@asken.fi', members: [], documentLinks: [], visible: true, updatedAt: new Date() })),
+  getPublicEldersCouncil: jest.fn(async () => ({ title: 'Äldres Råd', description: 'Rådgivande organ', contactEmail: 'aldresrad@asken.fi', members: [], visible: true, updatedAt: new Date() })),
   listPublicRecruitmentCampaigns: jest.fn(async () => [{ id: '1', title: 'Tutorrekrytering', description: 'Ansök', type: 'tutor', openingDate: new Date(), closingDate: new Date(), ctaLabel: 'Ansök', ctaUrl: 'https://example.com', featured: true, status: 'open' }]),
   getPublicAlumni: jest.fn(async () => ({ title: 'Alumner', intro: 'Intro', body: 'Body', heroImageAltText: '', benefits: [], ctaPrimaryLabel: 'Boka Cor-huset som alumn', ctaPrimaryUrl: '/booking?category=alumni', published: true, updatedAt: new Date() })),
   listPeople: jest.fn(async () => []), createPerson: jest.fn(), updatePerson: jest.fn(), deactivatePerson: jest.fn(),
   listRoleBadges: jest.fn(async () => []), createRoleBadge: jest.fn(), updateRoleBadge: jest.fn(), deactivateRoleBadge: jest.fn(),
   listCommittees: jest.fn(async () => []), createCommittee: jest.fn(), updateCommittee: jest.fn(), deactivateCommittee: jest.fn(),
-  getStudentCouncil: jest.fn(), updateStudentCouncil: jest.fn(), listRecruitmentCampaigns: jest.fn(async () => []),
+  getStudentCouncil: jest.fn(), updateStudentCouncil: jest.fn(), getEldersCouncil: jest.fn(async () => ({ title: { sv: 'Äldres Råd', en: 'Elders’ Council' }, description: { sv: 'Rådgivande organ', en: 'Advisory body' }, contactEmail: 'aldresrad@asken.fi', members: [], visible: true, updatedAt: new Date() })), updateEldersCouncil: jest.fn(async (input) => input), listRecruitmentCampaigns: jest.fn(async () => []),
   createRecruitmentCampaign: jest.fn(), updateRecruitmentCampaign: jest.fn(), deactivateRecruitmentCampaign: jest.fn(),
   getAlumni: jest.fn(), updateAlumni: jest.fn(),
 } as unknown as OrganizationService;
@@ -35,7 +36,8 @@ const app = createApp({ env, identityService, cmsService: {} as never, newsServi
 
 describe('organization routes', () => {
   it('serves public organization overview and alumni content', async () => {
-    expect((await request(app).get('/api/v1/organization?locale=sv')).body.data.sections[0].label).toBe('Alumner / Alumni');
+    expect((await request(app).get('/api/v1/organization?locale=sv')).body.data.sections[0].label).toBe('Äldres Råd / Elders’ Council');
+    expect((await request(app).get('/api/v1/organization/elders-council?locale=sv')).body.data.eldersCouncil.contactEmail).toBe('aldresrad@asken.fi');
     expect((await request(app).get('/api/v1/organization/alumni?locale=en')).body.data.alumni.ctaPrimaryUrl).toBe('/booking?category=alumni');
   });
 
@@ -43,5 +45,19 @@ describe('organization routes', () => {
     expect((await request(app).get('/api/v1/admin/organization/people')).status).toBe(401);
     const login = await request(app).post('/api/v1/auth/login').send({ email: 'admin@example.com', password: 'Password1!' });
     expect((await request(app).get('/api/v1/admin/organization/people').set('Cookie', login.headers['set-cookie'])).status).toBe(200);
+    expect((await request(app).get('/api/v1/admin/organization/elders-council').set('Cookie', login.headers['set-cookie'])).body.data.eldersCouncil.contactEmail).toBe('aldresrad@asken.fi');
+    expect((await request(app).put('/api/v1/admin/organization/elders-council').set('Cookie', login.headers['set-cookie']).send({ title: { sv: 'Äldres Råd', en: 'Elders’ Council' }, description: { sv: 'Rådgivande organ', en: 'Advisory body' }, contactEmail: 'aldresrad@asken.fi', members: [], visible: true })).status).toBe(200);
+  });
+});
+
+
+describe('organization Elders Council permissions', () => {
+  it('requires organization.write for admin updates', async () => {
+    const readOnlyPrincipal = { ...principal, permissions: ['organization.read'] };
+    const readOnlyIdentity = { ...identityService, login: jest.fn(async () => ({ principal: readOnlyPrincipal, ...issueTokens(readOnlyPrincipal.userId, '507f191e810c19729de860ab', env) })), getPrincipal: jest.fn(async () => readOnlyPrincipal) } as unknown as IdentityService;
+    const readOnlyApp = createApp({ env, identityService: readOnlyIdentity, cmsService: {} as never, newsService: {} as never, eventService: {} as never, organizationService });
+    const login = await request(readOnlyApp).post('/api/v1/auth/login').send({ email: 'admin@example.com', password: 'Password1!' });
+    const response = await request(readOnlyApp).put('/api/v1/admin/organization/elders-council').set('Cookie', login.headers['set-cookie']).send({ title: { sv: 'Äldres Råd', en: 'Elders’ Council' }, description: { sv: 'Rådgivande organ', en: 'Advisory body' }, contactEmail: 'aldresrad@asken.fi', members: [], visible: true });
+    expect(response.status).toBe(403);
   });
 });

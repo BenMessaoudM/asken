@@ -18,6 +18,7 @@ export function createPublicOrganizationRouter(service: OrganizationService) {
   router.get('/staff', async (request, response) => response.json({ data: { people: await service.listPublicPeople('staff', locale(request.query)) } }));
   router.get('/committees', async (request, response) => response.json({ data: { committees: await service.listPublicCommittees(locale(request.query)) } }));
   router.get('/student-council', async (request, response) => response.json({ data: { studentCouncil: await service.getPublicStudentCouncil(locale(request.query)) } }));
+  router.get('/elders-council', async (request, response) => response.json({ data: { eldersCouncil: await service.getPublicEldersCouncil(locale(request.query)) } }));
   router.get('/get-involved', async (request, response) => response.json({ data: { campaigns: await service.listPublicRecruitmentCampaigns(locale(request.query)) } }));
   router.get('/alumni', async (request, response) => response.json({ data: { alumni: await service.getPublicAlumni(locale(request.query)) } }));
   return router;
