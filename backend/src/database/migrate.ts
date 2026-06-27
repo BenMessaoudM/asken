@@ -13,6 +13,7 @@ import { bookingConfigurablePricingMigration } from './migrations/010-booking-co
 import { organizationV07Migration } from './migrations/011-organization-v07';
 import { bookingHardeningV08Migration } from './migrations/012-booking-hardening-v08';
 import { organizationBylawsAlignmentMigration } from './migrations/013-organization-bylaws-alignment';
+import { studentRepresentativesMigration } from './migrations/014-student-representatives';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -29,6 +30,7 @@ const migrations: Migration[] = [
   organizationV07Migration,
   bookingHardeningV08Migration,
   organizationBylawsAlignmentMigration,
+  studentRepresentativesMigration,
 ];
 
 export async function runMigrations() {

@@ -53,6 +53,7 @@ export class MongooseOrganizationService implements OrganizationService {
       tutoring: { sv: 'Information om tutoring för nya och utbytesstuderande.', en: 'Information about tutoring for new and exchange students.' },
       staff: { sv: 'Kontakt till ASK:s personal.', en: 'Contact ASK staff.' },
       elders: { sv: 'Äldres Råd är studerandekårens rådgivande organ, utsett av Fullmäktige.', en: 'The Elders’ Council is the Student Union advisory body appointed by the Student Council.' },
+      representatives: { sv: 'Studeranderepresentanter och förtroendeuppdrag i Arcadas organ.', en: 'Student representatives and positions of trust in Arcada bodies.' },
       alumni: { sv: 'ASK Alumni, nätverk och Cor-huset för alumner.', en: 'ASK Alumni, network and Cor House for alumni.' },
       involved: { sv: 'Aktuella sätt att engagera dig i ASK.', en: 'Current ways to get involved in ASK.' },
     };
@@ -60,7 +61,7 @@ export class MongooseOrganizationService implements OrganizationService {
       sections: [
         ['board', 'Styrelsen / Board', '/organisation/styrelsen'], ['council', 'Fullmäktige / Student Council', '/organisation/fullmaktige'],
         ['committees', 'Kommittéer / Committees', '/organisation/kommitteer'], ['tutoring', 'Tutoring', '/organisation/tutoring'],
-        ['staff', 'Personal / Staff', '/organisation/personal'], ['elders', 'Äldres Råd / Elders’ Council', '/organisation/aldres-rad'], ['alumni', 'Alumner / Alumni', '/alumner'], ['involved', 'Engagera dig / Get Involved', '/organisation/engagera-dig'],
+        ['staff', 'Personal / Staff', '/organisation/personal'], ['elders', 'Äldres Råd / Elders’ Council', '/organisation/aldres-rad'], ['representatives', 'Studeranderepresentanter / Student Representatives', '/organisation/studeranderepresentanter'], ['alumni', 'Alumner / Alumni', '/alumner'], ['involved', 'Engagera dig / Get Involved', '/organisation/engagera-dig'],
       ].map(([key, label, href]) => ({ key, label, href, description: localizedValue(descriptions[key], locale) })),
       featuredCampaigns: (await this.listPublicRecruitmentCampaigns(locale)).filter((campaign) => campaign.featured),
     };

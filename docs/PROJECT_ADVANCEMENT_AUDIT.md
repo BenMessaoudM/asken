@@ -202,3 +202,9 @@ The booking system has been hardened with formal Cor-huset contract layout, Fast
 ## Organisation Bylaws Alignment
 
 The Organization module now reflects ASK bylaws/regulations by adding Äldres Råd / Elders’ Council as a separate advisory body, not board/staff/committee/alumni. It has public and admin API/UI support, default contact email, and seeded visible content without fake members.
+
+## Student Representatives v0.8 Update
+
+The Organisation area now includes a Studeranderepresentanter / Student Representatives foundation. Backend models, APIs, migration `014-student-representatives`, admin management, public pages, and documentation are implemented for representative bodies, public representatives, and calls for applications.
+
+The implementation is intentionally not a voting system, election counter, candidate portal, student login workflow, or full application workflow. Public privacy rules hide representative email addresses unless explicit contact visibility is enabled.

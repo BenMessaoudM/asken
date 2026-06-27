@@ -80,3 +80,11 @@ Booking now includes Cor-huset-style contract alignment, Fastighets Ab Cor-huset
 ## Organisation Bylaws Alignment
 
 Organisation now includes Äldres Råd / Elders’ Council as a bylaws-aligned advisory body appointed by Fullmäktige, with nine-member / three-year mandate wording, contact email `aldresrad@asken.fi`, admin editing, public page, and migration `013-organization-bylaws-alignment`.
+
+## Student Representatives v0.8
+
+Organisation now includes Studeranderepresentanter / Student Representatives as a separate Organisation-related module. It adds representative bodies, public representative profiles, and calls for applications, aligned to ASK's Swedish stadgar och reglemente.
+
+Seeded bodies include Yrkeshögskolans styrelse, Omprövningsnämnden, Branschråd, Kvalitetsråd, Forskningsråd, Pedagogiska rådet, and Rådet för kvalitet och samhällsansvar. No fake representatives are seeded.
+
+Public pages are available at `/organisation/studeranderepresentanter` and `/organisation/studeranderepresentanter/:slug`. Admin management is available at `/representatives` with `representatives.read` and `representatives.write` permissions. Migration `014-student-representatives` must be run in each target environment.

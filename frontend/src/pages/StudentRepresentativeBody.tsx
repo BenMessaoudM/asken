@@ -1,0 +1,23 @@
+import { useQuery } from '@tanstack/react-query'
+import { Link, useParams } from 'react-router-dom'
+import PublicLayout from '../components/PublicLayout'
+import PageHero from '../components/PageHero'
+import SectionHeading from '../components/SectionHeading'
+import { useSiteLocale } from '../hooks/useSiteLocale'
+import { representativesApi } from '../representatives/api'
+import { PublicRepresentativeCall } from '../representatives/types'
+import { formatDate } from '../utils/dateTime'
+
+const statusLabel = (status: PublicRepresentativeCall['status']) => status === 'open' ? 'Öppen / Open' : status === 'closed' ? 'Stängd / Closed' : 'Kommer snart / Coming soon'
+const appointingLabel = (value: string) => value === 'fullmaktige' ? 'Fullmäktige / Student Council' : value === 'board' ? 'Styrelsen / Board' : 'Annat / Other'
+
+export default function StudentRepresentativeBody() {
+  const { slug = '' } = useParams()
+  const { locale } = useSiteLocale()
+  const { data, isError } = useQuery({ queryKey: ['representative-body', slug, locale], queryFn: () => representativesApi.body(slug, locale), enabled: Boolean(slug), retry: false })
+  const detail = data?.data
+  if (isError) return <PublicLayout><PageHero eyebrow="Organisation" title="Organet hittades inte" description="Den efterfrågade sidan finns inte eller är inte publicerad." /><section className="ask-container py-12"><Link className="font-semibold text-ask-700" to="/organisation/studeranderepresentanter">Tillbaka till Studeranderepresentanter</Link></section></PublicLayout>
+  return <PublicLayout><PageHero eyebrow="Studeranderepresentanter" title={detail?.body.name || 'Studeranderepresentanter'} description={detail?.body.description || 'Information om förtroendeuppdrag i Arcadas organ.'} />
+    {detail && <><section className="ask-container py-12"><div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]"><article className="space-y-5"><SectionHeading eyebrow="Organ" title={detail.body.name} description={detail.body.description} /><div className="rounded-2xl bg-white p-6 leading-7 dark:bg-white/5"><p><strong>Mandatperiod:</strong> {detail.body.defaultTermLengthMonths} månader</p><p><strong>Platser:</strong> {detail.body.defaultSeatCount || '-'} ordinarie, {detail.body.defaultDeputySeatCount || '-'} suppleanter</p><p><strong>Utses av:</strong> {appointingLabel(detail.body.appointingBody)}</p></div><div className="rounded-2xl bg-white p-6 dark:bg-white/5"><h2 className="text-xl font-black">Valbarhet / Eligibility</h2><p className="mt-3 leading-7">{detail.body.eligibilityDescription}</p></div><div className="rounded-2xl bg-white p-6 dark:bg-white/5"><h2 className="text-xl font-black">Ansökan / Application</h2><p className="mt-3 leading-7">{detail.body.applicationInstructions}</p></div></article><aside className="rounded-2xl bg-white p-6 dark:bg-white/5"><h2 className="text-xl font-black">Nuvarande representanter</h2><div className="mt-4 space-y-3">{detail.representatives.length ? detail.representatives.map((person) => <div key={person.id} className="rounded-xl border border-black/10 p-4 dark:border-white/10"><p className="font-bold">{person.fullName}</p><p className="text-sm text-black/60 dark:text-white/60">{person.role === 'deputy' ? 'Suppleant / Deputy' : 'Representant / Representative'}</p><p className="text-sm">{formatDate(person.termStart)} - {formatDate(person.termEnd)}</p>{person.email && <a className="mt-2 inline-block text-sm font-semibold text-ask-700" href={`mailto:${person.email}`}>{person.email}</a>}</div>) : <p className="text-sm text-black/60 dark:text-white/60">Inga publika representanter har publicerats.</p>}</div></aside></div></section><section className="ask-container pb-16"><SectionHeading eyebrow="Utlysningar" title="Aktuella möjligheter" description="Publicerade utlysningar för detta organ." /><div className="mt-8 grid gap-4 md:grid-cols-2">{detail.calls.length ? detail.calls.map((call) => <article key={call.id} className="rounded-2xl bg-white p-6 dark:bg-white/5"><p className="text-sm font-bold text-ask-600">{statusLabel(call.status)}</p><h2 className="mt-2 text-xl font-black">{call.title}</h2><p className="mt-3 text-sm">{formatDate(call.openingDate)} - {formatDate(call.closingDate)}</p><p className="mt-4 leading-7">{call.description}</p>{call.ctaUrl && call.status === 'open' && <a href={call.ctaUrl} className="mt-5 inline-flex rounded-xl bg-ask-600 px-5 py-3 font-semibold text-white">{call.ctaLabel || 'Ansök / Apply'}</a>}</article>) : <p className="rounded-2xl bg-white p-6 text-black/60 dark:bg-white/5 dark:text-white/60">Inga publicerade utlysningar för detta organ.</p>}</div></section></>}
+  </PublicLayout>
+}

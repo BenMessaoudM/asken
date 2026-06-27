@@ -10,7 +10,7 @@ describe('dashboard navigation', () => {
   it('defines every required dashboard module once', () => {
     expect(dashboardModules.map((module) => module.label)).toEqual([
       'Overview', 'Users', 'Roles', 'Content', 'News', 'Events',
-      'Cor Activities', 'Collaborations', 'Booking', 'Organisation', 'Governance', 'Settings'
+      'Cor Activities', 'Collaborations', 'Booking', 'Organisation', 'Studeranderepresentanter', 'Governance', 'Settings'
     ])
     expect(new Set(dashboardModules.map((module) => module.path)).size).toBe(dashboardModules.length)
   })

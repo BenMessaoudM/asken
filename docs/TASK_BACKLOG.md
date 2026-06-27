@@ -446,3 +446,10 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 - Populate real Äldres Råd members once confirmed by ASK.
 - Add browser E2E coverage for the public Äldres Råd page and admin editor.
 - Continue validating organization terminology against Swedish stadgar och reglemente before expanding governance content.
+
+## Student Representatives Follow-ups
+
+- Enter real current and previous representatives once confirmed by ASK.
+- Add browser E2E coverage for `/organisation/studeranderepresentanter`, body detail pages, and the admin representatives tabs.
+- Decide whether future calls should integrate with Lime CRM, email-only handling, or another external application form.
+- Keep election/voting workflows separate from this information module unless ASK explicitly scopes a full election system later.

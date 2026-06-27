@@ -13,6 +13,7 @@ const fallback = [
   { key: 'tutoring', label: 'Tutoring', href: '/organisation/tutoring', description: 'Stöd för nya och utbytesstuderande.' },
   { key: 'staff', label: 'Personal / Staff', href: '/organisation/personal', description: 'Kontakt till ASK:s personal.' },
   { key: 'elders', label: 'Äldres Råd / Elders’ Council', href: '/organisation/aldres-rad', description: 'Studerandekårens rådgivande organ.' },
+  { key: 'representatives', label: 'Studeranderepresentanter / Student Representatives', href: '/organisation/studeranderepresentanter', description: 'Förtroendeuppdrag i Arcadas organ.' },
   { key: 'alumni', label: 'Alumner / Alumni', href: '/alumner', description: 'ASK Alumni och alumnnätverket.' },
   { key: 'involved', label: 'Engagera dig / Get Involved', href: '/organisation/engagera-dig', description: 'Aktuella rekryteringar och möjligheter.' },
 ]

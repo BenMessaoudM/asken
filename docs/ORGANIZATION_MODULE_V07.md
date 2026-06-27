@@ -123,3 +123,25 @@ Public information is available at `/organisation/aldres-rad`. Admin editing is 
 Default contact email: `aldresrad@asken.fi`.
 
 Migration `013-organization-bylaws-alignment` seeds default visible content and no fake members.
+
+## v0.8 Foundation: Studeranderepresentanter / Student Representatives
+
+Organisation now includes a separate Studeranderepresentanter / Student Representatives section based on ASK's Swedish stadgar och reglemente. It is a public/admin information module for förtroendeuppdrag in Arcada bodies, not an election system.
+
+Public pages:
+
+- `/organisation/studeranderepresentanter`
+- `/organisation/studeranderepresentanter/:slug`
+
+Admin route:
+
+- `/representatives` with tabs for Organ, Representanter, and Utlysningar.
+
+APIs:
+
+- Public: `/api/v1/representatives/bodies`, `/bodies/:slug`, `/current`, `/calls`
+- Admin: `/api/v1/admin/representatives/bodies`, `/people`, `/calls`
+
+Migration `014-student-representatives` seeds the seven bylaws-listed Arcada bodies and `representatives.read` / `representatives.write` permissions. No fake student representatives are seeded. Public representative emails remain private unless an admin explicitly enables public contact visibility.
+
+See `docs/STUDENT_REPRESENTATIVES_MODULE.md` for the full v0.8 scope, exclusions, privacy rules, APIs, and migration notes.

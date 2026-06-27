@@ -31,6 +31,7 @@ export const dashboardModules: DashboardModule[] = [
   { path: '/collaborations', label: 'Collaborations', description: 'Partners and student benefits', permission: 'collaborations.read', icon: 'collaborations' },
   { path: '/booking', label: 'Booking', description: 'Resources and reservations', permission: 'booking.read', icon: 'booking' },
   { path: '/organization', label: 'Organisation', description: 'Board, council, committees, staff, recruitment and alumni', permission: 'organization.read', icon: 'organization' },
+  { path: '/representatives', label: 'Studeranderepresentanter', description: 'Student representative bodies, people, and calls', permission: 'representatives.read', icon: 'organization' },
   { path: '/governance', label: 'Governance', description: 'Boards, meetings, and records', permission: 'governance.read', icon: 'governance' },
   { path: '/settings', label: 'Settings', description: 'Platform configuration', permission: 'settings.read', icon: 'settings' }
 ]

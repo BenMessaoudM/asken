@@ -24,6 +24,8 @@ const permissions = [
   ['booking.delete', 'Soft delete bookings from normal booking views'],
   ['organization.read', 'View organization management'],
   ['organization.write', 'Manage public organization information'],
+  ['representatives.read', 'View student representatives management'],
+  ['representatives.write', 'Manage student representative bodies, people, and calls'],
   ['governance.read', 'View governance management'],
   ['settings.read', 'View administration settings'],
   ['audit.read', 'View security audit records'],

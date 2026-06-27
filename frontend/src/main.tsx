@@ -10,6 +10,8 @@ import StudentCouncil from './pages/StudentCouncil'
 import EldersCouncil from './pages/EldersCouncil'
 import OrganizationPeople from './pages/OrganizationPeople'
 import Organization from './pages/Organization'
+import StudentRepresentatives from './pages/StudentRepresentatives'
+import StudentRepresentativeBody from './pages/StudentRepresentativeBody'
 import GetInvolved from './pages/GetInvolved'
 import Committees from './pages/Committees'
 import Alumni from './pages/Alumni'
@@ -39,6 +41,8 @@ const router = createBrowserRouter([
   { path: '/organisation/kommitteer', element: <Committees /> },
   { path: '/organisation/fullmaktige', element: <StudentCouncil /> },
   { path: '/organisation/aldres-rad', element: <EldersCouncil /> },
+  { path: '/organisation/studeranderepresentanter', element: <StudentRepresentatives /> },
+  { path: '/organisation/studeranderepresentanter/:slug', element: <StudentRepresentativeBody /> },
   { path: '/organisation/tutoring', element: <Tutoring /> },
   { path: '/organisation/engagera-dig', element: <GetInvolved /> },
   { path: '/organisation/alumner', element: <Alumni /> },
