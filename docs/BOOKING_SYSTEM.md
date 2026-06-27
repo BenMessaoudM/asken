@@ -98,3 +98,11 @@ cd ../admin && npm test && npm run build
 cd ../frontend && npm run build
 git diff --check
 ```
+
+## Booking Hardening Rules
+
+As of the booking hardening patch, rental contracts use Fastighets Ab Cor-huset as Hyresvärd and ASK only as Kontaktperson / administratör unless settings are explicitly changed. Contract dates must be DD.MM.YYYY with 24-hour time, and the door code is only included in generated rental contracts.
+
+Arcada Association bookings do not require rental contracts by default. Free Arcada Association bookings require no bill. Paid Arcada Association bookings require a generated bill/invoice basis before completion. Pricing and category policy remain backoffice configurable and generated documents use stored quote/pricing breakdowns rather than frontend hardcoding.
+
+Admin deletion is operational soft deletion. Deleted bookings are hidden from normal admin lists, availability/calendar, and public lookup, while records, generated documents, history, and audit traces remain retained. This is not GDPR anonymization.

@@ -434,3 +434,9 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 6. Epics 15–16: AI translation and full data-governance workflows.
 
 GDPR, accessibility, security, testing, and operations are continuous requirements rather than final-stage tasks. Each feature is complete only when its permissions, bilingual experience, privacy behavior, audit needs, accessibility, documentation, and automated tests meet the master specification.
+
+## Booking Follow-ups
+
+- Persist Cor House settings in a dedicated settings collection if broader settings management is introduced.
+- Add browser E2E tests for public booking, admin booking documents, and soft deletion.
+- Define future GDPR retention/anonymization workflow separate from operational soft deletion.

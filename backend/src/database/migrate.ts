@@ -11,6 +11,7 @@ import { removeLegacyBookingIndexesMigration } from './migrations/008-remove-leg
 import { corHouseBookingV06Migration } from './migrations/009-cor-house-booking-v06';
 import { bookingConfigurablePricingMigration } from './migrations/010-booking-configurable-pricing';
 import { organizationV07Migration } from './migrations/011-organization-v07';
+import { bookingHardeningV08Migration } from './migrations/012-booking-hardening-v08';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -25,6 +26,7 @@ const migrations: Migration[] = [
   corHouseBookingV06Migration,
   bookingConfigurablePricingMigration,
   organizationV07Migration,
+  bookingHardeningV08Migration,
 ];
 
 export async function runMigrations() {

@@ -72,3 +72,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 ## Recommended Next Epic
 
 Recommended next priority: **Tutor Module** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Collaborations, Live at Cor, Theme Manager, and Media Library as separate future modules.
+
+## Booking Hardening Patch
+
+Booking now includes Cor-huset-style contract alignment, Fastighets Ab Cor-huset landlord / ASK contact role separation, Arcada Association no-contract handling, paid Arcada bill-basis generation, soft delete, and door-code scoping. Migration `012-booking-hardening-v08` must be run in each environment.

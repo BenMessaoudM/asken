@@ -8,6 +8,8 @@ export type InternalAskPurpose = 'official_activity' | 'private_booking';
 export type BookingSubmissionType = 'booking_request' | 'quote_request';
 export type BookingStatus = 'submitted' | 'quote_requested' | 'quote_sent' | 'approved' | 'contract_generated' | 'waiting_for_signature' | 'signed' | 'completed' | 'cancelled' | 'rejected';
 export type ContractStatus = 'contract_generated' | 'waiting_for_signature' | 'signed';
+export type BookingDocumentStatus = 'not_required' | 'required' | 'generated';
+export type BillLanguage = Extract<ContractLanguage, 'sv' | 'en'>;
 
 export interface LocalizedText { en: string; sv: string; fi: string; }
 export interface OpeningHours { weekday: number; start: string; end: string; }
@@ -25,16 +27,18 @@ export interface BookingPricingRule extends BookingPricingRuleInput { id: string
 export interface PricingRequest { bookingType: BookingType; internalAskPurpose?: InternalAskPurpose; requesterEmail?: string; mandateYear?: number; resourceSlug: string; startAt: Date; endAt: Date; kitchenExtra: boolean; saunaExtra: boolean; }
 export interface BookingRequestInput extends PricingRequest { resourceId: string; requesterName: string; requesterEmail: string; requesterPhone?: string; organization?: string; billingAddress?: BillingAddress; purpose: string; attendees: number; accessibilityNeeds?: string; locale: BookingLocale; submissionType: BookingSubmissionType; privacyAccepted: true; }
 export interface BookingChecklistItem { key: string; label: string; completed: boolean; completedAt?: Date; completedBy?: string; }
-export interface BookingRecord extends BookingRequestInput { id: string; reference: string; resource: BookingResource; status: BookingStatus; price: PriceBreakdown; quoteNotes?: string; publicNotes?: string; internalNotes?: string; checklist: BookingChecklistItem[]; decisionAt?: Date; createdAt: Date; updatedAt: Date; }
-export interface PublicBookingStatus { reference: string; status: BookingStatus; resource: PublicBookingResource; bookingType: BookingType; startAt: Date; endAt: Date; requesterName: string; purpose: string; price: PriceBreakdown; publicNotes?: string; createdAt: Date; updatedAt: Date; }
+export interface BookingRecord extends BookingRequestInput { id: string; reference: string; resource: BookingResource; status: BookingStatus; price: PriceBreakdown; quoteNotes?: string; publicNotes?: string; internalNotes?: string; checklist: BookingChecklistItem[]; decisionAt?: Date; contractStatus: BookingDocumentStatus; billStatus: BookingDocumentStatus; deletedAt?: Date; deletedBy?: string; deletionReason?: string; isDeleted: boolean; createdAt: Date; updatedAt: Date; }
+export interface PublicBookingStatus { reference: string; status: BookingStatus; resource: PublicBookingResource; bookingType: BookingType; startAt: Date; endAt: Date; requesterName: string; purpose: string; price: PriceBreakdown; billStatus: BookingDocumentStatus; publicNotes?: string; createdAt: Date; updatedAt: Date; }
 export interface BookingHistoryEntry { id: string; action: string; status: BookingStatus; reference?: string; actorId?: string; note?: string; occurredAt: Date; }
 export interface ContractMetadata { id: string; bookingId: string; bookingReference: string; generatedBy: string; generatedAt: Date; language: ContractLanguage; templateVersion: string; termsVersion: string; status: ContractStatus; }
 export interface GeneratedContract { metadata: ContractMetadata; filename: string; pdf: Buffer; }
+export interface BillMetadata { id: string; bookingId: string; bookingReference: string; generatedBy: string; generatedAt: Date; language: BillLanguage; templateVersion: string; status: 'generated'; }
+export interface GeneratedBill { metadata: BillMetadata; filename: string; pdf: Buffer; }
 export type BookingEmailType = 'booking_received' | 'quote_requested' | 'quote_sent' | 'booking_approved' | 'contract_ready' | 'reminder' | 'booking_completed';
 export interface BookingNotification { type: BookingEmailType; to: string; subject: string; text: string; }
 export type BookingNotifier = (notification: BookingNotification) => Promise<void>;
 export interface BookingDashboardSummary { pendingApprovals: number; waitingForSignature: number; quoteRequests: number; upcomingThisWeek: number; completedThisMonth: number; }
-export interface CorHouseBookingSettings { doorCodeConfigured: boolean; doorCode?: string; landlordAddress?: string; landlordEmail?: string; }
+export interface CorHouseBookingSettings { doorCodeConfigured: boolean; doorCode?: string; landlordName?: string; landlordAddress?: string; landlordPostalCode?: string; landlordCity?: string; businessId?: string; bankName?: string; bankAccount?: string; phone?: string; fax?: string; contactPersonName?: string; contactPersonPhone?: string; contactPersonEmail?: string; administratorName?: string; administratorEmail?: string; billingNotes?: string; landlordEmail?: string; }
 
 export interface BookingService {
   listPublicResources(locale: BookingLocale): Promise<PublicBookingResource[]>;
@@ -50,10 +54,10 @@ export interface BookingService {
   listPricingRules(): Promise<BookingPricingRule[]>;
   updatePricingRule(id: string, input: BookingPricingRuleInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingPricingRule>;
   getCorHouseSettings(): Promise<CorHouseBookingSettings>;
-  updateCorHouseSettings(input: { doorCode?: string; landlordAddress?: string; landlordEmail?: string }, actor: AuthPrincipal, context: RequestContext): Promise<CorHouseBookingSettings>;
+  updateCorHouseSettings(input: Partial<Omit<CorHouseBookingSettings, 'doorCodeConfigured'>>, actor: AuthPrincipal, context: RequestContext): Promise<CorHouseBookingSettings>;
   createResource(input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingResource>;
   updateResource(id: string, input: BookingResourceInput, actor: AuthPrincipal, context: RequestContext): Promise<BookingResource>;
-  listBookings(query?: { status?: BookingStatus; resourceId?: string; from?: Date; to?: Date }): Promise<BookingRecord[]>;
+  listBookings(query?: { status?: BookingStatus; resourceId?: string; from?: Date; to?: Date; includeDeleted?: boolean }): Promise<BookingRecord[]>;
   getDashboardSummary(): Promise<BookingDashboardSummary>;
   getBooking(id: string): Promise<BookingRecord>;
   updateBooking(id: string, input: Partial<Pick<BookingRequestInput, 'resourceId' | 'startAt' | 'endAt' | 'requesterName' | 'requesterEmail' | 'requesterPhone' | 'organization' | 'billingAddress' | 'purpose' | 'attendees' | 'accessibilityNeeds' | 'bookingType' | 'internalAskPurpose' | 'mandateYear' | 'kitchenExtra' | 'saunaExtra'>> & { publicNotes?: string; internalNotes?: string; checklist?: BookingChecklistItem[] }, actor: AuthPrincipal, context: RequestContext): Promise<BookingRecord>;
@@ -61,6 +65,9 @@ export interface BookingService {
   sendQuote(id: string, price: PriceBreakdown, notes: string | undefined, actor: AuthPrincipal, context: RequestContext): Promise<BookingRecord>;
   generateContract(id: string, language: ContractLanguage, actor: AuthPrincipal, context: RequestContext): Promise<GeneratedContract>;
   listContracts(id: string): Promise<ContractMetadata[]>;
+  generateBill(id: string, language: BillLanguage, actor: AuthPrincipal, context: RequestContext): Promise<GeneratedBill>;
+  listBills(id: string): Promise<BillMetadata[]>;
   setContractStatus(id: string, status: Extract<ContractStatus, 'waiting_for_signature' | 'signed'>, actor: AuthPrincipal, context: RequestContext): Promise<BookingRecord>;
+  deleteBooking(id: string, reason: string, actor: AuthPrincipal, context: RequestContext): Promise<BookingRecord>;
   listHistory(id: string): Promise<BookingHistoryEntry[]>;
 }

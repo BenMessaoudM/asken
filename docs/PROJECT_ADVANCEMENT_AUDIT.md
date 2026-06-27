@@ -194,3 +194,7 @@ Reasoning: the shared Swedish-first language constants, fallback behavior, scope
 Recommended next Codex task:
 
 > Implement the Organization foundation using the shared Swedish-first multilingual model, without starting Alumni, Collaborations, Live at Cor, Theme Manager, or Media Library.
+
+## Booking Hardening Update
+
+The booking system has been hardened with formal Cor-huset contract layout, Fastighets Ab Cor-huset landlord handling, ASK contact handling, Arcada Association bill-basis workflow, controlled DD.MM.YYYY/24-hour date-time inputs, soft deletion, and stricter door-code scope.

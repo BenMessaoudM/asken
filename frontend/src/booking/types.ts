@@ -1,10 +1,11 @@
 export type BookingLocale='sv'|'en'|'fi';
 export type BookingType='internal_ask'|'arcada_association'|'ask_member'|'alumni'|'external';
 export type BookingStatus='submitted'|'quote_requested'|'quote_sent'|'approved'|'contract_generated'|'waiting_for_signature'|'signed'|'completed'|'cancelled'|'rejected';
+export type BookingDocumentStatus='not_required'|'required'|'generated';
 export interface BookingCategory{key:BookingType;name:string;description:string;billingAddressRequired:boolean;contractRequired:boolean;quoteRequestAllowed:boolean}
 export interface PriceBreakdown{currency:'EUR';rentalPrice:number;kitchenFee:number;saunaFee:number;discount:number;totalPrice:number;minimumHours:number;billableHours:number;benefitApplied?:string;pricingRuleVersion:string;manualOverride:boolean}
 export interface BookingResource{id:string;slug:'kitchen'|'main-hall'|'meeting-room-sauna';name:string;floor:string;description:string;location:string;rules:string;capacity:number;accessibility:string;imageUrl?:string;requiresApproval:boolean;minDurationMinutes:number;maxDurationMinutes:number;advanceBookingDays:number;openingHours:Array<{weekday:number;start:string;end:string}>}
 export interface BillingAddress{name:string;address:string;postalCode:string;city:string;country:string;vatOrBusinessId?:string;referenceNumber?:string}
-export interface BookingStatusRecord{reference:string;status:BookingStatus;resource:BookingResource;bookingType:BookingType;startAt:string;endAt:string;requesterName:string;purpose:string;price:PriceBreakdown;publicNotes?:string;createdAt:string;updatedAt:string}
+export interface BookingStatusRecord{reference:string;status:BookingStatus;resource:BookingResource;bookingType:BookingType;startAt:string;endAt:string;requesterName:string;purpose:string;price:PriceBreakdown;billStatus:BookingDocumentStatus;publicNotes?:string;createdAt:string;updatedAt:string}
 export interface PricingRequest{bookingType:BookingType;internalAskPurpose?:'official_activity'|'private_booking';requesterEmail?:string;mandateYear?:number;resourceSlug:BookingResource['slug'];startAt:string;endAt:string;kitchenExtra:boolean;saunaExtra:boolean}
 export interface BookingRequest extends PricingRequest{resourceId:string;requesterName:string;requesterEmail:string;requesterPhone?:string;organization?:string;billingAddress?:BillingAddress;purpose:string;attendees:number;accessibilityNeeds?:string;locale:BookingLocale;submissionType:'booking_request'|'quote_request';privacyAccepted:true}
