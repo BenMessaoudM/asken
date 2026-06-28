@@ -214,3 +214,9 @@ The implementation is intentionally not a voting system, election counter, candi
 The Governance placeholder has been replaced with a scoped public governance document module focused on Fullmäktige/public documents. It adds backend models/APIs, migration `015-public-governance`, admin document/settings management, public pages, filters, and publication privacy enforcement.
 
 The module intentionally excludes Board meeting management, Board agendas/protocols, internal notes, voting, election counting, file storage, Media Library, and OCR/import.
+
+## Bilingual Backoffice and Public Language Separation
+
+Public structural labels now follow the selected public language instead of rendering Swedish and English side-by-side. The Organization, Alumni, Elders’ Council, Student Representatives, Governance, footer, and related public pages use Swedish labels in Swedish mode and English labels in English mode, with Swedish-first content fallback for missing descriptions.
+
+Admin now includes a Swedish/English language switcher in the backoffice header. The selection persists in `localStorage` as `ask-admin-language`. Navigation, overview cards, login, and the primary Booking, Organization, Student Representatives, and Governance tabs/headings are dictionary-backed. Remaining older dense form internals in News, Events, detailed Booking editor, and some taxonomy displays still require a deeper translation pass.

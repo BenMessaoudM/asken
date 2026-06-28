@@ -460,3 +460,9 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 - Add browser E2E coverage for `/styrning`, `/styrning/fullmaktige`, document detail, admin document editing, and publish/unpublish.
 - Add Media Library integration later to replace manual file URLs.
 - Consider document versioning and related-document grouping if governance publishing workflows require them.
+
+## Bilingual Backoffice Follow-ups
+
+- Complete the remaining hardcoded admin internals in News, Events, detailed Booking editor, taxonomies, and older form labels.
+- Add browser-level tests for the public language switcher and admin language switcher once a frontend test runner/E2E harness is available.
+- Keep public labels single-language per selected locale; mixed Swedish/English labels are reserved for glossary/explanation content only.

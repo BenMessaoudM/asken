@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './AuthContext'
+import { AdminLocaleProvider } from './localization/AdminLocaleContext'
 import RequireAuth from './RequireAuth'
 import AdminLayout from './components/AdminLayout'
 import PermissionGuard from './components/PermissionGuard'
@@ -73,5 +74,5 @@ const router = createBrowserRouter([
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode><AuthProvider><RouterProvider router={router} /></AuthProvider></React.StrictMode>
+  <React.StrictMode><AdminLocaleProvider><AuthProvider><RouterProvider router={router} /></AuthProvider></AdminLocaleProvider></React.StrictMode>
 )

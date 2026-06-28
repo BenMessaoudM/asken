@@ -80,7 +80,7 @@ const en: SiteContent = {
   organizationName: 'Arcada Student Union – ASK',
   shortName: 'ASK',
   nav: {
-    home: 'Home', about: 'About', organization: 'Organization', board: 'Board', membership: 'Membership', associations: 'Associations',
+    home: 'Home', about: 'About ASK', organization: 'Organization', board: 'Board', membership: 'Membership', associations: 'Associations',
     corHouse: 'Cor House', booking: 'Booking', contact: 'Contact', news: 'News', events: 'Events', alumni: 'Alumni', getInvolved: 'Get Involved', more: 'More',
     join: 'Join ASK', open: 'Open navigation', close: 'Close navigation', main: 'Main navigation', mobile: 'Mobile navigation',
   },

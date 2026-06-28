@@ -15,7 +15,7 @@ Language order is always:
 | Area | Languages | Default |
 | --- | --- | --- |
 | Public website UI | Svenska, English | Svenska |
-| Admin UI | English shell for now, Swedish-first content fields | Svenska content source |
+| Admin UI | Svenska, English | Svenska |
 | CMS managed pages | Svenska, English | Svenska |
 | News | Svenska, English | Svenska |
 | Events | Svenska, English | Svenska |
@@ -42,6 +42,8 @@ Required helper API:
 - `fallbackLocalizedValue()`
 
 ## Fallback rules
+
+Public UI labels, navigation, tabs, cards, buttons, filters, and CTAs must never show Swedish and English side-by-side as one label. Mixed labels such as `Styrelsen / Board` are allowed only on glossary or explanation pages. Content values may fall back, but structural labels must stay in the selected UI language.
 
 1. Prefer the selected language if non-empty content exists.
 2. Fall back to Svenska first.
@@ -101,7 +103,7 @@ Applied foundation:
 - Booking contract generation uses shared contract language order.
 - Booking categories already expose Svenska, English, Suomi labels in that order.
 
-The admin shell itself is still mostly English. Full admin UI localization is a later workflow task, not a new product module.
+The admin shell now has a Swedish/English language switcher stored in `localStorage` under `ask-admin-language`. Navigation and the main dashboard, login, booking, organization, student representatives, and governance tab/title surfaces use centralized dictionaries in `admin/src/localization/adminTranslations.ts`. Some older dense module internals still contain hardcoded labels and are tracked as remaining localization debt, not new product modules.
 
 ## Public frontend translation model
 

@@ -94,3 +94,9 @@ Public pages are available at `/organisation/studeranderepresentanter` and `/org
 Public Governance / Offentlig styrning is now implemented for public Fullmäktige and governance documents. It includes backend document/settings models, public/admin APIs, admin `/governance`, public `/styrning`, `/governance`, `/styrning/fullmaktige`, and `/styrning/dokument/:slug` pages.
 
 The module stores document URLs and metadata only. Public endpoints expose only `isPublic && isPublished` documents. Board agendas/protocols, internal notes, voting, file storage, OCR/import, and Media Library are explicitly out of scope. Migration `015-public-governance` must be run in each target environment.
+
+## Bilingual Backoffice and Public Language Separation
+
+Public structural labels now follow the selected public language instead of rendering Swedish and English side-by-side. The Organization, Alumni, Elders’ Council, Student Representatives, Governance, footer, and related public pages use Swedish labels in Swedish mode and English labels in English mode, with Swedish-first content fallback for missing descriptions.
+
+Admin now includes a Swedish/English language switcher in the backoffice header. The selection persists in `localStorage` as `ask-admin-language`. Navigation, overview cards, login, and the primary Booking, Organization, Student Representatives, and Governance tabs/headings are dictionary-backed. Remaining older dense form internals in News, Events, detailed Booking editor, and some taxonomy displays still require a deeper translation pass.
