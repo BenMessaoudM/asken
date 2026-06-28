@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext'
-import { dashboardModules, visibleDashboardModules } from '../dashboard/navigation'
+import { dashboardModuleLabel, dashboardModules, resolveAdminLanguage, visibleDashboardModules } from '../dashboard/navigation'
 import { resolveInitialTheme, Theme } from '../dashboard/theme'
 import DashboardIcon from './DashboardIcon'
 
@@ -12,6 +12,7 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [theme, setTheme] = useState<Theme>(() => resolveInitialTheme(localStorage.getItem('ask-admin-theme'), window.matchMedia('(prefers-color-scheme: dark)').matches))
   const modules = useMemo(() => visibleDashboardModules(dashboardModules, user?.permissions || []), [user?.permissions])
+  const adminLanguage = resolveAdminLanguage(localStorage)
   const activeModule = modules.find((module) => module.path === location.pathname)
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function AdminLayout() {
               <li key={module.path}>
                 <NavLink to={module.path} end={module.path === '/'} className={({ isActive }) => `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${isActive ? 'bg-ask-600 text-white shadow-lg shadow-ask-600/20' : 'text-white/68 hover:bg-white/8 hover:text-white'}`}>
                   <DashboardIcon name={module.icon} className="h-5 w-5 shrink-0" />
-                  <span>{module.label}</span>
+                  <span>{dashboardModuleLabel(module, adminLanguage)}</span>
                 </NavLink>
               </li>
             ))}
@@ -57,7 +58,7 @@ export default function AdminLayout() {
         <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-black/5 bg-white/85 px-4 backdrop-blur-xl dark:border-white/10 dark:bg-[#23212B]/85 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button onClick={() => setSidebarOpen(true)} className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 lg:hidden dark:border-white/15" aria-label="Open navigation"><span className="text-xl">☰</span></button>
-            <div className="min-w-0"><p className="truncate text-lg font-bold">{activeModule?.label || 'ASK Administration'}</p><p className="hidden truncate text-sm text-gray-500 dark:text-white/45 sm:block">{activeModule?.description || 'Secure platform administration'}</p></div>
+            <div className="min-w-0"><p className="truncate text-lg font-bold">{activeModule ? dashboardModuleLabel(activeModule, adminLanguage) : 'ASK Administration'}</p><p className="hidden truncate text-sm text-gray-500 dark:text-white/45 sm:block">{activeModule?.description || 'Secure platform administration'}</p></div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 bg-white text-lg transition hover:border-ask-400 dark:border-white/15 dark:bg-white/5" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>{theme === 'dark' ? '☀' : '☾'}</button>

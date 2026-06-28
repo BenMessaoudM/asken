@@ -1,3 +1,5 @@
+import { defaultLanguage, SupportedLanguage } from '../localization/languages'
+
 export type DashboardIcon =
   | 'overview'
   | 'users'
@@ -15,6 +17,7 @@ export type DashboardIcon =
 export interface DashboardModule {
   path: string
   label: string
+  labels?: Partial<Record<SupportedLanguage, string>>
   description: string
   permission: string
   icon: DashboardIcon
@@ -30,7 +33,7 @@ export const dashboardModules: DashboardModule[] = [
   { path: '/cor-activities', label: 'Cor Activities', description: 'What is happening at Cor', permission: 'cor_activities.read', icon: 'cor' },
   { path: '/collaborations', label: 'Collaborations', description: 'Partners and student benefits', permission: 'collaborations.read', icon: 'collaborations' },
   { path: '/booking', label: 'Booking', description: 'Resources and reservations', permission: 'booking.read', icon: 'booking' },
-  { path: '/organization', label: 'Organisation', description: 'Board, council, committees, staff, recruitment and alumni', permission: 'organization.read', icon: 'organization' },
+  { path: '/organization', label: 'Organisation', labels: { sv: 'Organisation', en: 'Organization' }, description: 'Board, council, committees, staff, recruitment and alumni', permission: 'organization.read', icon: 'organization' },
   { path: '/representatives', label: 'Studeranderepresentanter', description: 'Student representative bodies, people, and calls', permission: 'representatives.read', icon: 'organization' },
   { path: '/governance', label: 'Governance', description: 'Boards, meetings, and records', permission: 'governance.read', icon: 'governance' },
   { path: '/settings', label: 'Settings', description: 'Platform configuration', permission: 'settings.read', icon: 'settings' }
@@ -39,4 +42,13 @@ export const dashboardModules: DashboardModule[] = [
 export function visibleDashboardModules(modules: DashboardModule[], permissions: readonly string[]) {
   const allowed = new Set(permissions)
   return modules.filter((module) => allowed.has(module.permission))
+}
+
+export function resolveAdminLanguage(storage?: Storage): SupportedLanguage {
+  const stored = storage?.getItem('ask-admin-language') || storage?.getItem('i18nextLng')
+  return stored === 'en' || stored === 'sv' || stored === 'fi' ? stored : defaultLanguage
+}
+
+export function dashboardModuleLabel(module: DashboardModule, language: SupportedLanguage) {
+  return module.labels?.[language] || module.label
 }
