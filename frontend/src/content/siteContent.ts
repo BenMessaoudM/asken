@@ -28,6 +28,7 @@ interface SiteContent {
     board: string
     membership: string
     associations: string
+    collaborations: string
     corHouse: string
     booking: string
     contact: string
@@ -80,7 +81,7 @@ const en: SiteContent = {
   organizationName: 'Arcada Student Union – ASK',
   shortName: 'ASK',
   nav: {
-    home: 'Home', about: 'About ASK', organization: 'Organization', board: 'Board', membership: 'Membership', associations: 'Associations',
+    home: 'Home', about: 'About ASK', organization: 'Organization', board: 'Board', membership: 'Membership', associations: 'Associations', collaborations: 'Collaborations',
     corHouse: 'Cor House', booking: 'Booking', contact: 'Contact', news: 'News', events: 'Events', alumni: 'Alumni', getInvolved: 'Get Involved', more: 'More',
     join: 'Join ASK', open: 'Open navigation', close: 'Close navigation', main: 'Main navigation', mobile: 'Mobile navigation',
   },
@@ -224,7 +225,7 @@ const sv: SiteContent = {
   organizationName: 'Arcada Studerandekår – ASK',
   shortName: 'ASK',
   nav: {
-    home: 'Hem', about: 'Om ASK', organization: 'Organisation', board: 'Styrelsen', membership: 'Medlemskap', associations: 'Föreningar',
+    home: 'Hem', about: 'Om ASK', organization: 'Organisation', board: 'Styrelsen', membership: 'Medlemskap', associations: 'Föreningar', collaborations: 'Samarbeten',
     corHouse: 'Cor-huset', booking: 'Bokning', contact: 'Kontakt', news: 'Nyheter', events: 'Evenemang', alumni: 'Alumner', getInvolved: 'Engagera dig', more: 'Mer',
     join: 'Bli medlem', open: 'Öppna navigationen', close: 'Stäng navigationen', main: 'Huvudnavigation', mobile: 'Mobilnavigation',
   },

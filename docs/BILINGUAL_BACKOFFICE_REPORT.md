@@ -26,6 +26,8 @@ Implemented dictionary-backed areas include:
 - Booking page heading, tabs, dashboard cards, filters, and main list table labels
 - Student Representatives page heading and tabs
 - Governance page heading and tabs
+- Collaborations page heading, tabs, type labels, filters, form labels, settings labels, and key actions
+- Obvious News and Events taxonomy displays and creation field order
 
 ## Swedish-First Content Fields
 
@@ -38,7 +40,7 @@ The admin language changes field labels, not field order.
 
 ## Known Limitations
 
-Several older dense admin internals still contain hardcoded labels or compact taxonomy displays, especially News, Events, the detailed Booking editor, and some nested Organization/Governance form controls. They remain localization debt and should be handled in a focused follow-up rather than by starting new product modules.
+Several older dense admin internals still contain hardcoded labels, especially the detailed Booking editor, News editor, Event editor, and some nested Organization/Governance form controls. They remain localization debt and should be handled in a focused follow-up rather than by starting new product modules.
 
 The frontend package still has no configured test script; public language separation is protected by TypeScript build and string scans in this pass, not by frontend unit tests.
 

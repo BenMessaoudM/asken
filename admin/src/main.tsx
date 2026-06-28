@@ -24,6 +24,7 @@ import ModulePlaceholder from './pages/ModulePlaceholder'
 import OrganizationDashboard from './pages/OrganizationDashboard'
 import RepresentativesDashboard from './pages/RepresentativesDashboard'
 import GovernanceDashboard from './pages/GovernanceDashboard'
+import CollaborationsDashboard from './pages/CollaborationsDashboard'
 import Roles from './pages/Roles'
 import Users from './pages/Users'
 import './index.css'
@@ -58,7 +59,7 @@ const router = createBrowserRouter([
       { path: '/events/new', element: <PermissionGuard permission="events.write"><EventEditor /></PermissionGuard> },
       { path: '/events/:id', element: protectedPage('/events', <EventEditor />) },
       { path: '/cor-activities', element: placeholder('/cor-activities') },
-      { path: '/collaborations', element: placeholder('/collaborations') },
+      { path: '/collaborations', element: protectedPage('/collaborations', <CollaborationsDashboard />) },
       { path: '/booking', element: protectedPage('/booking', <BookingDashboard />) },
       { path: '/booking/resources/new', element: <PermissionGuard permission="booking.write"><BookingResourceEditor /></PermissionGuard> },
       { path: '/booking/resources/:id', element: <PermissionGuard permission="booking.write"><BookingResourceEditor /></PermissionGuard> },

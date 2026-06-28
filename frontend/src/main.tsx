@@ -33,6 +33,8 @@ import Privacy from './pages/Privacy'
 import Governance from './pages/Governance'
 import FullmaktigeDocuments from './pages/FullmaktigeDocuments'
 import GovernanceDocumentDetail from './pages/GovernanceDocumentDetail'
+import Collaborations from './pages/Collaborations'
+import CollaborationDetail from './pages/CollaborationDetail'
 import './index.css'
 
 const router = createBrowserRouter([
@@ -53,6 +55,10 @@ const router = createBrowserRouter([
   { path: '/board', element: <Board /> },
   { path: '/membership', element: <Membership /> },
   { path: '/contact', element: <Contact /> },
+  { path: '/samarbeten', element: <Collaborations /> },
+  { path: '/collaborations', element: <Collaborations /> },
+  { path: '/samarbeten/:slug', element: <CollaborationDetail /> },
+  { path: '/collaborations/:slug', element: <CollaborationDetail /> },
   { path: '/associations', element: <Associations /> },
   { path: '/cor-house', element: <CorHouse /> },
   { path: '/booking', element: <Booking /> },

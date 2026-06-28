@@ -17,6 +17,17 @@ describe('admin translations', () => {
     expect(adminTranslations.en.governance.tabs.settings).toBe('Settings')
     expect(adminTranslations.sv.representatives.tabs.calls).toBe('Utlysningar')
     expect(adminTranslations.en.representatives.tabs.calls).toBe('Calls')
+    expect(adminTranslations.sv.collaborations.tabs.collaborations).toBe('Samarbeten')
+    expect(adminTranslations.en.collaborations.tabs.collaborations).toBe('Collaborations')
+  })
+
+  it('translates common actions and collaboration type labels', () => {
+    expect(adminTranslations.sv.common.save).toBe('Spara')
+    expect(adminTranslations.en.common.noResults).toBe('No results')
+    expect(adminTranslations.sv.collaborations.types.arcada_association).toBe('Specialförening')
+    expect(adminTranslations.en.collaborations.types.arcada_association).toBe('Arcada Association')
+    expect(adminTranslations.sv.collaborations.officeAtCor).toBe('Kontor i Cor-huset')
+    expect(adminTranslations.en.collaborations.officeAtCor).toBe('Office at Cor')
   })
 
   it('keeps content editing fields Swedish-first in both admin languages', () => {

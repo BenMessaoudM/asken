@@ -34,6 +34,9 @@ import { createPublicRepresentativeRouter } from './representatives/routes/publi
 import { GovernanceService } from './governance/types';
 import { createAdminGovernanceRouter } from './governance/routes/adminGovernanceRoutes';
 import { createPublicGovernanceRouter } from './governance/routes/publicGovernanceRoutes';
+import { CollaborationService } from './collaborations/types';
+import { createAdminCollaborationRouter } from './collaborations/routes/adminCollaborationRoutes';
+import { createPublicCollaborationRouter } from './collaborations/routes/publicCollaborationRoutes';
 
 export interface AppDependencies {
   env: Env;
@@ -45,6 +48,7 @@ export interface AppDependencies {
   organizationService?: OrganizationService;
   representativesService?: RepresentativesService;
   governanceService?: GovernanceService;
+  collaborationsService?: CollaborationService;
   isReady?: () => boolean;
   sendMessage?: (message: string) => Promise<void>;
 }
@@ -61,6 +65,7 @@ export function createApp({
   organizationService,
   representativesService,
   governanceService,
+  collaborationsService,
   isReady = () => mongoose.connection.readyState === 1,
   sendMessage = async () => undefined,
 }: AppDependencies) {
@@ -120,6 +125,12 @@ export function createApp({
     app.use('/api/public/governance', createPublicGovernanceRouter(governanceService));
     app.use('/api/v1/admin/governance', createAdminGovernanceRouter(governanceService, identityService, env));
     app.use('/api/admin/governance', createAdminGovernanceRouter(governanceService, identityService, env));
+  }
+  if (collaborationsService) {
+    app.use('/api/v1/collaborations', createPublicCollaborationRouter(collaborationsService));
+    app.use('/api/public/collaborations', createPublicCollaborationRouter(collaborationsService));
+    app.use('/api/v1/admin/collaborations', createAdminCollaborationRouter(collaborationsService, identityService, env));
+    app.use('/api/admin/collaborations', createAdminCollaborationRouter(collaborationsService, identityService, env));
   }
   app.use('/api/v1/admin', createAdminRouter(identityService, env));
 

@@ -16,6 +16,7 @@ import { organizationBylawsAlignmentMigration } from './migrations/013-organizat
 import { studentRepresentativesMigration } from './migrations/014-student-representatives';
 import { publicGovernanceMigration } from './migrations/015-public-governance';
 import { organizationPermissionsBackfillMigration } from './migrations/016-organization-permissions-backfill';
+import { collaborationsMigration } from './migrations/017-collaborations';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -35,6 +36,7 @@ const migrations: Migration[] = [
   studentRepresentativesMigration,
   publicGovernanceMigration,
   organizationPermissionsBackfillMigration,
+  collaborationsMigration,
 ];
 
 export async function runMigrations() {

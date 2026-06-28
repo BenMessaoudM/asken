@@ -463,6 +463,13 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 
 ## Bilingual Backoffice Follow-ups
 
-- Complete the remaining hardcoded admin internals in News, Events, detailed Booking editor, taxonomies, and older form labels.
+- Complete the remaining hardcoded admin internals in the detailed Booking editor, Event editor, News editor, and older nested form labels.
 - Add browser-level tests for the public language switcher and admin language switcher once a frontend test runner/E2E harness is available.
 - Keep public labels single-language per selected locale; mixed Swedish/English labels are reserved for glossary/explanation content only.
+
+## Collaborations Follow-ups
+
+- Enter real ASK collaboration records after content approval.
+- Add browser E2E coverage for `/samarbeten`, `/collaborations`, detail pages, and admin `/collaborations`.
+- Integrate Events partner/sponsor selection with Collaborations in a future scoped task.
+- Keep Live at Cor office-hour reuse, Membership benefits, homepage partner highlights, and Media Library integration as separate future work.

@@ -19,6 +19,7 @@ const permissions = [
   ['events.write', 'Create, edit, publish, feature, and delete events'],
   ['cor_activities.read', 'View Cor activity management'],
   ['collaborations.read', 'View collaboration management'],
+  ['collaborations.write', 'Manage collaboration profiles and settings'],
   ['booking.read', 'View booking management'],
   ['booking.write', 'Manage resources and booking lifecycle'],
   ['booking.delete', 'Soft delete bookings from normal booking views'],

@@ -23,6 +23,7 @@ export default function PublicHeader() {
   const secondary = [
     { to: '/organisation/styrelsen', label: nav.board },
     { to: '/associations', label: nav.associations },
+    { to: '/samarbeten', label: nav.collaborations },
     { to: '/booking', label: nav.booking },
     { to: '/alumner', label: nav.alumni },
     { to: '/contact', label: nav.contact },

@@ -30,7 +30,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Platform Foundation | Mostly complete | 85% | API foundation, migrations, env validation, health/readiness, build/test flows, request/error handling, and seed tooling are implemented. |
 | Authentication & RBAC | Partial | 72% | Persisted users, roles, permissions, JWT sessions, refresh sessions, route guards, and admin management exist. Password reset, account recovery, MFA, and full role policy remain. |
 | CMS | Partial | 45% | Generic content, sections, versions, and draft/publish exist. Review/approval, preview, archive/restore, media, pagination, and translation completeness remain. |
-| Public Website | Partial | 58% | v0.5 route set and shell exist. Managed content coverage, search, sitemap, full SEO/social metadata, media optimization, and complete accessibility verification remain. |
+| Public Website | Partial | 61% | v0.5 route set and shell exist. Managed content coverage, search, sitemap, full SEO/social metadata, media optimization, and complete accessibility verification remain. |
 | News | Partial | 68% | CRUD, categories, tags, bilingual fields, scheduled visibility, public list/detail, and tests exist. Full workflow and SEO/localized slug completeness remain. |
 | Events | Partial | 55% | CRUD, categories, bilingual fields, dates, public list/detail, calendar API, and tests exist. Capacity, registration, accessibility details, add-to-calendar files, and notifications remain. |
 | Booking System | Substantial | 84% | v0.6, configurable pricing, billing, contracts, status lookup, availability, admin lifecycle, and tests exist. Self-service, reminders, retention, browser E2E, and production hardening remain. |
@@ -38,10 +38,10 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Billing Address Workflow | Substantial | 80% | Paid booking billing collection and admin review exist. Invoicing/accounting integration remains. |
 | Date/Time Formatting | Substantial | 85% | Shared helpers and booking picker UI use DD.MM.YYYY and 24-hour time. Older non-booking paths remain a formatting risk. |
 | Multilingual Foundation Swedish-first | Shared foundation complete | 68% | Shared constants/helpers, Swedish-first fallback, booking/contract Finnish scoping, metadata/status model, booking email templates, SEO alternates, and tests exist. Full admin UI localization, backend validation localization, persisted review workflow, stale automation, and localized slug migration remain. |
-| Admin Backoffice | Partial | 55% | Users, roles, content, News, Events, booking, resources, pricing, and settings exist. Several modules are placeholders. |
-| Public Frontend | Partial | 60% | Main route set, i18n shell, content pages, News, Events, booking, and status lookup exist. Several pages are static/hard-coded. |
+| Admin Backoffice | Partial | 59% | Users, roles, content, News, Events, booking, resources, pricing, and settings exist. Several modules are placeholders. |
+| Public Frontend | Partial | 62% | Main route set, i18n shell, content pages, News, Events, booking, and status lookup exist. Several pages are static/hard-coded. |
 | Organization | v0.7 foundation complete | 58% | Public pages, backend models/APIs, admin management, migration seed, recruitment campaigns, Fullmäktige public settings, committees, people, role badges, and Alumni page exist. Private board/governance management is excluded. |
-| Collaborations | Placeholder/static only | 5% | No domain model, API, or admin workflow. |
+| Collaborations | Foundation complete | 48% | Backend model/API, admin management, public pages, settings, permissions, migration, and tests exist. Future integrations with Events, membership benefits, Live at Cor, and homepage are pending. |
 | Live at Cor | Placeholder only | 5% | No product implementation. |
 | Membership & Student Services | Static only | 12% | Public content exists; no workflows or admin management. |
 | Public Governance | Placeholder/static only | 10% | No governance domain workflow. |
@@ -61,6 +61,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 - Shared date/time formatting helpers and booking date-time picker presentation.
 - Shared Swedish-first multilingual foundation for existing modules.
 - v0.7 Organization / Organisation foundation, including Alumni public page and admin management.
+- Samarbeten / Collaborations foundation with public pages, admin management, APIs, permissions, and migration `017-collaborations`.
 
 ## Current Risks and Blockers
 
@@ -71,7 +72,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 
 ## Recommended Next Epic
 
-Recommended next priority: **Tutor Module** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Collaborations, Live at Cor, Theme Manager, and Media Library as separate future modules.
+Recommended next priority: **Event partner integration using Collaborations** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Live at Cor, Theme Manager, and Media Library as separate future modules.
 
 ## Booking Hardening Patch
 
@@ -99,4 +100,8 @@ The module stores document URLs and metadata only. Public endpoints expose only 
 
 Public structural labels now follow the selected public language instead of rendering Swedish and English side-by-side. The Organization, Alumni, Elders’ Council, Student Representatives, Governance, footer, and related public pages use Swedish labels in Swedish mode and English labels in English mode, with Swedish-first content fallback for missing descriptions.
 
-Admin now includes a Swedish/English language switcher in the backoffice header. The selection persists in `localStorage` as `ask-admin-language`. Navigation, overview cards, login, and the primary Booking, Organization, Student Representatives, and Governance tabs/headings are dictionary-backed. Remaining older dense form internals in News, Events, detailed Booking editor, and some taxonomy displays still require a deeper translation pass.
+Admin now includes a Swedish/English language switcher in the backoffice header. The selection persists in `localStorage` as `ask-admin-language`. Navigation, overview cards, login, and the primary Booking, Organization, Student Representatives, and Governance tabs/headings are dictionary-backed. Collaborations admin labels are dictionary-backed, and obvious News/Events taxonomy displays now follow the selected admin language with Swedish-first field order. Remaining older dense form internals in detailed Booking, Event editor, News editor, and some nested Organization/Governance controls still require a deeper translation pass.
+
+## Collaborations Foundation
+
+Samarbeten / Collaborations now has backend models, public/admin APIs, admin `/collaborations`, public `/samarbeten` and `/collaborations`, detail pages, settings, permissions, and migration `017-collaborations`. The module is intentionally a collaboration register, not sponsorship accounting, CRM, contract management, membership management, Live at Cor, or Media Library.

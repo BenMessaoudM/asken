@@ -155,8 +155,6 @@ The overall estimate is conservative and weighted by implementation-backed produ
 
 ## Missing Features
 
-- Organization domain implementation.
-- Collaborations domain implementation.
 - Live at Cor / What's Happening at Cor implementation.
 - Alumni page implementation.
 - Theme Manager / Appearance implementation.
@@ -187,13 +185,9 @@ The overall estimate is conservative and weighted by implementation-backed produ
 
 ## Recommended Next Priority
 
-The next step can be **Organization**, using the completed shared multilingual foundation.
+The next step can be **Event partner integration with Collaborations** or a focused detailed Booking admin i18n pass.
 
-Reasoning: the shared Swedish-first language constants, fallback behavior, scoped Finnish booking/contract support, metadata/status model, booking email templates, and SEO alternate helper are now in place for existing modules. Organization should reuse this model rather than creating a separate translation pattern.
-
-Recommended next Codex task:
-
-> Implement the Organization foundation using the shared Swedish-first multilingual model, without starting Alumni, Collaborations, Live at Cor, Theme Manager, or Media Library.
+Reasoning: Collaborations is now available as a reusable source for partners and sponsors, while older dense admin editors still contain localization debt. Live at Cor, Theme Manager, and Media Library should remain separate scoped modules.
 
 ## Booking Hardening Update
 
@@ -220,3 +214,7 @@ The module intentionally excludes Board meeting management, Board agendas/protoc
 Public structural labels now follow the selected public language instead of rendering Swedish and English side-by-side. The Organization, Alumni, Elders’ Council, Student Representatives, Governance, footer, and related public pages use Swedish labels in Swedish mode and English labels in English mode, with Swedish-first content fallback for missing descriptions.
 
 Admin now includes a Swedish/English language switcher in the backoffice header. The selection persists in `localStorage` as `ask-admin-language`. Navigation, overview cards, login, and the primary Booking, Organization, Student Representatives, and Governance tabs/headings are dictionary-backed. Remaining older dense form internals in News, Events, detailed Booking editor, and some taxonomy displays still require a deeper translation pass.
+
+## Collaborations Update
+
+Samarbeten / Collaborations now has backend models/APIs, migration `017-collaborations`, permissions, admin management, public list/detail pages, and bilingual labels. It is explicitly not a CRM, sponsorship accounting workflow, contract manager, membership manager, Live at Cor implementation, or Media Library.
