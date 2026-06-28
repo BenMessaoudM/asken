@@ -473,3 +473,10 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 - Add browser E2E coverage for `/samarbeten`, `/collaborations`, detail pages, and admin `/collaborations`.
 - Integrate Events partner/sponsor selection with Collaborations in a future scoped task.
 - Keep Live at Cor office-hour reuse, Membership benefits, homepage partner highlights, and Media Library integration as separate future work.
+
+## Website Theme Manager Follow-ups
+
+- Add browser E2E coverage for active theme rendering, no-theme fallback, Swedish/English copy, and reduced-motion behavior.
+- Define governed mascot/media asset workflow before committing or uploading duck artwork.
+- Add theme preview by route/page if admins need full-page confidence.
+- Keep ASKungen chatbot implementation separate from theme/mascot preparation.

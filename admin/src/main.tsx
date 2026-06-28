@@ -25,6 +25,7 @@ import OrganizationDashboard from './pages/OrganizationDashboard'
 import RepresentativesDashboard from './pages/RepresentativesDashboard'
 import GovernanceDashboard from './pages/GovernanceDashboard'
 import CollaborationsDashboard from './pages/CollaborationsDashboard'
+import ThemeManager from './pages/ThemeManager'
 import Roles from './pages/Roles'
 import Users from './pages/Users'
 import './index.css'
@@ -67,6 +68,7 @@ const router = createBrowserRouter([
       { path: '/organization', element: protectedPage('/organization', <OrganizationDashboard />) },
       { path: '/representatives', element: protectedPage('/representatives', <RepresentativesDashboard />) },
       { path: '/governance', element: protectedPage('/governance', <GovernanceDashboard />) },
+      { path: '/appearance', element: protectedPage('/appearance', <ThemeManager />) },
       { path: '/settings', element: placeholder('/settings') },
       { path: '/change-password', element: <ChangePassword /> },
       { path: '/forbidden', element: <Forbidden /> }

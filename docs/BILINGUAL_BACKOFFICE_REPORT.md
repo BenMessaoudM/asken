@@ -27,6 +27,7 @@ Implemented dictionary-backed areas include:
 - Student Representatives page heading and tabs
 - Governance page heading and tabs
 - Collaborations page heading, tabs, type labels, filters, form labels, settings labels, and key actions
+- Appearance / Website Themes navigation, tabs, filters, editor labels, active-theme labels, and preview labels
 - Obvious News and Events taxonomy displays and creation field order
 
 ## Swedish-First Content Fields

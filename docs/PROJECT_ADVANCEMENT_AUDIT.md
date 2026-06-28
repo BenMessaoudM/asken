@@ -157,7 +157,6 @@ The overall estimate is conservative and weighted by implementation-backed produ
 
 - Live at Cor / What's Happening at Cor implementation.
 - Alumni page implementation.
-- Theme Manager / Appearance implementation.
 - Media Library implementation.
 - Full GDPR/data governance implementation.
 - Production deployment, monitoring, backup/restore, rollback, and incident procedures.
@@ -218,3 +217,7 @@ Admin now includes a Swedish/English language switcher in the backoffice header.
 ## Collaborations Update
 
 Samarbeten / Collaborations now has backend models/APIs, migration `017-collaborations`, permissions, admin management, public list/detail pages, and bilingual labels. It is explicitly not a CRM, sponsorship accounting workflow, contract manager, membership manager, Live at Cor implementation, or Media Library.
+
+## Website Theme Manager Update
+
+The Theme Manager MVP adds backend theme records, active resolution, public active theme API, admin `/appearance`, migration `018-website-themes`, seed themes, and public announcement/homepage decoration support. The implementation preserves ASK brand colors and prepares ASKungen mascot fields without adding chatbot functionality.

@@ -8,6 +8,7 @@ import PageHero from '../components/PageHero'
 import PublicLayout from '../components/PublicLayout'
 import SectionHeading from '../components/SectionHeading'
 import SmartLink from '../components/SmartLink'
+import { ThemeHomepageCard } from '../components/ThemeAnnouncement'
 import { useCmsPage } from '../cms/useCmsPage'
 import { listEvents } from '../events/api'
 import { EventLocale } from '../events/types'
@@ -46,6 +47,8 @@ export default function Home() {
       action={{ label: text(hero?.data, 'ctaLabel') || copy.hero.primary, href: text(hero?.data, 'ctaUrl') || 'https://kide.app/' }}
       secondaryAction={{ label: copy.hero.secondary, href: '/events' }}
     />
+
+    <ThemeHomepageCard />
 
     {cmsError && <div className="ask-container pt-6"><p role="status" className="rounded-2xl bg-amber-50 p-4 text-amber-900 dark:bg-amber-400/10 dark:text-amber-100">{content.common.cmsUnavailable}</p></div>}
 

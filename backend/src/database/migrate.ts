@@ -17,6 +17,7 @@ import { studentRepresentativesMigration } from './migrations/014-student-repres
 import { publicGovernanceMigration } from './migrations/015-public-governance';
 import { organizationPermissionsBackfillMigration } from './migrations/016-organization-permissions-backfill';
 import { collaborationsMigration } from './migrations/017-collaborations';
+import { websiteThemesMigration } from './migrations/018-website-themes';
 import { Migration } from './migrations/types';
 
 const migrations: Migration[] = [
@@ -37,6 +38,7 @@ const migrations: Migration[] = [
   publicGovernanceMigration,
   organizationPermissionsBackfillMigration,
   collaborationsMigration,
+  websiteThemesMigration,
 ];
 
 export async function runMigrations() {

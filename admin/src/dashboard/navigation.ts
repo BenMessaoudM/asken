@@ -10,6 +10,7 @@ export type DashboardIcon =
   | 'booking'
   | 'organization'
   | 'governance'
+  | 'appearance'
   | 'settings'
 
 export interface DashboardModule {
@@ -34,6 +35,7 @@ export const dashboardModules: DashboardModule[] = [
   { path: '/organization', label: 'Organisation', navKey: 'organization', description: 'Board, council, committees, staff, recruitment and alumni', permission: 'organization.read', icon: 'organization' },
   { path: '/representatives', label: 'Studeranderepresentanter', navKey: 'representatives', description: 'Student representative bodies, people, and calls', permission: 'representatives.read', icon: 'organization' },
   { path: '/governance', label: 'Governance', navKey: 'governance', description: 'Boards, meetings, and records', permission: 'governance.read', icon: 'governance' },
+  { path: '/appearance', label: 'Appearance', navKey: 'appearance', description: 'Website themes and seasonal campaign visuals', permission: 'themes.read', icon: 'appearance' },
   { path: '/settings', label: 'Settings', navKey: 'settings', description: 'Platform configuration', permission: 'settings.read', icon: 'settings' }
 ]
 

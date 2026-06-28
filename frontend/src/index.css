@@ -73,3 +73,12 @@
   .ask-button-secondary { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-black/10 bg-white/90 px-6 py-3 font-bold text-ask-ink transition hover:border-ask-400 hover:bg-ask-50 dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15; }
   .ask-eyebrow { @apply text-sm font-extrabold uppercase tracking-[0.18em] text-ask-600 dark:text-ask-400; }
 }
+
+@layer components {
+  .theme-duck { @apply inline-grid h-10 w-12 place-items-center rounded-full bg-ask-gold text-transparent shadow-soft; position: relative; }
+  .theme-duck::before { content: ''; position: absolute; right: -0.35rem; top: 0.9rem; border-left: 0.55rem solid #e0a92f; border-top: 0.32rem solid transparent; border-bottom: 0.32rem solid transparent; }
+  .theme-duck::after { content: ''; position: absolute; left: 0.85rem; top: 0.65rem; width: 0.18rem; height: 0.18rem; border-radius: 9999px; background: #23212b; }
+  .theme-duck-drift { animation: theme-duck-drift 7s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .theme-duck-drift { animation: none; } }
+}
+@keyframes theme-duck-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-0.35rem); } }

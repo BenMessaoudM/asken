@@ -37,6 +37,9 @@ import { createPublicGovernanceRouter } from './governance/routes/publicGovernan
 import { CollaborationService } from './collaborations/types';
 import { createAdminCollaborationRouter } from './collaborations/routes/adminCollaborationRoutes';
 import { createPublicCollaborationRouter } from './collaborations/routes/publicCollaborationRoutes';
+import { ThemeService } from './themes/types';
+import { createAdminThemeRouter } from './themes/routes/adminThemeRoutes';
+import { createPublicThemeRouter } from './themes/routes/publicThemeRoutes';
 
 export interface AppDependencies {
   env: Env;
@@ -49,6 +52,7 @@ export interface AppDependencies {
   representativesService?: RepresentativesService;
   governanceService?: GovernanceService;
   collaborationsService?: CollaborationService;
+  themeService?: ThemeService;
   isReady?: () => boolean;
   sendMessage?: (message: string) => Promise<void>;
 }
@@ -66,6 +70,7 @@ export function createApp({
   representativesService,
   governanceService,
   collaborationsService,
+  themeService,
   isReady = () => mongoose.connection.readyState === 1,
   sendMessage = async () => undefined,
 }: AppDependencies) {
@@ -131,6 +136,12 @@ export function createApp({
     app.use('/api/public/collaborations', createPublicCollaborationRouter(collaborationsService));
     app.use('/api/v1/admin/collaborations', createAdminCollaborationRouter(collaborationsService, identityService, env));
     app.use('/api/admin/collaborations', createAdminCollaborationRouter(collaborationsService, identityService, env));
+  }
+  if (themeService) {
+    app.use('/api/v1/themes', createPublicThemeRouter(themeService));
+    app.use('/api/public/themes', createPublicThemeRouter(themeService));
+    app.use('/api/v1/admin/themes', createAdminThemeRouter(themeService, identityService, env));
+    app.use('/api/admin/themes', createAdminThemeRouter(themeService, identityService, env));
   }
   app.use('/api/v1/admin', createAdminRouter(identityService, env));
 

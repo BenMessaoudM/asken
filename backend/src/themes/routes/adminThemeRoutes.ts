@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { Env } from '../../env';
+import { AppError } from '../../http/errors';
+import { createAuthMiddleware } from '../../identity/middleware/auth';
+import { IdentityService } from '../../identity/types';
+import { ThemeService } from '../types';
+import { objectIdSchema, themeInputSchema, themeLocaleSchema } from '../validation/themeSchemas';
+function parse<T extends z.ZodTypeAny>(schema: T, value: unknown): z.infer<T> { const result = schema.safeParse(value); if (!result.success) throw new AppError(400, 'VALIDATION_ERROR', 'Request validation failed', result.error.flatten()); return result.data; }
+export function createAdminThemeRouter(service: ThemeService, identityService: IdentityService, env: Env) { const router = Router(); const { requireAuth, requirePermission } = createAuthMiddleware(identityService, env); router.use(requireAuth); router.get('/active-resolution', requirePermission('themes.read'), async (_request, response) => response.json({ data: { resolution: await service.activeResolution() } })); router.get('/', requirePermission('themes.read'), async (_request, response) => response.json({ data: { themes: await service.listAdmin() } })); router.post('/', requirePermission('themes.write'), async (request, response) => response.status(201).json({ data: { theme: await service.create(parse(themeInputSchema, request.body) as never) } })); router.put('/:id', requirePermission('themes.write'), async (request, response) => response.json({ data: { theme: await service.update(parse(objectIdSchema, request.params.id), parse(themeInputSchema, request.body) as never) } })); router.delete('/:id', requirePermission('themes.write'), async (request, response) => { await service.archive(parse(objectIdSchema, request.params.id)); response.status(204).send(); }); router.get('/:id/preview', requirePermission('themes.read'), async (request, response) => response.json({ data: { theme: await service.preview(parse(objectIdSchema, request.params.id), parse(themeLocaleSchema, request.query.lang || request.query.locale)) } })); return router; }

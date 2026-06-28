@@ -38,7 +38,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Billing Address Workflow | Substantial | 80% | Paid booking billing collection and admin review exist. Invoicing/accounting integration remains. |
 | Date/Time Formatting | Substantial | 85% | Shared helpers and booking picker UI use DD.MM.YYYY and 24-hour time. Older non-booking paths remain a formatting risk. |
 | Multilingual Foundation Swedish-first | Shared foundation complete | 68% | Shared constants/helpers, Swedish-first fallback, booking/contract Finnish scoping, metadata/status model, booking email templates, SEO alternates, and tests exist. Full admin UI localization, backend validation localization, persisted review workflow, stale automation, and localized slug migration remain. |
-| Admin Backoffice | Partial | 59% | Users, roles, content, News, Events, booking, resources, pricing, and settings exist. Several modules are placeholders. |
+| Admin Backoffice | Partial | 61% | Users, roles, content, News, Events, booking, resources, pricing, and settings exist. Several modules are placeholders. |
 | Public Frontend | Partial | 62% | Main route set, i18n shell, content pages, News, Events, booking, and status lookup exist. Several pages are static/hard-coded. |
 | Organization | v0.7 foundation complete | 58% | Public pages, backend models/APIs, admin management, migration seed, recruitment campaigns, Fullmäktige public settings, committees, people, role badges, and Alumni page exist. Private board/governance management is excluded. |
 | Collaborations | Foundation complete | 48% | Backend model/API, admin management, public pages, settings, permissions, migration, and tests exist. Future integrations with Events, membership benefits, Live at Cor, and homepage are pending. |
@@ -46,7 +46,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Membership & Student Services | Static only | 12% | Public content exists; no workflows or admin management. |
 | Public Governance | Placeholder/static only | 10% | No governance domain workflow. |
 | Alumni Page | v0.7 foundation complete | 55% | Dedicated public Alumni page, admin-editable content, benefits, CTAs, and Cor House alumni booking link exist. No alumni CRM. |
-| Theme Manager / Appearance | Not started | 5% | Brand tokens exist; no manager. |
+| Theme Manager / Appearance | MVP implemented | 38% | Backoffice Appearance route, theme model/API, active resolver, seed migration, and public announcement/homepage layer exist. No media upload, layout builder, chatbot, or animation engine. |
 | Media Library | Not started | 5% | External URLs are used; no managed library. |
 | GDPR/Data Governance | Foundational only | 12% | No full retention, export, deletion, anonymization, or legal-hold workflows. |
 | Accessibility | Partial/informal | 18% | Some accessible patterns exist; no WCAG 2.1 AA audit or automated suite. |
@@ -72,7 +72,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 
 ## Recommended Next Epic
 
-Recommended next priority: **Event partner integration using Collaborations** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Live at Cor, Theme Manager, and Media Library as separate future modules.
+Recommended next priority: **Theme QA/E2E and asset governance** or **Event partner integration using Collaborations** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Live at Cor, Theme Manager, and Media Library as separate future modules.
 
 ## Booking Hardening Patch
 
@@ -105,3 +105,7 @@ Admin now includes a Swedish/English language switcher in the backoffice header.
 ## Collaborations Foundation
 
 Samarbeten / Collaborations now has backend models, public/admin APIs, admin `/collaborations`, public `/samarbeten` and `/collaborations`, detail pages, settings, permissions, and migration `017-collaborations`. The module is intentionally a collaboration register, not sponsorship accounting, CRM, contract management, membership management, Live at Cor, or Media Library.
+
+## Website Theme Manager MVP
+
+Appearance / Website Themes now supports editable seasonal and campaign themes with active resolution, permissions, migration `018-website-themes`, public `/api/v1/themes/active`, admin `/appearance`, and a safe public announcement/homepage layer. ASK purple remains the primary brand; Gulis/Freshers uses yellow duck decorations only. No AI chatbot, Media Library, uploaded asset storage, full animation engine, Live at Cor integration, or recruitment workflow was added.

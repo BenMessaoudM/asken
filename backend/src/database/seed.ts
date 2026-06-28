@@ -30,6 +30,8 @@ const permissions = [
   ['governance.read', 'View governance management'],
   ['governance.write', 'Manage and publish public governance documents'],
   ['settings.read', 'View administration settings'],
+  ['themes.read', 'View website theme management'],
+  ['themes.write', 'Manage website themes'],
   ['audit.read', 'View security audit records'],
 ] as const;
 

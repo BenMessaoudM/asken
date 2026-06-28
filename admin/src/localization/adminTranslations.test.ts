@@ -19,6 +19,8 @@ describe('admin translations', () => {
     expect(adminTranslations.en.representatives.tabs.calls).toBe('Calls')
     expect(adminTranslations.sv.collaborations.tabs.collaborations).toBe('Samarbeten')
     expect(adminTranslations.en.collaborations.tabs.collaborations).toBe('Collaborations')
+    expect(adminTranslations.sv.themes.tabs.active).toBe('Aktivt tema')
+    expect(adminTranslations.en.themes.tabs.active).toBe('Active theme')
   })
 
   it('translates common actions and collaboration type labels', () => {
@@ -28,6 +30,8 @@ describe('admin translations', () => {
     expect(adminTranslations.en.collaborations.types.arcada_association).toBe('Arcada Association')
     expect(adminTranslations.sv.collaborations.officeAtCor).toBe('Kontor i Cor-huset')
     expect(adminTranslations.en.collaborations.officeAtCor).toBe('Office at Cor')
+    expect(adminTranslations.sv.themes.decorations.ducks).toBe('Ankor')
+    expect(adminTranslations.en.themes.decorations.ducks).toBe('Ducks')
   })
 
   it('keeps content editing fields Swedish-first in both admin languages', () => {
