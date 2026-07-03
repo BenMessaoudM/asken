@@ -46,7 +46,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Membership & Student Services | Static only | 12% | Public content exists; no workflows or admin management. |
 | Public Governance | Placeholder/static only | 10% | No governance domain workflow. |
 | Alumni Page | v0.7 foundation complete | 55% | Dedicated public Alumni page, admin-editable content, benefits, CTAs, and Cor House alumni booking link exist. No alumni CRM. |
-| Theme Manager / Appearance | MVP implemented | 38% | Backoffice Appearance route, theme model/API, active resolver, seed migration, and public announcement/homepage layer exist. No media upload, layout builder, chatbot, or animation engine. |
+| Theme Manager / Appearance | Postponed | 5% | Removed from active backend/admin/frontend product. ASK brand styling remains; future Gulis/Freshers, recruitment theme, and ASKungen mascot/chatbot ideas are retained only in documentation. |
 | Media Library | Not started | 5% | External URLs are used; no managed library. |
 | GDPR/Data Governance | Foundational only | 12% | No full retention, export, deletion, anonymization, or legal-hold workflows. |
 | Accessibility | Partial/informal | 18% | Some accessible patterns exist; no WCAG 2.1 AA audit or automated suite. |
@@ -72,7 +72,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 
 ## Recommended Next Epic
 
-Recommended next priority: **Theme QA/E2E and asset governance** or **Event partner integration using Collaborations** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Live at Cor, Theme Manager, and Media Library as separate future modules.
+Recommended next priority: **Event partner integration using Collaborations** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Live at Cor, Theme Manager, and Media Library as separate future modules; Theme Manager is postponed until core modules are stable.
 
 ## Booking Hardening Patch
 
@@ -106,6 +106,6 @@ Admin now includes a Swedish/English language switcher in the backoffice header.
 
 Samarbeten / Collaborations now has backend models, public/admin APIs, admin `/collaborations`, public `/samarbeten` and `/collaborations`, detail pages, settings, permissions, and migration `017-collaborations`. The module is intentionally a collaboration register, not sponsorship accounting, CRM, contract management, membership management, Live at Cor, or Media Library.
 
-## Website Theme Manager MVP
+## Website Theme Manager Postponed
 
-Appearance / Website Themes now supports editable seasonal and campaign themes with active resolution, permissions, migration `018-website-themes`, public `/api/v1/themes/active`, admin `/appearance`, and a safe public announcement/homepage layer. ASK purple remains the primary brand; Gulis/Freshers uses yellow duck decorations only. No AI chatbot, Media Library, uploaded asset storage, full animation engine, Live at Cor integration, or recruitment workflow was added.
+Theme Manager has been removed from the active product for now. The admin Appearance route/sidebar item, public/admin theme APIs, active resolver, frontend theme fetch, and public announcement/homepage decorations are no longer active. ASK purple, ASK gold, and the normal website styling remain. Future Gulis/Freshers duck themes, recruitment themes, and ASKungen mascot/chatbot identity are retained only as documented future ideas. Existing old theme database records may remain unused if the former migration already ran; no destructive cleanup is performed.

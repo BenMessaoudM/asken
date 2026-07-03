@@ -474,9 +474,9 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 - Integrate Events partner/sponsor selection with Collaborations in a future scoped task.
 - Keep Live at Cor office-hour reuse, Membership benefits, homepage partner highlights, and Media Library integration as separate future work.
 
-## Website Theme Manager Follow-ups
+## Website Theme Manager - Postponed Future Work
 
-- Add browser E2E coverage for active theme rendering, no-theme fallback, Swedish/English copy, and reduced-motion behavior.
+- Revisit Theme Manager only after core modules are stable.
 - Define governed mascot/media asset workflow before committing or uploading duck artwork.
-- Add theme preview by route/page if admins need full-page confidence.
-- Keep ASKungen chatbot implementation separate from theme/mascot preparation.
+- Preserve future Gulis/Freshers duck theme, recruitment themes, and ASKungen mascot/chatbot identity as separate scoped work.
+- Require route/page preview, no-theme fallback, bilingual copy, reduced-motion behavior, and activation governance before any future launch.

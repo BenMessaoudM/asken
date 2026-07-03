@@ -220,4 +220,4 @@ Samarbeten / Collaborations now has backend models/APIs, migration `017-collabor
 
 ## Website Theme Manager Update
 
-The Theme Manager MVP adds backend theme records, active resolution, public active theme API, admin `/appearance`, migration `018-website-themes`, seed themes, and public announcement/homepage decoration support. The implementation preserves ASK brand colors and prepares ASKungen mascot fields without adding chatbot functionality.
+Theme Manager is postponed and has been removed from the active backend/admin/frontend product. There is no active `/appearance` admin page, theme API, active resolver, seed migration in the current migration list, or public theme rendering. ASK brand colors and normal website styling remain. The Gulis/Freshers duck theme, recruitment themes, and ASKungen mascot/chatbot concept are retained as future documentation only.
