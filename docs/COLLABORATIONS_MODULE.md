@@ -90,7 +90,7 @@ Dates are displayed through the shared date/time helpers using `DD.MM.YYYY` and 
 
 ## Future Integrations
 
-- Events can select partners and sponsors from Collaborations.
+- Events can select partners and sponsors from Collaborations through event `eventCollaborations` references.
 - Live at Cor can show office hours for associations at Cor.
 - Membership can show partner benefits.
 - Public homepage can feature selected partners.

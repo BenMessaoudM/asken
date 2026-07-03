@@ -43,6 +43,16 @@ export default function EventDetail() {
           </dl>
           <div className="mx-auto mt-10 max-w-3xl whitespace-pre-line text-lg leading-8">{event.description}</div>
           {event.kideAppUrl && <div className="mx-auto mt-10 max-w-3xl"><a href={event.kideAppUrl} rel="noreferrer" target="_blank" className="ask-button-primary">{t('events.tickets')}<Icon name="arrow" /></a></div>}
+          {event.eventCollaborations.length > 0 && <section className="mt-12">
+            <h2 className="text-2xl font-black">{t('events.collaborations')}</h2>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {event.eventCollaborations.map((item) => <article key={`${item.collaborationId}-${item.role}`} className="rounded-2xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+                <div className="flex items-start gap-4">{item.logoUrl && <img src={item.logoUrl} alt={item.logoAltText || ''} className="h-14 w-14 rounded-xl object-contain" />}<div><p className="text-sm font-bold text-ask-600 dark:text-ask-400">{t(`events.roles.${item.role}`)}</p><h3 className="text-xl font-black">{item.name}</h3></div></div>
+                {item.note && <p className="mt-3 text-sm text-black/65 dark:text-white/65">{item.note}</p>}
+                <Link className="mt-4 inline-flex font-bold text-ask-600 dark:text-ask-400" to={`/${locale === 'sv' ? 'samarbeten' : 'collaborations'}/${item.slug}`}>{t('events.read_more')}</Link>
+              </article>)}
+            </div>
+          </section>}
         </div>}
       </article>
     </PublicLayout>

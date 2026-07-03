@@ -32,7 +32,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | CMS | Partial | 45% | Generic content, sections, versions, and draft/publish exist. Review/approval, preview, archive/restore, media, pagination, and translation completeness remain. |
 | Public Website | Partial | 61% | v0.5 route set and shell exist. Managed content coverage, search, sitemap, full SEO/social metadata, media optimization, and complete accessibility verification remain. |
 | News | Partial | 68% | CRUD, categories, tags, bilingual fields, scheduled visibility, public list/detail, and tests exist. Full workflow and SEO/localized slug completeness remain. |
-| Events | Partial | 55% | CRUD, categories, bilingual fields, dates, public list/detail, calendar API, and tests exist. Capacity, registration, accessibility details, add-to-calendar files, and notifications remain. |
+| Events | Partial | 59% | CRUD, categories, bilingual fields, dates, public list/detail, calendar API, collaboration references, and tests exist. Capacity, registration, accessibility details, add-to-calendar files, and notifications remain. |
 | Booking System | Substantial | 84% | v0.6, configurable pricing, billing, contracts, status lookup, availability, admin lifecycle, and tests exist. Self-service, reminders, retention, browser E2E, and production hardening remain. |
 | Configurable Booking Categories & Pricing | Substantial | 78% | Models, migration seed data, APIs, and admin editing exist. Temporal edge cases and E2E coverage remain. |
 | Billing Address Workflow | Substantial | 80% | Paid booking billing collection and admin review exist. Invoicing/accounting integration remains. |
@@ -41,7 +41,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Admin Backoffice | Partial | 61% | Users, roles, content, News, Events, booking, resources, pricing, and settings exist. Several modules are placeholders. |
 | Public Frontend | Partial | 62% | Main route set, i18n shell, content pages, News, Events, booking, and status lookup exist. Several pages are static/hard-coded. |
 | Organization | v0.7 foundation complete | 58% | Public pages, backend models/APIs, admin management, migration seed, recruitment campaigns, Fullmäktige public settings, committees, people, role badges, and Alumni page exist. Private board/governance management is excluded. |
-| Collaborations | Foundation complete | 48% | Backend model/API, admin management, public pages, settings, permissions, migration, and tests exist. Future integrations with Events, membership benefits, Live at Cor, and homepage are pending. |
+| Collaborations | Foundation complete | 52% | Backend model/API, admin management, public pages, settings, permissions, migration, tests, and Events reuse exist. Future integrations with membership benefits, Live at Cor, and homepage are pending. |
 | Live at Cor | Placeholder only | 5% | No product implementation. |
 | Membership & Student Services | Static only | 12% | Public content exists; no workflows or admin management. |
 | Public Governance | Placeholder/static only | 10% | No governance domain workflow. |
@@ -72,7 +72,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 
 ## Recommended Next Epic
 
-Recommended next priority: **Event partner integration using Collaborations** or the broader student engagement workflow, building on Organization recruitment campaigns. Keep Live at Cor, Theme Manager, and Media Library as separate future modules; Theme Manager is postponed until core modules are stable.
+Recommended next priority: **student engagement workflow around Organization recruitment campaigns** or browser E2E coverage for Events and Collaborations. Keep Live at Cor, Theme Manager, and Media Library as separate future modules; Theme Manager is postponed until core modules are stable.
 
 ## Booking Hardening Patch
 
@@ -105,6 +105,10 @@ Admin now includes a Swedish/English language switcher in the backoffice header.
 ## Collaborations Foundation
 
 Samarbeten / Collaborations now has backend models, public/admin APIs, admin `/collaborations`, public `/samarbeten` and `/collaborations`, detail pages, settings, permissions, and migration `017-collaborations`. The module is intentionally a collaboration register, not sponsorship accounting, CRM, contract management, membership management, Live at Cor, or Media Library.
+
+## Event Collaborations Integration
+
+Events now reference Collaboration records through role-based `eventCollaborations`. Admins can select partners, sponsors, organizers, and other collaborators in the event editor. Public event detail pages show only visible event rows whose Collaboration record is active and visible. Migration `018-event-collaborations` adds the supporting index and does not seed fake data.
 
 ## Website Theme Manager Postponed
 

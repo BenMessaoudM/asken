@@ -28,7 +28,7 @@ Implemented dictionary-backed areas include:
 - Governance page heading and tabs
 - Collaborations page heading, tabs, type labels, filters, form labels, settings labels, and key actions
 - Theme Manager / Appearance labels are postponed with the inactive feature and are no longer part of the active backoffice UI
-- Obvious News and Events taxonomy displays and creation field order
+- Obvious News and Events taxonomy displays, creation field order, and Events collaboration role labels
 
 ## Swedish-First Content Fields
 

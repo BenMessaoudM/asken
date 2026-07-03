@@ -128,7 +128,18 @@
     "end": "Slutar",
     "tickets": "Öppna Kide.app",
     "cancelled": "Inställt",
-    "postponed": "Framskjutet"
+    "postponed": "Framskjutet",
+    "collaborations": "I samarbete med",
+    "read_more": "Läs mer",
+    "roles": {
+      "organizer": "Arrangör",
+      "co_organizer": "Medarrangör",
+      "partner": "Partner",
+      "sponsor": "Sponsor",
+      "venue_partner": "Lokalpartner",
+      "supporting_partner": "Stödpartner",
+      "other": "Annan"
+    }
   },
   "not_found": {
     "eyebrow": "Sidan hittades inte",

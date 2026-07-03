@@ -33,6 +33,8 @@ describe('admin translations', () => {
     expect(adminTranslations.en.collaborations.officeAtCor).toBe('Office at Cor')
     expect(adminTranslations.sv.collaborations.publicContactInfo).toBe('Offentlig kontaktinformation')
     expect(adminTranslations.en.collaborations.socialLinks).toBe('Social media')
+    expect(adminTranslations.sv.events.collaborations).toBe('Samarbeten och sponsorer')
+    expect(adminTranslations.en.events.roles.co_organizer).toBe('Co-organizer')
   })
 
   it('keeps content editing fields Swedish-first in both admin languages', () => {

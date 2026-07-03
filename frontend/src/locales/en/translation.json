@@ -128,7 +128,18 @@
     "end": "Ends",
     "tickets": "Open Kide.app",
     "cancelled": "Cancelled",
-    "postponed": "Postponed"
+    "postponed": "Postponed",
+    "collaborations": "In collaboration with",
+    "read_more": "Read more",
+    "roles": {
+      "organizer": "Organizer",
+      "co_organizer": "Co-organizer",
+      "partner": "Partner",
+      "sponsor": "Sponsor",
+      "venue_partner": "Venue partner",
+      "supporting_partner": "Supporting partner",
+      "other": "Other"
+    }
   },
   "not_found": {
     "eyebrow": "Page not found",

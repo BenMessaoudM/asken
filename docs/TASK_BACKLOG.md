@@ -216,7 +216,9 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 - External links are labeled and handled securely.
 - Logo alternative text and image usage meet accessibility requirements.
 
-**Current implementation:** Foundation is complete with backend model/API, admin management, public list/detail pages, settings, permissions, and migration `017-collaborations`. Preview, renewal workflow, expiry automation, Media Library integration, and downstream Events/Live at Cor/Membership reuse remain future work.
+**Current implementation:** Foundation is complete with backend model/API, admin management, public list/detail pages, settings, permissions, migration `017-collaborations`, and Events partner/sponsor reuse. Preview, renewal workflow, expiry automation, Media Library integration, and downstream Live at Cor/Membership reuse remain future work.
+
+**Events integration follow-ups:** Add browser E2E coverage for event collaborator selection and public display. Consider related upcoming events on Collaboration detail pages once event query APIs can support it cheaply.
 
 **Technical Notes**
 

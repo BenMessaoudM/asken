@@ -99,7 +99,7 @@ The migration runner records applied migrations in the _migrations collection. T
 | CMS | Partial | 45% | Generic content, sections, version snapshots, draft/publish, optimistic version checks, and admin editing exist. Review/approval, preview, archive/restore, media library, pagination/bulk tooling, and translation completeness are incomplete. |
 | Public Website | Partial | 58% | v0.5 route set and public shell are implemented with Home, About, Board, Membership, Contact, Associations, Cor House, Booking, News, Events, Privacy, Accessibility, and 404. Search, sitemap, full SEO/social metadata, media optimization, and complete managed content are missing. |
 | News | Partial | 68% | News CRUD, categories, tags, bilingual fields, scheduled visibility, public list/detail, and tests exist. Preview, archive/restore, localized slugs, SEO completeness, related content, and rich-content hardening remain. |
-| Events | Partial | 55% | Events CRUD, categories, bilingual fields, dates, public list/detail, calendar API, and tests exist. Capacity, standard registration, accessibility details, add-to-calendar files, duplication/archive workflow, and notifications remain. |
+| Events | Partial | 59% | Events CRUD, categories, bilingual fields, dates, public list/detail, calendar API, collaboration references, and tests exist. Capacity, standard registration, accessibility details, add-to-calendar files, duplication/archive workflow, and notifications remain. |
 | Booking System | Substantial | 84% | Cor House booking is the most complete product slice, including resources, availability, conflicts, pricing, billing, references, contracts, admin lifecycle, status lookup, and tests. Remaining gaps include account-backed self-service, reminders, retention automation, stronger concurrency/browser tests, and production operations. |
 | Configurable Booking Categories & Pricing | Substantial | 78% | Category and pricing rule models, migration seed data, backend routes/services, and admin editing exist. UX polish, audit depth, temporal rule edge cases, and end-to-end browser tests remain. |
 | Billing Address Workflow | Substantial | 80% | Paid bookings collect billing data, admin reviews billing details, and contracts use billing data. Remaining gaps are invoicing integration, validation breadth, and downstream accounting automation. |
@@ -216,7 +216,7 @@ Admin now includes a Swedish/English language switcher in the backoffice header.
 
 ## Collaborations Update
 
-Samarbeten / Collaborations now has backend models/APIs, migration `017-collaborations`, permissions, admin management, public list/detail pages, and bilingual labels. It is explicitly not a CRM, sponsorship accounting workflow, contract manager, membership manager, Live at Cor implementation, or Media Library.
+Samarbeten / Collaborations now has backend models/APIs, migration `017-collaborations`, permissions, admin management, public list/detail pages, bilingual labels, and Events partner/sponsor reuse through migration `018-event-collaborations`. It is explicitly not a CRM, sponsorship accounting workflow, contract manager, membership manager, Live at Cor implementation, or Media Library.
 
 ## Website Theme Manager Update
 
