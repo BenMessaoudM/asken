@@ -162,7 +162,7 @@ The live checks verify HTTP APIs and route availability. They do not verify rend
 | 6 — News and Blog | Partial | 65% | The central bilingual administration and public workflows work. Author, SEO, localized slugs, preview, archive/restore, related content, UI pagination, and complete workflow tests are missing. |
 | 7 — Events | Partial | 50% | Central bilingual administration and public discovery work. Capacity, accessibility details, general registration, add-to-calendar files, scheduling, archive/duplicate, location filtering, and notifications are missing. |
 | 8 — What's Happening at Cor | Missing | 0% | Public preview text and admin placeholder only; no model, API, workflow, or public feed. |
-| 9 — Collaborations | Missing | 0% | Public preview text, permission, generic type, and admin placeholder only; no product workflow. |
+| 9 — Collaborations | Foundation complete | 52% | Current implementation has backend model/API, admin management, public list/detail pages, settings, permissions, and migration `017-collaborations`; this supersedes the original missing assessment. |
 | 10 — Booking System | Missing | 0% | Permission/navigation placeholder only. |
 | 11 — Tutor Module | Missing | 0% | No usable implementation. |
 | 12 — Governance Portal | Missing | 0% | Permission/navigation placeholder and generic content type only. |

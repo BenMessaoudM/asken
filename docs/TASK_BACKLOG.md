@@ -16,7 +16,7 @@ This backlog translates `PROJECT_MASTER_SPEC.md` and `GAP_ANALYSIS.md` into impl
 | Epic 6 — News and Blog | Partial |
 | Epic 7 — Events | Partial |
 | Epic 8 — What's Happening at Cor | Placeholder only |
-| Epic 9 — Collaborations | Placeholder/static only |
+| Epic 9 — Collaborations | Foundation complete |
 | Epic 10 — Booking System | Substantial, not production-complete |
 | Organization / Organisation v0.7 | Foundation complete, including public pages, admin management, backend APIs, recruitment campaigns, and Alumni page |
 | Epic 11 — Tutor Module | Not started; Organization v0.7 includes only public tutoring info and recruitment links |
@@ -215,6 +215,8 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 - Expired collaborations are hidden automatically or flagged for editorial review according to configuration.
 - External links are labeled and handled securely.
 - Logo alternative text and image usage meet accessibility requirements.
+
+**Current implementation:** Foundation is complete with backend model/API, admin management, public list/detail pages, settings, permissions, and migration `017-collaborations`. Preview, renewal workflow, expiry automation, Media Library integration, and downstream Events/Live at Cor/Membership reuse remain future work.
 
 **Technical Notes**
 

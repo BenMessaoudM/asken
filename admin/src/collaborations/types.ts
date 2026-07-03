@@ -1,6 +1,6 @@
-export type CollaborationType = 'arcada_association' | 'student_nation' | 'sponsor' | 'company' | 'university' | 'strategic_partner' | 'student_organization' | 'other'
+export type CollaborationType = 'arcada_association' | 'student_nation' | 'sponsor' | 'company' | 'university' | 'strategic_partner' | 'student_organization' | 'public_body' | 'alumni_association' | 'other'
 export interface LocalizedText { sv: string; en: string }
-export interface SocialLinks { instagram?: string; linkedin?: string; facebook?: string; tiktok?: string; other?: string }
+export interface SocialLinks { instagram?: string; linkedin?: string; facebook?: string; tiktok?: string; youtube?: string; other?: string }
 export interface Collaboration {
   id: string
   name: string
@@ -13,10 +13,12 @@ export interface Collaboration {
   websiteUrl?: string
   email?: string
   contactPerson?: string
+  phone?: string
   socialLinks: SocialLinks
   officeAtCor: boolean
+  officeLocation?: string
   officeHours?: LocalizedText
-  location?: string
+  publicContactInfo?: LocalizedText
   active: boolean
   visible: boolean
   featured: boolean
@@ -29,4 +31,4 @@ export interface Collaboration {
   createdAt?: string
   updatedAt?: string
 }
-export interface CollaborationSettings { id: string; intro: LocalizedText; contactEmail?: string; visible: boolean; updatedAt?: string }
+export interface CollaborationSettings { id: string; intro: LocalizedText; featuredIntro?: LocalizedText; contactEmail?: string; visible: boolean; updatedAt?: string }

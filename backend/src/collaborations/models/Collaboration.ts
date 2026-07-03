@@ -1,12 +1,12 @@
 import { Schema, model, models } from 'mongoose';
 
 const localizedTextSchema = new Schema({ sv: { type: String, default: '' }, en: { type: String, default: '' } }, { _id: false });
-const socialLinksSchema = new Schema({ instagram: String, linkedin: String, facebook: String, tiktok: String, other: String }, { _id: false });
+const socialLinksSchema = new Schema({ instagram: String, linkedin: String, facebook: String, tiktok: String, youtube: String, other: String }, { _id: false });
 
 const collaborationSchema = new Schema({
   name: { type: String, required: true, trim: true },
   slug: { type: String, required: true, unique: true, trim: true, lowercase: true },
-  type: { type: String, required: true, enum: ['arcada_association', 'student_nation', 'sponsor', 'company', 'university', 'strategic_partner', 'student_organization', 'other'] },
+  type: { type: String, required: true, enum: ['arcada_association', 'student_nation', 'sponsor', 'company', 'university', 'strategic_partner', 'student_organization', 'public_body', 'alumni_association', 'other'] },
   description: { type: localizedTextSchema, required: true },
   shortDescription: localizedTextSchema,
   logoUrl: String,
@@ -14,10 +14,12 @@ const collaborationSchema = new Schema({
   websiteUrl: String,
   email: String,
   contactPerson: String,
+  phone: String,
   socialLinks: { type: socialLinksSchema, default: () => ({}) },
   officeAtCor: { type: Boolean, default: false },
+  officeLocation: String,
   officeHours: localizedTextSchema,
-  location: String,
+  publicContactInfo: localizedTextSchema,
   active: { type: Boolean, default: true },
   visible: { type: Boolean, default: true },
   featured: { type: Boolean, default: false },
@@ -27,6 +29,8 @@ const collaborationSchema = new Schema({
   relationshipOwner: String,
   validFrom: Date,
   validUntil: Date,
+  createdBy: String,
+  updatedBy: String,
 }, { timestamps: true });
 
 collaborationSchema.index({ type: 1, active: 1, visible: 1, featured: -1, displayOrder: 1 });

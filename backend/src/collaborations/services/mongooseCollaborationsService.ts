@@ -8,7 +8,7 @@ import { AdminCollaborationFilters, Collaboration, CollaborationListFilters, Col
 
 type CollaborationDoc = Collaboration & { _id: Types.ObjectId; toObject: () => Record<string, unknown> };
 
-const defaultSettings = { intro: { sv: 'Samarbeten samlar ASK:s specialföreningar, studentnationer och partner.', en: 'Collaborations collect ASK associations, student nations and partners.' }, visible: true };
+const defaultSettings = { intro: { sv: 'Samarbeten samlar ASK:s specialföreningar, studentnationer och partner.', en: 'Collaborations collect ASK associations, student nations and partners.' }, featuredIntro: { sv: '', en: '' }, visible: true };
 
 function emptyToUndefined(value?: string) { return value && value.trim() ? value.trim() : undefined; }
 
@@ -36,10 +36,12 @@ export class MongooseCollaborationsService implements CollaborationService {
       websiteUrl: item.websiteUrl,
       email: item.email,
       contactPerson: item.contactPerson,
+      phone: item.phone,
       socialLinks: item.socialLinks || {},
       officeAtCor: item.officeAtCor,
+      officeLocation: item.officeLocation,
       officeHours: item.officeHours ? localizedValue(item.officeHours, locale) : undefined,
-      location: item.location,
+      publicContactInfo: item.publicContactInfo ? localizedValue(item.publicContactInfo, locale) : undefined,
       featured: item.featured,
       displayOrder: item.displayOrder,
       tags: item.tags ? localizedValue(item.tags, locale) : undefined,
@@ -51,17 +53,21 @@ export class MongooseCollaborationsService implements CollaborationService {
 
   private query(filters: CollaborationListFilters & { active?: boolean; visible?: boolean }) {
     const query: Record<string, unknown> = {};
+    const clauses: Record<string, unknown>[] = [];
     if (filters.type) query.type = filters.type;
     if (filters.featured !== undefined) query.featured = filters.featured;
+    if (filters.officeAtCor !== undefined) query.officeAtCor = filters.officeAtCor;
     if (filters.active !== undefined) query.active = filters.active;
     if (filters.visible !== undefined) query.visible = filters.visible;
-    if (filters.search) query.$or = [
+    if (filters.tag) clauses.push({ $or: [{ 'tags.sv': new RegExp(filters.tag, 'i') }, { 'tags.en': new RegExp(filters.tag, 'i') }] });
+    if (filters.search) clauses.push({ $or: [
       { name: new RegExp(filters.search, 'i') },
       { 'description.sv': new RegExp(filters.search, 'i') },
       { 'description.en': new RegExp(filters.search, 'i') },
       { 'tags.sv': new RegExp(filters.search, 'i') },
       { 'tags.en': new RegExp(filters.search, 'i') },
-    ];
+    ] });
+    if (clauses.length) query.$and = clauses;
     return query;
   }
 
@@ -80,7 +86,7 @@ export class MongooseCollaborationsService implements CollaborationService {
 
   async getPublicSettings(locale: CollaborationLocale): Promise<PublicCollaborationSettings> {
     const settings = await this.getSettings();
-    return { intro: localizedValue(settings.intro, locale), contactEmail: settings.contactEmail, visible: settings.visible, updatedAt: settings.updatedAt };
+    return { intro: localizedValue(settings.intro, locale), featuredIntro: settings.featuredIntro ? localizedValue(settings.featuredIntro, locale) : undefined, contactEmail: settings.contactEmail, visible: settings.visible, updatedAt: settings.updatedAt };
   }
 
   async listAdmin(filters: AdminCollaborationFilters): Promise<Collaboration[]> {
@@ -90,14 +96,14 @@ export class MongooseCollaborationsService implements CollaborationService {
 
   async create(input: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'>): Promise<Collaboration> {
     try {
-      const doc = await CollaborationModel.create({ ...input, slug: this.slug(input.slug || input.name), logoUrl: emptyToUndefined(input.logoUrl), websiteUrl: emptyToUndefined(input.websiteUrl), email: emptyToUndefined(input.email) });
+      const doc = await CollaborationModel.create({ ...input, slug: this.slug(input.slug || input.name), logoUrl: emptyToUndefined(input.logoUrl), websiteUrl: emptyToUndefined(input.websiteUrl), email: emptyToUndefined(input.email), phone: emptyToUndefined(input.phone) });
       return this.toAdmin(doc as CollaborationDoc);
     } catch (error) { this.duplicate(error); throw error; }
   }
 
   async update(id: string, input: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'>): Promise<Collaboration> {
     try {
-      const doc = await CollaborationModel.findByIdAndUpdate(this.id(id), { ...input, slug: this.slug(input.slug || input.name), logoUrl: emptyToUndefined(input.logoUrl), websiteUrl: emptyToUndefined(input.websiteUrl), email: emptyToUndefined(input.email) }, { new: true, runValidators: true });
+      const doc = await CollaborationModel.findByIdAndUpdate(this.id(id), { ...input, slug: this.slug(input.slug || input.name), logoUrl: emptyToUndefined(input.logoUrl), websiteUrl: emptyToUndefined(input.websiteUrl), email: emptyToUndefined(input.email), phone: emptyToUndefined(input.phone) }, { new: true, runValidators: true });
       if (!doc) throw new AppError(404, 'COLLABORATION_NOT_FOUND', 'Collaboration was not found');
       return this.toAdmin(doc as CollaborationDoc);
     } catch (error) { this.duplicate(error); throw error; }

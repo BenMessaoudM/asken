@@ -26,8 +26,13 @@ describe('admin translations', () => {
     expect(adminTranslations.en.common.noResults).toBe('No results')
     expect(adminTranslations.sv.collaborations.types.arcada_association).toBe('Specialförening')
     expect(adminTranslations.en.collaborations.types.arcada_association).toBe('Arcada Association')
+    expect(adminTranslations.sv.collaborations.types.strategic_partner).toBe('Strategisk partner')
+    expect(adminTranslations.en.collaborations.types.student_organization).toBe('Student Organization')
+    expect(adminTranslations.sv.collaborations.types.alumni_association).toBe('Alumnförening')
     expect(adminTranslations.sv.collaborations.officeAtCor).toBe('Kontor i Cor-huset')
     expect(adminTranslations.en.collaborations.officeAtCor).toBe('Office at Cor')
+    expect(adminTranslations.sv.collaborations.publicContactInfo).toBe('Offentlig kontaktinformation')
+    expect(adminTranslations.en.collaborations.socialLinks).toBe('Social media')
   })
 
   it('keeps content editing fields Swedish-first in both admin languages', () => {

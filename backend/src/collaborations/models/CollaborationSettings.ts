@@ -5,6 +5,7 @@ const localizedTextSchema = new Schema({ sv: { type: String, default: '' }, en: 
 const collaborationSettingsSchema = new Schema({
   key: { type: String, required: true, unique: true, default: 'collaborations-settings' },
   intro: { type: localizedTextSchema, required: true, default: () => ({ sv: '', en: '' }) },
+  featuredIntro: localizedTextSchema,
   contactEmail: String,
   visible: { type: Boolean, default: true },
 }, { timestamps: true });

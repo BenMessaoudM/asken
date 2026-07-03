@@ -13,7 +13,7 @@ export function createPublicCollaborationRouter(service: CollaborationService) {
   router.get('/settings', async (request, response) => response.json({ data: { settings: await service.getPublicSettings(locale(request.query)) } }));
   router.get('/', async (request, response) => {
     const query = parse(collaborationQuerySchema, request.query);
-    response.json({ data: { collaborations: await service.listPublic({ type: query.type, featured: query.featured, search: query.search }, query.lang || query.locale || 'sv') } });
+    response.json({ data: { collaborations: await service.listPublic({ type: query.type, featured: query.featured, officeAtCor: query.officeAtCor, tag: query.tag, search: query.search }, query.lang || query.locale || 'sv') } });
   });
   router.get('/:slug', async (request, response) => response.json({ data: { collaboration: await service.getPublicBySlug(parse(slugSchema, request.params.slug), locale(request.query)) } }));
   return router;

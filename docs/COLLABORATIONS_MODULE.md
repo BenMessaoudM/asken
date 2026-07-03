@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The Samarbeten / Collaborations module is ASK's central register for public and internal collaboration records. It covers special associations, student nations, sponsors, companies, universities, strategic partners, student organizations, and other partner-like relationships.
+The Samarbeten / Collaborations module is ASK's central register for public and internal collaboration records. It covers special associations, student nations, sponsors, companies, universities, strategic partners, student organizations, public bodies, alumni associations, and other partner-like relationships.
 
 This is a lightweight reusable content module, not a CRM.
 
@@ -39,17 +39,17 @@ Backoffice labels come from `admin/src/localization/adminTranslations.ts` via `u
 - description sv/en
 - shortDescription sv/en
 - logoUrl and logoAltText sv/en
-- websiteUrl, email, contactPerson
-- social links
-- officeAtCor, officeHours sv/en, location
+- websiteUrl, email, contactPerson, phone
+- social links: Instagram, LinkedIn, Facebook, TikTok, YouTube, and other
+- officeAtCor, officeLocation, officeHours sv/en, publicContactInfo sv/en
 - active, visible, featured, displayOrder
 - tags sv/en
-- internalNotes, relationshipOwner, validFrom, validUntil
+- internalNotes, relationshipOwner, validFrom, validUntil, optional createdBy and updatedBy
 - createdAt, updatedAt
 
 `internalNotes` and `relationshipOwner` are admin/internal fields and are not exposed by public endpoints.
 
-`CollaborationSettings` includes intro sv/en, optional contactEmail, visibility, and updatedAt.
+`CollaborationSettings` includes intro sv/en, optional featuredIntro sv/en, optional contactEmail, visibility, and updatedAt.
 
 ## APIs
 
@@ -71,7 +71,7 @@ Admin:
 - `PUT /api/v1/admin/collaborations/settings`
 - Alias: `/api/admin/collaborations/...`
 
-Public list filters support type, featured, and search. Admin list filters support type, featured, active, visible, and search.
+Public list filters support type, featured, officeAtCor, tag, and search. Admin list filters support type, featured, active, visible, officeAtCor, tag, and search.
 
 ## Permissions
 

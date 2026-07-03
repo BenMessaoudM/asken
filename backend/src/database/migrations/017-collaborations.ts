@@ -11,7 +11,7 @@ export const collaborationsMigration: Migration = {
     await database.collection('collaborationsettings').createIndex({ key: 1 }, { unique: true });
     await database.collection('collaborationsettings').updateOne(
       { key: 'collaborations-settings' },
-      { $setOnInsert: { key: 'collaborations-settings', intro: { sv: 'Samarbeten samlar ASK:s specialföreningar, studentnationer och partner.', en: 'Collaborations collect ASK associations, student nations and partners.' }, visible: true, createdAt: new Date(), updatedAt: new Date() } },
+      { $setOnInsert: { key: 'collaborations-settings', intro: { sv: 'Samarbeten samlar ASK:s specialföreningar, studentnationer och partner.', en: 'Collaborations collect ASK associations, student nations and partners.' }, featuredIntro: { sv: '', en: '' }, visible: true, createdAt: new Date(), updatedAt: new Date() } },
       { upsert: true },
     );
 

@@ -17,7 +17,7 @@ export function createAdminCollaborationRouter(service: CollaborationService, id
   router.put('/settings', requirePermission('collaborations.write'), async (request, response) => response.json({ data: { settings: await service.updateSettings(parse(settingsInputSchema, request.body)) } }));
   router.get('/', requirePermission('collaborations.read'), async (request, response) => {
     const query = parse(collaborationQuerySchema, request.query);
-    response.json({ data: { collaborations: await service.listAdmin({ type: query.type, featured: query.featured, active: query.active, visible: query.visible, search: query.search }) } });
+    response.json({ data: { collaborations: await service.listAdmin({ type: query.type, featured: query.featured, active: query.active, visible: query.visible, officeAtCor: query.officeAtCor, tag: query.tag, search: query.search }) } });
   });
   router.post('/', requirePermission('collaborations.write'), async (request, response) => response.status(201).json({ data: { collaboration: await service.create(parse(collaborationInputSchema, request.body) as never) } }));
   router.put('/:id', requirePermission('collaborations.write'), async (request, response) => response.json({ data: { collaboration: await service.update(parse(objectIdSchema, request.params.id), parse(collaborationInputSchema, request.body) as never) } }));
