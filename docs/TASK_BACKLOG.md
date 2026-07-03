@@ -218,7 +218,7 @@ Partial implementations do not satisfy the complete acceptance criteria or the m
 
 **Current implementation:** Foundation is complete with backend model/API, admin management, public list/detail pages, settings, permissions, migration `017-collaborations`, and Events partner/sponsor reuse. Preview, renewal workflow, expiry automation, Media Library integration, and downstream Live at Cor/Membership reuse remain future work.
 
-**Events integration follow-ups:** Add browser E2E coverage for event collaborator selection and public display. Consider related upcoming events on Collaboration detail pages once event query APIs can support it cheaply.
+**Events integration follow-ups:** Browser E2E coverage exists for event collaborator selection and public display. Consider related upcoming events on Collaboration detail pages once event query APIs can support it cheaply.
 
 **Technical Notes**
 
@@ -474,7 +474,7 @@ GDPR, accessibility, security, testing, and operations are continuous requiremen
 ## Collaborations Follow-ups
 
 - Enter real ASK collaboration records after content approval.
-- Add browser E2E coverage for `/samarbeten`, `/collaborations`, detail pages, and admin `/collaborations`.
+- Expand existing Playwright E2E coverage for `/samarbeten`, `/collaborations`, detail pages, and admin `/collaborations` beyond the Event Collaborations workflow.
 - Integrate Events partner/sponsor selection with Collaborations in a future scoped task.
 - Keep Live at Cor office-hour reuse, Membership benefits, homepage partner highlights, and Media Library integration as separate future work.
 

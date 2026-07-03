@@ -5,6 +5,13 @@ build/
 .cache/
 .next/
 .vite/
+test-results/
+playwright-report/
+playwright/.cache/
+traces/
+videos/
+screenshots/
+e2e/.state/
 
 # Env files
 .env

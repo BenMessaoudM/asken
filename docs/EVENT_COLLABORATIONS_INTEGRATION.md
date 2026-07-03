@@ -55,6 +55,10 @@ Migration `018-event-collaborations` adds an index on `cmsevents.eventCollaborat
 - Event list partner logos if design and performance allow it.
 - Event partner filtering and homepage partner/event highlights.
 
+## Browser E2E Coverage
+
+Playwright coverage in `e2e/event-collaborations.spec.ts` verifies admin Collaboration visibility/editing, admin Event collaborator selection persistence, Swedish and English public event collaboration labels, hidden collaborator privacy, and public collaboration detail links.
+
 ## Explicit Exclusions
 
 - No sponsorship accounting

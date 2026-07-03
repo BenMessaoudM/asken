@@ -50,7 +50,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 | Media Library | Not started | 5% | External URLs are used; no managed library. |
 | GDPR/Data Governance | Foundational only | 12% | No full retention, export, deletion, anonymization, or legal-hold workflows. |
 | Accessibility | Partial/informal | 18% | Some accessible patterns exist; no WCAG 2.1 AA audit or automated suite. |
-| Testing & Production Operations | Partial | 30% | Build/typecheck/test coverage exists; browser E2E, observability, deployment, backup, rollback, and incident operations remain. |
+| Testing & Production Operations | Partial | 34% | Build/typecheck/unit coverage exists; Playwright E2E now covers Collaborations and Event Collaborations. Broader browser E2E, observability, deployment, backup, rollback, and incident operations remain. |
 
 ## Current Completed Releases
 
@@ -72,7 +72,7 @@ The platform is not production-ready. The largest remaining areas are complete C
 
 ## Recommended Next Epic
 
-Recommended next priority: **student engagement workflow around Organization recruitment campaigns** or browser E2E coverage for Events and Collaborations. Keep Live at Cor, Theme Manager, and Media Library as separate future modules; Theme Manager is postponed until core modules are stable.
+Recommended next priority: **Live at Cor** or the student engagement workflow around Organization recruitment campaigns. Keep Theme Manager and Media Library as separate future modules; Theme Manager is postponed until core modules are stable.
 
 ## Booking Hardening Patch
 
@@ -109,6 +109,10 @@ Samarbeten / Collaborations now has backend models, public/admin APIs, admin `/c
 ## Event Collaborations Integration
 
 Events now reference Collaboration records through role-based `eventCollaborations`. Admins can select partners, sponsors, organizers, and other collaborators in the event editor. Public event detail pages show only visible event rows whose Collaboration record is active and visible. Migration `018-event-collaborations` adds the supporting index and does not seed fake data.
+
+## Browser E2E Coverage
+
+Playwright E2E coverage now protects Collaborations and Event Collaborations workflows: admin collaboration management, admin event collaborator selection visibility, public Swedish/English event collaboration labels, hidden collaboration privacy, and event-to-collaboration detail links. See `docs/E2E_TESTING.md`.
 
 ## Website Theme Manager Postponed
 
