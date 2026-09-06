@@ -1,0 +1,2 @@
+import {Home,Search} from "lucide-react";
+export default function NotFound(){return <main className="not-found"><img src="/ask-symbol-purple.png" alt="ASK"/><span>404</span><h1>Sidan hittades inte<br/><small>Page not found</small></h1><p>Kontrollera adressen eller gå tillbaka till startsidan.<br/>Check the address or return to the home page.</p><div><a className="pill" href="/"><Home/>Startsida</a><a href="/sok"><Search/>Sök / Search</a></div></main>}
