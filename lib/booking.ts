@@ -62,6 +62,11 @@ export function sharesResource(a: readonly string[], b: readonly string[]) {
   return a.some((resource) => b.includes(resource));
 }
 
+export function helsinkiDateKey(date: Date) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Helsinki", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date).map((part) => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 export function validateOccurrence(value: BookingOccurrenceInput, policy: BookingPolicy = DEFAULT_BOOKING_POLICY) {
   const start = new Date(value.startsAt);
   const end = new Date(value.endsAt);
@@ -71,8 +76,8 @@ export function validateOccurrence(value: BookingOccurrenceInput, policy: Bookin
   if (end.getTime() - start.getTime() > policy.maxBookingHours * 60 * 60 * 1000) {
     return `Cor cannot be booked continuously for more than ${policy.maxBookingHours} hours.`;
   }
-  if (start.toISOString().slice(0, 10) !== end.toISOString().slice(0, 10)) {
-    return "Each booking time must start and end on the same calendar date.";
+  if (helsinkiDateKey(start) !== helsinkiDateKey(end)) {
+    return "Each booking time must start and end on the same Helsinki calendar date.";
   }
   if (!value.resources.length) return "Choose at least one space.";
   return null;
@@ -102,13 +107,66 @@ export function estimateBooking(type: BookerType, occurrences: BookingOccurrence
 }
 
 export function academicYearStart(date: Date) {
-  const year = date.getUTCMonth() >= 7 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
-  return new Date(Date.UTC(year, 7, 1)).toISOString();
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Helsinki", year: "numeric", month: "2-digit" }).formatToParts(date).map((part) => [part.type, part.value]));
+  const year = Number(parts.month) >= 8 ? Number(parts.year) : Number(parts.year) - 1;
+  return new Date(Date.UTC(year, 6, 31, 21)).toISOString();
 }
 
-export function bookingRetentionDate(createdAt = new Date()) {
+export function bookingRetentionDate(createdAt = new Date(), retentionClass: "request" | "operational" | "accounting" = "request") {
   const date = new Date(createdAt);
-  date.setUTCFullYear(date.getUTCFullYear() + 6);
-  date.setUTCMonth(date.getUTCMonth() + 1);
+  if (retentionClass === "request") date.setUTCFullYear(date.getUTCFullYear() + 1);
+  if (retentionClass === "operational") date.setUTCFullYear(date.getUTCFullYear() + 2);
+  if (retentionClass === "accounting") {
+    date.setUTCFullYear(date.getUTCFullYear() + 6);
+    date.setUTCMonth(date.getUTCMonth() + 1);
+  }
   return date.toISOString();
+}
+
+export function maxAdvanceDate(from: Date, months: number) {
+  const date = new Date(from);
+  const originalDay = date.getUTCDate();
+  date.setUTCDate(1);
+  date.setUTCMonth(date.getUTCMonth() + months);
+  const endOfTargetMonth = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
+  date.setUTCDate(Math.min(originalDay, endOfTargetMonth));
+  return date;
+}
+
+export function helsinkiLocalToIso(value?: string | null) {
+  if (!value) return null;
+  if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(value)) {
+    const date = new Date(value);
+    return Number.isFinite(date.getTime()) ? date.toISOString() : null;
+  }
+  const match = value.match(/^(\d{4})-(?:(\d{2})-(\d{2})|(?:(\d{2})(\d{2})))(?:T?(\d{2}):?(\d{2}):?(\d{2})?)?$/);
+  if (!match) return null;
+  const [, year, dashedMonth, dashedDay, compactMonth, compactDay, hour = "00", minute = "00", second = "00"] = match;
+  const month = dashedMonth || compactMonth;
+  const day = dashedDay || compactDay;
+  if (!month || !day) return null;
+  const target = Date.UTC(+year!, +month - 1, +day, +hour, +minute, +second);
+  let candidate = target;
+  const formatter = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Helsinki", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+  for (let index = 0; index < 2; index += 1) {
+    const parts = Object.fromEntries(formatter.formatToParts(new Date(candidate)).map((part) => [part.type, part.value]));
+    const represented = Date.UTC(+parts.year!, +parts.month! - 1, +parts.day!, +parts.hour!, +parts.minute!, +parts.second!);
+    candidate += target - represented;
+  }
+  return new Date(candidate).toISOString();
+}
+
+export function isoToHelsinkiLocalInput(value?: string | null) {
+  if (!value) return "";
+  if (!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(value)) return value.slice(0, 16);
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Helsinki", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date).map((part) => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+export async function hashBookingToken(token: string) {
+  const bytes = new TextEncoder().encode(token);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }

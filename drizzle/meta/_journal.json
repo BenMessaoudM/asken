@@ -71,6 +71,13 @@
       "when": 1788696037859,
       "tag": "0009_fuzzy_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1788705445141,
+      "tag": "0010_clear_sleeper",
+      "breakpoints": true
     }
   ]
 }

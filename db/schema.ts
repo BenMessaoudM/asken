@@ -59,6 +59,7 @@ export const collaborations = sqliteTable("collaborations", {
   descriptionEn: text("description_en").notNull().default(""),
   websiteUrl: text("website_url").notNull().default(""),
   logoUrl: text("logo_url").notNull().default(""),
+  brandColor: text("brand_color").notNull().default("#A32F8E"),
   contactName: text("contact_name").notNull().default(""),
   contactEmail: text("contact_email").notNull().default(""),
   agreementStartsAt: text("agreement_starts_at"),
@@ -98,6 +99,35 @@ export const liveCorItems = sqliteTable("live_cor_items", {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (table) => [index("idx_live_cor_public_time").on(table.active, table.visiblePublicly, table.startsAt)]);
+
+export const corCalendarEvents = sqliteTable("cor_calendar_events", {
+  id: text("id").primaryKey(),
+  sourceUid: text("source_uid").notNull(),
+  titleSv: text("title_sv").notNull(),
+  titleEn: text("title_en").notNull(),
+  associationSlug: text("association_slug"),
+  brandColor: text("brand_color").notNull().default("#A32F8E"),
+  startsAt: text("starts_at").notNull(),
+  endsAt: text("ends_at").notNull(),
+  resources: text("resources").notNull().default("[]"),
+  category: text("category", { enum: ["association", "ask", "private"] }).notNull().default("private"),
+  tentative: integer("tentative", { mode: "boolean" }).notNull().default(false),
+  allDay: integer("all_day", { mode: "boolean" }).notNull().default(false),
+  visiblePublicly: integer("visible_publicly", { mode: "boolean" }).notNull().default(true),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  sourceUpdatedAt: text("source_updated_at"),
+  importedAt: text("imported_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  importedBy: text("imported_by").notNull().default(""),
+}, (table) => [
+  uniqueIndex("idx_cor_calendar_source_uid").on(table.sourceUid),
+  index("idx_cor_calendar_active_time").on(table.active, table.startsAt, table.endsAt),
+]);
+
+export const rateLimits = sqliteTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(1),
+  resetAt: integer("reset_at").notNull(),
+}, (table) => [index("idx_rate_limits_reset").on(table.resetAt)]);
 
 export const bookingRequests = sqliteTable("booking_requests", {
   id: text("id").primaryKey(),

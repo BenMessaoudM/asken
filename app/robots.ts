@@ -1,2 +1,3 @@
 import type {MetadataRoute} from "next";
-export default function robots():MetadataRoute.Robots{return{rules:{userAgent:"*",allow:"/",disallow:["/admin/","/api/admin/","/bokning/"]},sitemap:"https://ask-student-union.musse97.chatgpt.site/sitemap.xml"}}
+import {SITE_URL} from "@/lib/site";
+export default function robots():MetadataRoute.Robots{return{rules:{userAgent:"*",allow:"/",disallow:["/admin","/api/admin","/bokning/","/booking/"]},sitemap:`${SITE_URL}/sitemap.xml`}}

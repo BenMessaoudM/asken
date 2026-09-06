@@ -1,6 +1,9 @@
 import {env} from "cloudflare:workers";
 import {requireAdminRole} from "@/lib/admin";
 import {writeAudit} from "@/lib/audit";
+import {getDb} from "@/db";
+import {bookingEvidence,contentItems,publicDocuments} from "@/db/schema";
+import {eq} from "drizzle-orm";
 
 export const dynamic="force-dynamic";
 const allowed=new Set(["image/jpeg","image/png","image/webp","image/gif","application/pdf"]);
@@ -28,5 +31,6 @@ export async function POST(request:Request){
 export async function DELETE(request:Request){
   const user=await auth();if(!user)return Response.json({error:"Forbidden"},{status:403});
   const{key}=await request.json() as{key?:string};if(!key||key.includes(".."))return Response.json({error:"Invalid key"},{status:400});
+  const url=`/api/media/${encodeURIComponent(key)}`,db=getDb();const[content,document,evidence]=await Promise.all([db.select({id:contentItems.id}).from(contentItems).where(eq(contentItems.imageUrl,url)).limit(1),db.select({id:publicDocuments.id}).from(publicDocuments).where(eq(publicDocuments.fileUrl,url)).limit(1),db.select({id:bookingEvidence.id}).from(bookingEvidence).where(eq(bookingEvidence.fileUrl,url)).limit(1)]);if(content.length||document.length||evidence.length)return Response.json({error:"This file is still used by published or operational content."},{status:409});
   await bucket().delete(key);await writeAudit(user.user.email,"delete","media",key);return Response.json({ok:true});
 }

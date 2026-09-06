@@ -1,7 +1,8 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { getDb } from "@/db";
 import { bookingOccurrences, bookingRequests } from "@/db/schema";
+import { hashBookingToken } from "@/lib/booking";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,9 @@ function drawWrapped(page: PDFPage, value: string, x: number, y: number, width: 
 export async function GET(request: Request, { params }: { params: Promise<{ reference: string }> }) {
   const { reference } = await params;
   const token = new URL(request.url).searchParams.get("token") || "";
-  const [booking] = await getDb().select().from(bookingRequests).where(and(eq(bookingRequests.reference, reference), eq(bookingRequests.statusToken, token))).limit(1);
+  if (!token) return new Response("Not found", { status: 404 });
+  const tokenHash = await hashBookingToken(token);
+  const [booking] = await getDb().select().from(bookingRequests).where(and(eq(bookingRequests.reference, reference), or(eq(bookingRequests.statusToken, tokenHash), eq(bookingRequests.statusToken, token)))).limit(1);
   if (!booking || booking.deletedAt) return new Response("Not found", { status: 404 });
   if (booking.bookerType === "arcada_association" || booking.contractStatus === "not_required") return new Response("A separate contract is not required for verified Arcada associations.", { status: 409 });
   if (!["approved", "contract_sent", "signed"].includes(booking.status)) return new Response("The agreement becomes available after ASK has approved the booking.", { status: 409 });

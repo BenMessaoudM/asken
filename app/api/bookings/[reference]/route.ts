@@ -1,21 +1,24 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db";
 import { bookingActivity, bookingEvidence, bookingOccurrences, bookingRequests, notificationOutbox } from "@/db/schema";
 import { allowRequest, requestFingerprint } from "@/lib/rate-limit";
+import { hashBookingToken } from "@/lib/booking";
 
 export const dynamic = "force-dynamic";
 
 async function findBooking(reference: string, token: string) {
-  const [row] = await getDb().select().from(bookingRequests).where(and(eq(bookingRequests.reference, reference), eq(bookingRequests.statusToken, token))).limit(1);
+  if (!token) return undefined;
+  const tokenHash = await hashBookingToken(token);
+  const [row] = await getDb().select().from(bookingRequests).where(and(eq(bookingRequests.reference, reference), or(eq(bookingRequests.statusToken, tokenHash), eq(bookingRequests.statusToken, token)))).limit(1);
   return row;
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ reference: string }> }) {
   const { reference } = await params;
   const token = new URL(request.url).searchParams.get("token") || "";
-  const rate = allowRequest(`booking-status:${requestFingerprint(request)}`, 30, 15 * 60 * 1000);
-  if (!rate.allowed) return Response.json({ error: "Too many requests." }, { status: 429 });
+  const rate = await allowRequest(`booking-status:${requestFingerprint(request)}`, 30, 15 * 60 * 1000);
+  if (!rate.allowed) return Response.json({ error: "Too many requests." }, { status: 429, headers: { "Retry-After": String(rate.retryAfter) } });
   const row = await findBooking(reference, token);
   if (!row || row.deletedAt) return Response.json({ error: "Not found" }, { status: 404 });
   const [occurrences, activity, evidence] = await Promise.all([
@@ -34,7 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ refe
       activity,
       evidence,
     },
-  }, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
+  }, { headers: { "Cache-Control": "private, no-store, max-age=0", "Referrer-Policy": "no-referrer", "X-Robots-Tag": "noindex, nofollow, noarchive" } });
 }
 
 const cancelSchema = z.object({ reason: z.string().trim().min(2).max(500) });
@@ -42,8 +45,8 @@ const cancelSchema = z.object({ reason: z.string().trim().min(2).max(500) });
 export async function POST(request: Request, { params }: { params: Promise<{ reference: string }> }) {
   const { reference } = await params;
   const token = new URL(request.url).searchParams.get("token") || "";
-  const rate = allowRequest(`booking-cancel:${requestFingerprint(request)}`, 6, 60 * 60 * 1000);
-  if (!rate.allowed) return Response.json({ error: "Too many requests." }, { status: 429 });
+  const rate = await allowRequest(`booking-cancel:${requestFingerprint(request)}`, 6, 60 * 60 * 1000);
+  if (!rate.allowed) return Response.json({ error: "Too many requests." }, { status: 429, headers: { "Retry-After": String(rate.retryAfter) } });
   const parsed = cancelSchema.safeParse(await request.json());
   if (!parsed.success) return Response.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
   const booking = await findBooking(reference, token);

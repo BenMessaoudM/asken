@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {estimateBooking,estimateOccurrence,overlaps,sharesResource,validateOccurrence} from "../lib/booking.ts";
+import {bookingRetentionDate,estimateBooking,estimateOccurrence,hashBookingToken,helsinkiLocalToIso,isoToHelsinkiLocalInput,maxAdvanceDate,overlaps,sharesResource,validateOccurrence} from "../lib/booking.ts";
 
 test("detects a partial overlap and permits touching endpoints",()=>{
   assert.equal(overlaps(new Date("2027-01-01T10:00:00Z"),new Date("2027-01-01T13:00:00Z"),new Date("2027-01-01T12:00:00Z"),new Date("2027-01-01T14:00:00Z")),true);
@@ -40,4 +40,24 @@ test("administrator pricing overrides are used by the estimator",()=>{
 test("administrator maximum duration is enforced",()=>{
   const custom={externalFirstHours:4,externalFirstHourlyCents:5000,externalAfterHourlyCents:3000,externalKitchenCents:5000,saunaPerDateCents:3000,associationWeekendCents:7500,associationPackage3Cents:21000,associationPackage5Cents:32500,associationPackage10Cents:60000,internalFreeBookings:1,maxBookingHours:8,maxAdvanceMonths:18,maxDatesPerRequest:10,hallCapacity:80,kitchenCapacity:8,saunaCapacity:20,cleaningFeeCents:15000};
   assert.match(validateOccurrence({startsAt:"2027-01-01T10:00:00Z",endsAt:"2027-01-01T19:00:00Z",resources:["hall"]},custom)||"",/8 hours/);
+});
+
+test("Helsinki wall-clock times survive UTC storage across seasons",()=>{
+  assert.equal(helsinkiLocalToIso("2026-09-11T16:00"),"2026-09-11T13:00:00.000Z");
+  assert.equal(helsinkiLocalToIso("2026-12-18T16:00"),"2026-12-18T14:00:00.000Z");
+  assert.equal(isoToHelsinkiLocalInput("2026-09-11T13:00:00.000Z"),"2026-09-11T16:00");
+});
+
+test("booking horizons and retention use calendar periods",()=>{
+  assert.equal(maxAdvanceDate(new Date("2026-08-31T10:00:00Z"),6).toISOString(),"2027-02-28T10:00:00.000Z");
+  assert.equal(bookingRetentionDate(new Date("2026-09-06T00:00:00Z"),"request"),"2027-09-06T00:00:00.000Z");
+  assert.equal(bookingRetentionDate(new Date("2026-09-06T00:00:00Z"),"operational"),"2028-09-06T00:00:00.000Z");
+  assert.equal(bookingRetentionDate(new Date("2026-09-06T00:00:00Z"),"accounting"),"2032-10-06T00:00:00.000Z");
+});
+
+test("private booking access tokens are stored as one-way hashes",async()=>{
+  const hash=await hashBookingToken("private-token");
+  assert.equal(hash.length,64);
+  assert.notEqual(hash,"private-token");
+  assert.equal(hash,await hashBookingToken("private-token"));
 });

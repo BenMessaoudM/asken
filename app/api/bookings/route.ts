@@ -2,8 +2,9 @@ import { and, eq, gt, gte, isNull, lt, ne } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db";
 import { bookingActivity, bookingBlocks, bookingOccurrences, bookingRequests, notificationOutbox } from "@/db/schema";
-import { COR_RESOURCES, academicYearStart, bookingRetentionDate, estimateBooking, sharesResource, validateOccurrence } from "@/lib/booking";
+import { COR_RESOURCES, academicYearStart, bookingRetentionDate, estimateBooking, hashBookingToken, helsinkiLocalToIso, maxAdvanceDate, sharesResource, validateOccurrence } from "@/lib/booking";
 import { getBookingPolicy } from "@/lib/booking-policy";
+import { getCorCalendarEvents } from "@/lib/cor-calendar-store";
 import { allowRequest, requestFingerprint } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,7 @@ function safeResources(value: string) {
 }
 
 export async function POST(request: Request) {
-  const rate = allowRequest(`booking:${requestFingerprint(request)}`, 6, 15 * 60 * 1000);
+  const rate = await allowRequest(`booking:${requestFingerprint(request)}`, 6, 15 * 60 * 1000);
   if (!rate.allowed) {
     return Response.json({ error: "Too many requests. Please try again later." }, { status: 429, headers: { "retry-after": String(rate.retryAfter) } });
   }
@@ -62,18 +63,15 @@ export async function POST(request: Request) {
     if (!rawOccurrences.length) return Response.json({ error: "Add at least one booking date." }, { status: 400 });
     if (rawOccurrences.length > policy.maxDatesPerRequest) return Response.json({ error: `Add no more than ${policy.maxDatesPerRequest} booking dates.` }, { status: 400 });
 
-    const occurrences = rawOccurrences.map((item) => ({
-      ...item,
-      startsAt: new Date(item.startsAt).toISOString(),
-      endsAt: new Date(item.endsAt).toISOString(),
-      resources: [...new Set(item.resources)],
-    }));
+    const normalizedOccurrences = rawOccurrences.map((item) => ({ ...item, startsAt:helsinkiLocalToIso(item.startsAt), endsAt:helsinkiLocalToIso(item.endsAt) }));
+    if (normalizedOccurrences.some((item) => !item.startsAt || !item.endsAt)) return Response.json({ error:"Choose valid Helsinki start and end times." }, { status:400 });
+    const occurrences = normalizedOccurrences.map((item) => ({ ...item, startsAt:item.startsAt!, endsAt:item.endsAt!, resources:[...new Set(item.resources)] }));
     for (const occurrence of occurrences) {
       const validationError = validateOccurrence(occurrence, policy);
       if (validationError) return Response.json({ error: validationError }, { status: 400 });
       const start = new Date(occurrence.startsAt);
       if (start.getTime() < Date.now() - 5 * 60 * 1000) return Response.json({ error: "Booking dates must be in the future." }, { status: 400 });
-      if (start.getTime() > Date.now() + policy.maxAdvanceMonths * 31 * 24 * 60 * 60 * 1000) return Response.json({ error: `Bookings can be requested at most ${policy.maxAdvanceMonths} months ahead.` }, { status: 400 });
+      if (start > maxAdvanceDate(new Date(), policy.maxAdvanceMonths)) return Response.json({ error: `Bookings can be requested at most ${policy.maxAdvanceMonths} months ahead.` }, { status: 400 });
     }
     if (payload.bookerType === "arcada_association" && payload.packageSize && occurrences.length !== payload.packageSize) {
       return Response.json({ error: `The selected package requires exactly ${payload.packageSize} booking dates.` }, { status: 400 });
@@ -81,12 +79,15 @@ export async function POST(request: Request) {
 
     const db = getDb();
     for (const occurrence of occurrences) {
-      const [reserved, legacy, blocked] = await Promise.all([
+      const [reserved, legacy, blocked, calendar] = await Promise.all([
         db.select({ resources: bookingOccurrences.resources }).from(bookingOccurrences).where(and(eq(bookingOccurrences.status, "active"), lt(bookingOccurrences.startsAt, occurrence.endsAt), gt(bookingOccurrences.endsAt, occurrence.startsAt))).limit(100),
         db.select({ resources: bookingRequests.resources }).from(bookingRequests).where(and(ne(bookingRequests.status, "cancelled"), isNull(bookingRequests.deletedAt), lt(bookingRequests.startsAt, occurrence.endsAt), gt(bookingRequests.endsAt, occurrence.startsAt))).limit(100),
         db.select({ resources: bookingBlocks.resources }).from(bookingBlocks).where(and(eq(bookingBlocks.active, true), lt(bookingBlocks.startsAt, occurrence.endsAt), gt(bookingBlocks.endsAt, occurrence.startsAt))).limit(100),
+        getCorCalendarEvents(occurrence.startsAt, occurrence.endsAt),
       ]);
-      if ([...reserved, ...legacy, ...blocked].some((row) => sharesResource(safeResources(row.resources), occurrence.resources))) {
+      const hasDatabaseConflict = [...reserved, ...legacy, ...blocked].some((row) => sharesResource(safeResources(row.resources), occurrence.resources));
+      const hasCalendarConflict = calendar.some((row) => sharesResource(row.resources, occurrence.resources));
+      if (hasDatabaseConflict || hasCalendarConflict) {
         return Response.json({ error: "One or more selected spaces are unavailable during this time." }, { status: 409 });
       }
     }
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
     const now = new Date().toISOString();
 
     await db.insert(bookingRequests).values({
-      id, reference, statusToken: token, bookerType: payload.bookerType, organizationName: payload.organizationName,
+      id, reference, statusToken: await hashBookingToken(token), bookerType: payload.bookerType, organizationName: payload.organizationName,
       contactName: payload.contactName, contactEmail: payload.contactEmail, contactPhone: payload.contactPhone,
       billingName: payload.billingName, billingStreet: payload.billingStreet, billingPostalCode: payload.billingPostalCode,
       billingCity: payload.billingCity, billingCountry: payload.billingCountry, startsAt: first.startsAt, endsAt: first.endsAt,
@@ -116,7 +117,7 @@ export async function POST(request: Request) {
       packageSize: payload.packageSize || null, invoiceStatus: price === 0 ? "not_required" : "draft",
       contractStatus: payload.bookerType === "arcada_association" ? "not_required" : "draft",
       internalNotes: payload.bookerType === "internal_ask" ? (internalBenefitApplied ? "Annual internal free booking applied." : "Annual free booking already used; member pricing estimate applied.") : "",
-      privacyAcceptedAt: now, privacyNoticeVersion: "2026-09-05", retentionUntil: bookingRetentionDate(new Date(now)),
+      privacyAcceptedAt: now, privacyNoticeVersion: "2026-09-06", retentionUntil: bookingRetentionDate(new Date(now)),
     });
     for (const occurrence of occurrences) {
       await db.insert(bookingOccurrences).values({ id: crypto.randomUUID(), bookingId: id, startsAt: occurrence.startsAt, endsAt: occurrence.endsAt, resources: JSON.stringify(occurrence.resources) });
